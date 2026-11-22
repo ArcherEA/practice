@@ -1,6 +1,6 @@
 # 001 — Vercel deployment
 
-**Status:** implemented, pending first deploy · **Agent:** backend-engineer · **Branch:** `feat/001-vercel-deploy`
+**Status:** done — deployed 2026-11-22 · **Agent:** backend-engineer · **Branch:** `feat/001-vercel-deploy`
 
 ## Goal
 The same commit that runs on the own server also deploys to Vercel: frontend + API on one Vercel project, database on Neon.
