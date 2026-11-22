@@ -1,0 +1,7 @@
+node_modules
+.venv
+.env
+backend/htmlcov
+frontend/playwright-report
+frontend/test-results
+frontend/blob-report

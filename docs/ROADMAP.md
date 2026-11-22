@@ -5,7 +5,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
 - [ ] **Phase 0 — Foundation**
   - [x] Import template, init git, project rules and docs
   - [ ] Run locally (Docker Compose), first commit, GitHub repo
-  - [ ] 001 Vercel deployment
+  - [ ] 001 Vercel deployment — implemented on `feat/001-vercel-deploy`, pending deploy (see `docs/deploy-vercel.md`)
   - [ ] 002 Own-server deployment (template's Traefik setup + domain)
 - [ ] **Phase 1 — Core gaps:** module system + feature flags, file uploads (S3/R2/MinIO), roles beyond admin/user
 - [ ] **Phase 2 — Content:** models + API, Tiptap editor, public pages + SEO

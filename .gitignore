@@ -12,3 +12,6 @@ backend/app/frontend/
 
 # Machine-specific dev server config (Claude desktop preview)
 .claude/launch.json
+
+# Vercel
+.vercel

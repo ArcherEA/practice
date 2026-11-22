@@ -33,4 +33,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.frontend("/", directory=FRONTEND_DIR)
+# Serve the built SPA only when a build exists. On Vercel the CDN serves the
+# static files and in development Vite serves them, so a missing folder is fine.
+if FRONTEND_DIR.is_dir():
+    app.frontend("/", directory=FRONTEND_DIR)

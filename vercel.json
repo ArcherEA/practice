@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm install -g bun && bun install --frozen-lockfile && bun run --filter frontend build",
+  "functions": {
+    "index.py": {
+      "maxDuration": 60
+    }
+  }
+}

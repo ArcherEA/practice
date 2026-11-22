@@ -5,6 +5,14 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-22 — FIXED (task 001): uvicorn crash / 500 on `/` when `backend/app/frontend` is missing
+- **Symptom:** plain `uvicorn app.main:app` crashed at import with `Frontend directory ... does not exist`;
+  under `fastapi dev`, `GET /` returned 500.
+- **Cause:** `app.frontend("/", directory=FRONTEND_DIR)` ran unconditionally, but the folder only exists after a frontend build.
+- **Fix:** `backend/app/main.py` now mounts the frontend only if the directory exists. Without a build, the API works and `/` is a plain 404.
+  Docker still builds the frontend into that folder, so it is mounted there as before. Test: `backend/tests/test_main_without_frontend.py`.
+- **Prevention:** keep static-mount code tolerant of build artifacts that do not exist in dev or on Vercel.
+
 ## 2026-11-22 — CI did not run after first push to GitHub
 - **Symptom:** after `git push -u origin main`, `gh run list` showed no workflow runs.
 - **Cause:** the template's workflows (`test-backend.yml`, `test-docker-compose.yml`, `playwright.yml`, `zizmor.yml`)
