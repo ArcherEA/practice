@@ -3,7 +3,7 @@ name: Playwright Tests
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
   workflow_dispatch:
     inputs:
@@ -27,6 +27,8 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: false
+    - name: Create .env from example (real .env is not committed)
+      run: cp .env.example .env
     # For pull requests it's not necessary to checkout the code but for the main branch it is
     - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
       id: filter
@@ -54,6 +56,8 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
+    - name: Create .env from example (real .env is not committed)
+      run: cp .env.example .env
     - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       with:
         bun-version: 1.3.12
@@ -101,6 +105,8 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
+    - name: Create .env from example (real .env is not committed)
+      run: cp .env.example .env
     - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       with:
         bun-version: 1.3.12
