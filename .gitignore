@@ -9,3 +9,6 @@ backend/app/frontend/
 
 # Local secrets
 .env
+
+# Machine-specific dev server config (Claude desktop preview)
+.claude/launch.json
