@@ -13,4 +13,7 @@ Add an entry before adopting any new dependency. Format: what, license, why, rej
 | D7 | boto3 + R2 / MinIO for files | Apache-2.0 / AGPL server (self-host use only) | One S3 API on both targets; keeps backend stateless for Vercel | Local disk (breaks Vercel) |
 | D8 | Authlib for OAuth (later) | BSD | Standard OAuth client, plugs into existing JWT auth | fastapi-users (would replace template auth) |
 | D9 | slowapi for rate limits | MIT | Cap AI calls per user to control cost | Custom middleware |
+| D11 | Presigned direct-to-bucket uploads | — | Vercel functions reject bodies over ~4.5 MB; presigned URLs keep large files off our server on both targets | Uploading through the API |
+| D12 | Simple role field (member/editor/moderator/admin) + superuser flag | — | Covers Content/Community needs with one column and one dependency; no permission tables until a module needs them | Full RBAC tables (premature) |
+| D13 | Feature flags via `MODULES` env var | — | Per-deployment on/off with zero infrastructure; tables always migrated so enabling needs no migration | Runtime flag service / DB-stored flags (later, for per-org SaaS) |
 | D10 | SQLAdmin for internal CRUD (optional) | BSD | Auto admin pages from models | Hand-built admin screens |
