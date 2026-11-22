@@ -1,6 +1,6 @@
 # 001 — Vercel deployment
 
-**Status:** draft (needs user approval) · **Agent:** backend-engineer · **Branch:** `feat/001-vercel-deploy`
+**Status:** implemented, pending first deploy · **Agent:** backend-engineer · **Branch:** `feat/001-vercel-deploy`
 
 ## Goal
 The same commit that runs on the own server also deploys to Vercel: frontend + API on one Vercel project, database on Neon.
@@ -10,7 +10,7 @@ The same commit that runs on the own server also deploys to Vercel: frontend + A
 - Frontend: build with Bun/Vite and serve as Vercel static output; route `/api/*` to the Python function, everything else to the SPA (`index.html` fallback).
 - Make `backend/app/main.py`'s `app.frontend(...)` mount tolerant of a missing `backend/app/frontend/` directory (on Vercel, static files are served by Vercel, not FastAPI).
 - Database: document using Neon's **pooled** `DATABASE_URL`; migrations + first superuser run from a GitHub Action (or locally) — not inside the function.
-- Document required env vars for Vercel in `docs/deploy-vercel.md` (`SECRET_KEY`, `FIRST_SUPERUSER*`, `DATABASE_URL`, `FRONTEND_HOST`, SMTP vars, `FASTAPI_ENV=production`).
+- Document required env vars for Vercel in `docs/deploy-vercel.md` (`SECRET_KEY`, `FIRST_SUPERUSER*`, `DATABASE_URL`, `FRONTEND_HOST`, SMTP vars; leave `FASTAPI_ENV` unset — config only accepts `development`).
 
 ## Out of scope
 File storage, AI, custom domain, own-server deploy (task 002).
