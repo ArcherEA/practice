@@ -5,6 +5,19 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-22 — Neon migrations silently ran against the LOCAL database
+- **Symptom:** `prestart.sh` printed "Initial data created" but Neon had no tables (`relation "alembic_version" does not exist`).
+  No "Running upgrade" lines appeared — a hint that the target DB was already up to date.
+- **Cause:** the env vars meant to point at Neon were loaded with `. <(grep ... .env.neon)`, which silently loaded nothing
+  in this shell. `DATABASE_URL` ended up empty, so settings fell back to the local `.env` (Docker Postgres).
+- **Fix:** set each variable explicitly, print the target host first
+  (`uv run python -c "from app.core.config import settings; print(settings.DATABASE_URL.hosts()[0]['host'])"`),
+  then run `uv run alembic upgrade head` and `uv run python app/initial_data.py`.
+- **Prevention:** before any migration against a remote DB, always print the target host and check it.
+  Neon production values live in the gitignored `.env.neon`.
+- **Also:** the Neon "set up this app" prompt (`neon init` / `neon deploy`) was not used as-is: `neon deploy` writes Neon
+  vars into `.env`, which would point local dev at production. We used the CLI only for login + `neon connection-string`.
+
 ## 2026-11-22 — FIXED (task 001): uvicorn crash / 500 on `/` when `backend/app/frontend` is missing
 - **Symptom:** plain `uvicorn app.main:app` crashed at import with `Frontend directory ... does not exist`;
   under `fastapi dev`, `GET /` returned 500.
