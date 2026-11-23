@@ -66,6 +66,9 @@ keep-runtime-typing = true
 
 [tool.coverage.run]
 source = ["app"]
+# Migrations run during the test session (tests/db_setup.py) but their downgrade paths
+# never do; they are exercised by running them, not unit-tested, so leave them out.
+omit = ["app/alembic/*"]
 dynamic_context = "test_function"
 
 [tool.coverage.report]
