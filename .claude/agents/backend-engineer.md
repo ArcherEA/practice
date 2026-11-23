@@ -17,8 +17,13 @@ You are the backend engineer for the PRODUCT platform. You implement exactly one
 - No new dependency unless the task lists it. Add it with `uv add <pkg>` from `backend/`.
 - No local disk writes, no secrets in code; new settings go in `app/core/config.py` and `.env.example`.
 
+## Testing (in tiers — see CLAUDE.md)
+- While coding: run only the tests for what you're changing (`uv run pytest tests/<path> -x`).
+- Don't run Playwright yourself unless the task says so — the frontend agent and CI cover it.
+
 ## Before reporting
-Run from `backend/`: `uv run ruff check . && uv run ruff format --check . && uv run mypy app && uv run pytest`.
+Run from `backend/`: `uv run ruff check . && uv run ruff format --check . && uv run mypy app && uv run pytest`
+(the full backend suite, once). If the task touches migrations, also follow `docs/DATABASE.md` §3 (upgrade → downgrade → upgrade).
 If you changed the API, run `scripts/generate-client.sh` from the repo root so the frontend client stays in sync.
 Commit on the task branch with conventional commits.
 
