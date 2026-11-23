@@ -6,9 +6,15 @@ from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app import crud
-from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
+from app.api.deps import (
+    CurrentUser,
+    SessionDep,
+    StorageDep,
+    get_current_active_superuser,
+)
 from app.core import security
 from app.core.config import settings
+from app.core.files import to_user_public
 from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
 from app.utils import (
     generate_password_reset_token,
@@ -43,11 +49,13 @@ def login_access_token(
 
 
 @router.post("/login/test-token", response_model=UserPublic)
-def test_token(current_user: CurrentUser) -> Any:
+def test_token(
+    session: SessionDep, storage: StorageDep, current_user: CurrentUser
+) -> Any:
     """
     Test access token
     """
-    return current_user
+    return to_user_public(session=session, storage=storage, user=current_user)
 
 
 @router.post("/password-recovery/{email}")

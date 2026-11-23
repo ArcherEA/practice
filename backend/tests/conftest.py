@@ -17,7 +17,9 @@ configure_test_database_url()
 
 from app.core.config import settings  # noqa: E402
 from app.core.db import engine, init_db  # noqa: E402
+from app.core.storage import get_storage  # noqa: E402
 from app.main import app  # noqa: E402
+from tests.utils.storage import FakeStorage  # noqa: E402
 from tests.utils.user import authentication_token_from_email  # noqa: E402
 from tests.utils.utils import get_superuser_token_headers  # noqa: E402
 
@@ -35,6 +37,15 @@ def db() -> Generator[Session]:
             if table.name != "alembic_version":
                 session.execute(table.delete())
         session.commit()
+
+
+@pytest.fixture
+def fake_storage() -> Generator[FakeStorage]:
+    """Replaces real S3 storage for the test; the override is removed afterwards."""
+    storage = FakeStorage()
+    app.dependency_overrides[get_storage] = lambda: storage
+    yield storage
+    app.dependency_overrides.pop(get_storage, None)
 
 
 @pytest.fixture(scope="module")

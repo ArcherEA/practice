@@ -12,6 +12,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.core.roles import UserRole, has_role
+from app.core.storage import Storage, get_storage
 from app.models import TokenPayload, User
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -25,6 +26,7 @@ def get_db() -> Generator[Session]:
 
 
 SessionDep = Annotated[Session, Depends(get_db)]
+StorageDep = Annotated[Storage, Depends(get_storage)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 
