@@ -106,9 +106,12 @@ class S3Storage:
     @cached_property
     def _signer(self) -> S3Client:
         """Only used to presign: the URL embeds the hostname the browser will use."""
-        endpoint = self._config.S3_PUBLIC_ENDPOINT_URL or self._config.S3_ENDPOINT_URL
-        if not endpoint:
+        # S3_ENDPOINT_URL is what makes storage "configured"; the public endpoint only
+        # overrides the hostname in signed URLs. Without it we'd hand out links the
+        # backend itself can never verify (confirm/HEAD would fail).
+        if not self._config.S3_ENDPOINT_URL:
             raise StorageNotConfiguredError("File storage is not configured")
+        endpoint = self._config.S3_PUBLIC_ENDPOINT_URL or self._config.S3_ENDPOINT_URL
         return self._make_client(endpoint)
 
     @property
