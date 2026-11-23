@@ -62,7 +62,7 @@ No `FASTAPI_ENV` on Vercel: the settings only accept the value `development` (or
 | `FRONTEND_HOST` | Your production URL, e.g. `https://<project>.vercel.app` (only used for CORS; same-origin works anyway) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_TLS`, `EMAILS_FROM_EMAIL`, `EMAILS_FROM_NAME` | Your SMTP provider. Optional: without `SMTP_HOST` + `EMAILS_FROM_EMAIL` email features (password reset) are disabled. |
 | `SENTRY_DSN` | Optional |
-| `MODULES` | Optional. Comma-separated optional modules, e.g. `items,content`. **Add `content` to enable the blog/pages module** (its tables are migrated either way; apply the migration to Neon first, see `docs/DATABASE.md`). Unset = `items` (the demo module). `none` = Core only (an empty value is ignored). Unknown names fail at startup. |
+| `MODULES` | Optional. Comma-separated optional modules, e.g. `items,content`. **Add `content` to enable the blog/pages module** (its tables are migrated either way; apply the migration to Neon first, see `docs/DATABASE.md`). **Add `community` to enable comments, likes and moderation (it needs `content` too, e.g. `items,content,community`; the app refuses to start otherwise).** Apply its migration to Neon before the deploy. Unset = `items` (the demo module). `none` = Core only (an empty value is ignored). Unknown names fail at startup. |
 | `SITE_URL` | Public base URL, no trailing slash, e.g. `https://<project>.vercel.app` or your custom domain. Used for canonical links, Open Graph URLs, `sitemap.xml` and `robots.txt` (content module). Preview deployments can use the same production value (their canonical then points to production, which is what you want). |
 | `VITE_API_URL` | **Do not set** (empty = same domain) |
 | `FASTAPI_ENV` | **Do not set** (only `development` is valid; unset = production) |
@@ -150,6 +150,8 @@ Cloudflare has **no hard spending cap** for R2 (only email alerts), so the app l
 | `STORAGE_USER_QUOTA_BYTES` | 100 MiB (104857600) | one account cannot fill the bucket. Superusers are exempt | 413 "Your storage quota is full" |
 | `UPLOADS_PER_USER_PER_DAY` | 50 | caps Class A operations per account (rows created in the last 24 h). Superusers are exempt | 429 |
 | `UPLOAD_MAX_BYTES` | 10 MiB (10485760) | size of one file; checked when declared, enforced by the bucket (signed `Content-Length`) and re-checked at confirm | 413 / 400 |
+| `COMMENTS_PER_USER_PER_HOUR` | 30 | comments and replies a member can post per hour (community module). Superusers are exempt | 429 |
+| `REPORTS_PER_USER_PER_DAY` | 20 | reports a member can file per 24 hours (community module). Superusers are exempt | 429 |
 
    Check usage any time as an admin: `GET /api/v1/files/usage` (total bytes vs limit, file count, top users).
 4. **Housekeeping:** abandoned (never confirmed) uploads are removed by `uv run python -m app.scripts.cleanup_files`
