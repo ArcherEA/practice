@@ -44,8 +44,18 @@ def _check_can_create(actor: User, user_in: UserCreate) -> None:
 
 def _check_can_update(actor: User, target: User, user_in: UserUpdate) -> None:
     changes_role = user_in.role is not None and user_in.role != target.role
-    if changes_role and target.id == actor.id:
+    is_self = target.id == actor.id
+    if changes_role and is_self:
         raise _forbidden("Users cannot change their own role")
+    # Guard against locking yourself (possibly the last superuser) out.
+    if (
+        is_self
+        and user_in.is_superuser is not None
+        and user_in.is_superuser != target.is_superuser
+    ):
+        raise _forbidden("Users cannot change their own superuser flag")
+    if is_self and user_in.is_active is False and target.is_active:
+        raise _forbidden("Users cannot deactivate themselves")
     if actor.is_superuser:
         return
     if target.is_superuser:

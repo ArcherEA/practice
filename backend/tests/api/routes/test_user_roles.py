@@ -255,6 +255,29 @@ def test_superuser_cannot_change_own_role(
     assert r.status_code == 403
 
 
+def test_superuser_cannot_remove_own_superuser_flag_or_deactivate_self(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    me = client.get(f"{USERS}/me", headers=superuser_token_headers).json()
+    url = f"{USERS}/{me['id']}"
+    r = client.patch(url, headers=superuser_token_headers, json={"is_superuser": False})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Users cannot change their own superuser flag"
+    r = client.patch(url, headers=superuser_token_headers, json={"is_active": False})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Users cannot deactivate themselves"
+    # Unchanged values and other fields are still fine.
+    r = client.patch(
+        url,
+        headers=superuser_token_headers,
+        json={"is_superuser": True, "is_active": True, "full_name": "Owner"},
+    )
+    assert r.status_code == 200
+    me_after = client.get(f"{USERS}/me", headers=superuser_token_headers).json()
+    assert me_after["is_superuser"] is True
+    assert me_after["is_active"] is True
+
+
 def test_invalid_role_rejected(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:

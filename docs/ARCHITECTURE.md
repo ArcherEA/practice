@@ -56,7 +56,8 @@ It returns 403 "The user doesn't have enough privileges". `get_current_active_su
 User management (`/users` list/create/read/update/delete) needs `admin` or superuser. Only superusers can grant or revoke
 `admin`, create admins, set `is_superuser`, or modify/delete admins and superusers (admins manage everyone except
 admins and superusers; an admin edits their own record via `/users/me`). Nobody can change their own role (`/users/me`
-does not accept `role`; the admin endpoint returns 403). Signup always creates a `member`; `FIRST_SUPERUSER` is created as `admin`.
+does not accept `role`; the admin endpoint returns 403), remove their own superuser flag, or deactivate themselves —
+this prevents locking out the last superuser. Signup always creates a `member`; `FIRST_SUPERUSER` is created as `admin`.
 To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration needed).
 
 ## Deployment

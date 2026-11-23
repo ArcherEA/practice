@@ -101,8 +101,11 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
       delete submitData.password
     }
     // Nobody can change their own role; the backend rejects it, so don't send it.
+    // Same for your own superuser/active flags (prevents locking yourself out).
     if (isSelf) {
       delete submitData.role
+      delete submitData.is_superuser
+      delete submitData.is_active
     }
     // Only superusers may set the flag; omit it for everyone else.
     if (!isSuperuser) {
@@ -208,7 +211,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
                 hint={isSelf ? "You cannot change your own role." : undefined}
               />
 
-              {isSuperuser && (
+              {isSuperuser && !isSelf && (
                 <FormField
                   control={form.control}
                   name="is_superuser"
@@ -228,21 +231,23 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
                 />
               )}
 
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Is active?</FormLabel>
-                  </FormItem>
-                )}
-              />
+              {!isSelf && (
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">Is active?</FormLabel>
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
 
             <DialogFooter>
