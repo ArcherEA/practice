@@ -16,8 +16,15 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutContentRouteImport } from './routes/_layout/content'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutContentIndexRouteImport } from './routes/_layout/content.index'
+import { Route as LayoutContentTaxonomyRouteImport } from './routes/_layout/content.taxonomy'
+import { Route as LayoutContentPagesIndexRouteImport } from './routes/_layout/content.pages.index'
+import { Route as LayoutContentPagesIdRouteImport } from './routes/_layout/content.pages.$id'
+import { Route as LayoutContentPostsIndexRouteImport } from './routes/_layout/content.posts.index'
+import { Route as LayoutContentPostsIdRouteImport } from './routes/_layout/content.posts.$id'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -53,6 +60,11 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutContentRoute = LayoutContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
   id: '/items',
   path: '/items',
@@ -63,6 +75,36 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutContentIndexRoute = LayoutContentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentTaxonomyRoute = LayoutContentTaxonomyRouteImport.update({
+  id: '/taxonomy',
+  path: '/taxonomy',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPagesIndexRoute = LayoutContentPagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPagesIdRoute = LayoutContentPagesIdRouteImport.update({
+  id: '/pages/$id',
+  path: '/pages/$id',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPostsIndexRoute = LayoutContentPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPostsIdRoute = LayoutContentPostsIdRouteImport.update({
+  id: '/posts/$id',
+  path: '/posts/$id',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -71,8 +113,15 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/content': typeof LayoutContentRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
+  '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/content/': typeof LayoutContentIndexRoute
+  '/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/content/pages/': typeof LayoutContentPagesIndexRoute
+  '/content/posts/': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -83,6 +132,12 @@ export interface FileRoutesByTo {
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/content': typeof LayoutContentIndexRoute
+  '/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/content/pages': typeof LayoutContentPagesIndexRoute
+  '/content/posts': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -92,9 +147,16 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/content': typeof LayoutContentRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/_layout/content/': typeof LayoutContentIndexRoute
+  '/_layout/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/_layout/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/_layout/content/pages/': typeof LayoutContentPagesIndexRoute
+  '/_layout/content/posts/': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,8 +167,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/content'
     | '/items'
     | '/settings'
+    | '/content/taxonomy'
+    | '/content/'
+    | '/content/pages/$id'
+    | '/content/posts/$id'
+    | '/content/pages/'
+    | '/content/posts/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -117,6 +186,12 @@ export interface FileRouteTypes {
     | '/items'
     | '/settings'
     | '/'
+    | '/content/taxonomy'
+    | '/content'
+    | '/content/pages/$id'
+    | '/content/posts/$id'
+    | '/content/pages'
+    | '/content/posts'
   id:
     | '__root__'
     | '/_layout'
@@ -125,9 +200,16 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/content'
     | '/_layout/items'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/content/taxonomy'
+    | '/_layout/content/'
+    | '/_layout/content/pages/$id'
+    | '/_layout/content/posts/$id'
+    | '/_layout/content/pages/'
+    | '/_layout/content/posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -189,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/content': {
+      id: '/_layout/content'
+      path: '/content'
+      fullPath: '/content'
+      preLoaderRoute: typeof LayoutContentRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/items': {
       id: '/_layout/items'
       path: '/items'
@@ -203,11 +292,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/content/': {
+      id: '/_layout/content/'
+      path: '/'
+      fullPath: '/content/'
+      preLoaderRoute: typeof LayoutContentIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/taxonomy': {
+      id: '/_layout/content/taxonomy'
+      path: '/taxonomy'
+      fullPath: '/content/taxonomy'
+      preLoaderRoute: typeof LayoutContentTaxonomyRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/pages/': {
+      id: '/_layout/content/pages/'
+      path: '/pages'
+      fullPath: '/content/pages/'
+      preLoaderRoute: typeof LayoutContentPagesIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/pages/$id': {
+      id: '/_layout/content/pages/$id'
+      path: '/pages/$id'
+      fullPath: '/content/pages/$id'
+      preLoaderRoute: typeof LayoutContentPagesIdRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/posts/': {
+      id: '/_layout/content/posts/'
+      path: '/posts'
+      fullPath: '/content/posts/'
+      preLoaderRoute: typeof LayoutContentPostsIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/posts/$id': {
+      id: '/_layout/content/posts/$id'
+      path: '/posts/$id'
+      fullPath: '/content/posts/$id'
+      preLoaderRoute: typeof LayoutContentPostsIdRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
   }
 }
 
+interface LayoutContentRouteChildren {
+  LayoutContentTaxonomyRoute: typeof LayoutContentTaxonomyRoute
+  LayoutContentIndexRoute: typeof LayoutContentIndexRoute
+  LayoutContentPagesIdRoute: typeof LayoutContentPagesIdRoute
+  LayoutContentPostsIdRoute: typeof LayoutContentPostsIdRoute
+  LayoutContentPagesIndexRoute: typeof LayoutContentPagesIndexRoute
+  LayoutContentPostsIndexRoute: typeof LayoutContentPostsIndexRoute
+}
+
+const LayoutContentRouteChildren: LayoutContentRouteChildren = {
+  LayoutContentTaxonomyRoute: LayoutContentTaxonomyRoute,
+  LayoutContentIndexRoute: LayoutContentIndexRoute,
+  LayoutContentPagesIdRoute: LayoutContentPagesIdRoute,
+  LayoutContentPostsIdRoute: LayoutContentPostsIdRoute,
+  LayoutContentPagesIndexRoute: LayoutContentPagesIndexRoute,
+  LayoutContentPostsIndexRoute: LayoutContentPostsIndexRoute,
+}
+
+const LayoutContentRouteWithChildren = LayoutContentRoute._addFileChildren(
+  LayoutContentRouteChildren,
+)
+
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutContentRoute: typeof LayoutContentRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
@@ -215,6 +369,7 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutContentRoute: LayoutContentRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,

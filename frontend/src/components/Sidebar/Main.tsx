@@ -36,7 +36,10 @@ export function Main({ items }: MainProps) {
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = currentPath === item.path
+            // Sections with sub-pages (e.g. /content/posts) stay highlighted.
+            const isActive =
+              currentPath === item.path ||
+              (item.path !== "/" && currentPath.startsWith(`${item.path}/`))
 
             return (
               <SidebarMenuItem key={item.title}>
