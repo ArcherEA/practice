@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useRouter } from "@tanstack/react-router"
 
 import {
   type Body_login_login_access_token as AccessToken,
@@ -15,6 +15,7 @@ import {
   canManageUsers,
   hasRole,
 } from "@/features/auth/permissions"
+import { safeRedirect } from "@/features/auth/redirect"
 import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 
@@ -24,6 +25,7 @@ const isLoggedIn = () => {
 
 const useAuth = () => {
   const navigate = useNavigate()
+  const router = useRouter()
   const queryClient = useQueryClient()
   const { showErrorToast } = useCustomToast()
 
@@ -55,7 +57,13 @@ const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: () => {
-      navigate({ to: "/" })
+      // `?redirect=` brings the visitor back to where they came from
+      // (only same-site paths are accepted).
+      const target = safeRedirect(
+        new URLSearchParams(window.location.search).get("redirect"),
+      )
+      if (target) router.history.push(target)
+      else navigate({ to: "/" })
     },
     onError: handleError.bind(showErrorToast),
   })

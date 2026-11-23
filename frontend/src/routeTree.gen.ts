@@ -19,6 +19,7 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutContentRouteImport } from './routes/_layout/content'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
+import { Route as LayoutModerationRouteImport } from './routes/_layout/moderation'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutContentIndexRouteImport } from './routes/_layout/content.index'
 import { Route as LayoutContentTaxonomyRouteImport } from './routes/_layout/content.taxonomy'
@@ -78,6 +79,11 @@ const LayoutContentRoute = LayoutContentRouteImport.update({
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutModerationRoute = LayoutModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof LayoutAdminRoute
   '/content': typeof LayoutContentRouteWithChildren
   '/items': typeof LayoutItemsRoute
+  '/moderation': typeof LayoutModerationRoute
   '/settings': typeof LayoutSettingsRoute
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
+  '/moderation': typeof LayoutModerationRoute
   '/settings': typeof LayoutSettingsRoute
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/content': typeof LayoutContentRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/moderation': typeof LayoutModerationRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/content/taxonomy': typeof LayoutContentTaxonomyRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/content'
     | '/items'
+    | '/moderation'
     | '/settings'
     | '/content/taxonomy'
     | '/blog/$slug'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/items'
+    | '/moderation'
     | '/settings'
     | '/content/taxonomy'
     | '/blog/$slug'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/_layout/admin'
     | '/_layout/content'
     | '/_layout/items'
+    | '/_layout/moderation'
     | '/_layout/settings'
     | '/_layout/'
     | '/_layout/content/taxonomy'
@@ -358,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof LayoutItemsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/moderation': {
+      id: '/_layout/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof LayoutModerationRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/settings': {
@@ -473,6 +492,7 @@ interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutContentRoute: typeof LayoutContentRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutModerationRoute: typeof LayoutModerationRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -481,6 +501,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutContentRoute: LayoutContentRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
+  LayoutModerationRoute: LayoutModerationRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }

@@ -34,6 +34,8 @@ type FormData = z.infer<typeof formSchema>
 
 export const Route = createFileRoute("/login")({
   component: Login,
+  // Where to go after logging in; validated again before it is used.
+  validateSearch: z.object({ redirect: z.string().optional() }),
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({

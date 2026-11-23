@@ -19,9 +19,17 @@ client.setConfig({
   auth: () => localStorage.getItem("access_token") || "",
 })
 
+// A 403 from the community module is a rule ("You are suspended from
+// commenting", moderators acting on an admin's content), not a dead session:
+// show it, don't log out. Other 403s (and every 401) still end the session.
+const isCommunityRule = (error: AxiosError) =>
+  error.response?.status === 403 &&
+  (error.config?.url ?? "").includes("/api/v1/community/")
+
 const isAuthError = (error: Error) =>
   error instanceof AxiosError &&
-  [401, 403].includes(error.response?.status ?? 0)
+  [401, 403].includes(error.response?.status ?? 0) &&
+  !isCommunityRule(error)
 
 const handleApiError = (error: Error) => {
   if (isAuthError(error)) {
