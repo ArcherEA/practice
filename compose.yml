@@ -112,6 +112,8 @@ services:
       EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@db:5432/app
       SENTRY_DSN: ${SENTRY_DSN:-}
+      # Optional modules (e.g. items,content). Empty -> the app default (items).
+      MODULES: ${MODULES:-}
       # Backend -> bucket uses the internal hostname; presigned URLs use the public
       # one, because the browser must be able to reach the host in the URL.
       S3_ENDPOINT_URL: http://storage:8333

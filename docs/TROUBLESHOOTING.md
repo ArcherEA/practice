@@ -5,6 +5,15 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-23 — FIXED: modules set in `.env` were ignored in Docker (CI Playwright failed for content)
+- **Symptom:** after merging task 010, the new content Playwright specs failed only in CI: editor screens never loaded
+  (timeouts) and `/content/posts` showed a 404 instead of redirecting.
+- **Cause:** `compose.yml` passes the backend an explicit list of settings, and `MODULES` was not in it — so every
+  Docker run (CI, own server) used the default `items` and the `content` module was off. Backend tests didn't notice
+  because they set modules directly; local dev reads `.env` directly.
+- **Fix:** `MODULES: ${MODULES:-}` added to the backend's environment in `compose.yml`.
+- **Prevention:** when adding a setting the app needs in Docker, add it to `compose.yml` too (and `.env.example`).
+
 ## 2026-11-23 — Two copies of the repo share the same Docker containers and database
 - **Symptom:** a second clone on the same machine "recreates" the first copy's containers instead of creating new ones.
 - **Cause:** Docker Compose names a project after its **folder** (`PRODUCT` → project `product`), so two folders with
