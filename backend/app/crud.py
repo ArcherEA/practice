@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from sqlalchemy.exc import IntegrityError
@@ -13,10 +14,12 @@ def get_user_by_username(*, session: Session, username: str) -> User | None:
     return session.exec(select(User).where(User.username == username.lower())).first()
 
 
-def generate_username(*, session: Session, full_name: str | None, email: str) -> str:
-    """A free username derived from the name or email (`name`, `name_2`, ...)."""
+def generate_username(
+    *, session: Session, full_name: str | None, user_id: uuid.UUID
+) -> str:
+    """A free username from the name, else `member_<id>` (`name`, `name_2`, ...)."""
     return pick_username(
-        base_username(full_name, email),
+        base_username(full_name, user_id),
         lambda name: get_user_by_username(session=session, username=name) is not None,
     )
 
@@ -31,12 +34,13 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
         session.refresh(db_obj)
         return db_obj
     # Two requests may pick the same free name at once: the loser retries.
+    user_id = uuid.uuid4()
     for _ in range(5):
         username = generate_username(
-            session=session, full_name=user_create.full_name, email=user_create.email
+            session=session, full_name=user_create.full_name, user_id=user_id
         )
         db_obj = User.model_validate(
-            user_create, update={**extra, "username": username}
+            user_create, update={**extra, "id": user_id, "username": username}
         )
         session.add(db_obj)
         try:

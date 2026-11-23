@@ -36,8 +36,9 @@ def _slugify(raw):
     return re.sub(r"_+", "_", re.sub(r"[^a-z0-9_]", "_", raw.lower())).strip("_")
 
 
-def _base(full_name, email):
-    base = _slugify(full_name or "") or _slugify(email.split("@", 1)[0]) or "user"
+def _base(full_name, user_id):
+    # Never from the email: usernames are public.
+    base = _slugify(full_name or "") or f"member_{str(user_id).replace('-', '')[:8]}"
     base = base[:USERNAME_MAX].rstrip("_")
     return base.ljust(USERNAME_MIN, "0")
 
@@ -52,11 +53,11 @@ def _candidates(base) -> Iterator[str]:
 
 
 def backfill_usernames(rows):
-    """`[(id, full_name, email)]` in creation order -> `{id: username}` (unique, valid)."""
+    """`[(id, full_name)]` in creation order -> `{id: username}` (unique, valid)."""
     taken = set()
     result = {}
-    for user_id, full_name, email in rows:
-        for name in _candidates(_base(full_name, email)):
+    for user_id, full_name in rows:
+        for name in _candidates(_base(full_name, user_id)):
             if name not in RESERVED and name not in taken:
                 break
         taken.add(name)
@@ -101,18 +102,17 @@ def upgrade():
     user = sa.table(
         'user',
         sa.column('id', sa.Uuid()),
-        sa.column('email', sa.String()),
         sa.column('full_name', sa.String()),
         sa.column('created_at', sa.DateTime()),
         sa.column('username', sa.String()),
     )
     connection = op.get_bind()
     rows = connection.execute(
-        sa.select(user.c.id, user.c.full_name, user.c.email).order_by(
+        sa.select(user.c.id, user.c.full_name).order_by(
             user.c.created_at.asc().nulls_last(), user.c.id
         )
     ).all()
-    names = backfill_usernames([(row.id, row.full_name, row.email) for row in rows])
+    names = backfill_usernames([(row.id, row.full_name) for row in rows])
     for user_id, name in names.items():
         connection.execute(
             user.update().where(user.c.id == user_id).values(username=name)

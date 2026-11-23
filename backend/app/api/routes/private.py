@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter
@@ -27,11 +28,13 @@ def create_user(user_in: PrivateUserCreate, session: SessionDep) -> Any:
     Create a new user.
     """
 
+    user_id = uuid.uuid4()
     user = User(
+        id=user_id,
         email=user_in.email,
         full_name=user_in.full_name,
         username=crud.generate_username(
-            session=session, full_name=user_in.full_name, email=user_in.email
+            session=session, full_name=user_in.full_name, user_id=user_id
         ),
         hashed_password=get_password_hash(user_in.password),
     )

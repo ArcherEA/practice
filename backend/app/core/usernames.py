@@ -6,6 +6,7 @@ The Alembic migration that added usernames carries its own copy of `slugify` /
 """
 
 import re
+import uuid
 from collections.abc import Callable, Iterator
 
 TakenCheck = Callable[[str], bool]
@@ -61,9 +62,12 @@ def slugify(raw: str) -> str:
     return re.sub(r"_+", "_", re.sub(r"[^a-z0-9_]", "_", raw.lower())).strip("_")
 
 
-def base_username(full_name: str | None, email: str) -> str:
-    """A base of 3-30 characters from the full name, else the email local part."""
-    base = slugify(full_name or "") or slugify(email.split("@", 1)[0]) or "user"
+def base_username(full_name: str | None, user_id: uuid.UUID | str) -> str:
+    """A base of 3-30 characters from the full name, else `member_<8 id chars>`.
+
+    Never derived from the email: usernames are public (profiles, comments)."""
+    fallback = f"member_{str(user_id).replace('-', '')[:8]}"
+    base = slugify(full_name or "") or fallback
     base = base[:USERNAME_MAX].rstrip("_")
     return base.ljust(USERNAME_MIN, "0")
 
@@ -86,12 +90,12 @@ def pick_username(base: str, is_taken: TakenCheck) -> str:
     raise AssertionError("unreachable")  # pragma: no cover - candidates never ends
 
 
-def backfill_usernames(rows: list[tuple[str, str | None, str]]) -> dict[str, str]:
-    """Usernames for existing users: `(id, full_name, email)` in order -> `{id: name}`."""
+def backfill_usernames(rows: list[tuple[str, str | None]]) -> dict[str, str]:
+    """Usernames for existing users: `(id, full_name)` in order -> `{id: name}`."""
     taken: set[str] = set()
     result: dict[str, str] = {}
-    for user_id, full_name, email in rows:
-        name = pick_username(base_username(full_name, email), taken.__contains__)
+    for user_id, full_name in rows:
+        name = pick_username(base_username(full_name, user_id), taken.__contains__)
         taken.add(name)
         result[user_id] = name
     return result

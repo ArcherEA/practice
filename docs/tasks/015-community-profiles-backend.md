@@ -6,7 +6,7 @@
 ## Scope
 - **Usernames** (needed for `/u/<username>`): `User.username` — unique, 3–30 chars `[a-z0-9_]`, case-insensitive
   unique, reserved words blocked (admin, api, blog, content, settings, login, …). Migration backfills existing users
-  from their email/full name (+ number on clashes). Chosen at signup (optional → generated) and changeable in Settings
+  from their full name, else `member_<id>` — never from the email, since usernames are public (+ number on clashes). Chosen at signup (optional → generated) and changeable in Settings
   (at most once per 30 days).
 - **Profile fields:** `bio` (≤ 500 chars, plain text). Public profile endpoint by username: display name, username,
   avatar URL, bio, joined date, counts (comments, followers, following), recent visible comments (with the post they

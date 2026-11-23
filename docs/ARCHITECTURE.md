@@ -223,7 +223,8 @@ tables `user_follow` and `notification` (community) plus `user.username`, `user.
 with at least one letter or digit; input is lowercased and trimmed. Reserved (422): admin, administrator, api, blog, content,
 community, settings, login, signup, logout, p, u, moderation, notifications, root, support, help, me, null, undefined.
 When none is given (signup, admin create, `crud.create_user`, `init_db`, `/private/users`) one is generated from the full
-name, else the email local part: lowercase, other characters become `_`, collapsed and trimmed, padded with `0` to 3
+name, else `member_<first 8 hex of the user id>` — **never from the email**, because usernames are public (profiles,
+comment authors). Name rules: lowercase, other characters become `_`, collapsed and trimmed, padded with `0` to 3
 characters, cut to 30; clashes and reserved names get `_2`, `_3`, ... The migration backfills existing users with the same
 rules (oldest first). A member changes it with `PATCH /users/me` at most once per 30 days (400 with the date it works
 again; the first change is always allowed; a refused change does not use up the period); admin edits

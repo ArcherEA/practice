@@ -31,12 +31,18 @@ def test_signup_without_username_generates_one(client: TestClient) -> None:
     assert str(other["username"]).startswith("grace_hopper_")
 
 
-def test_signup_generates_from_the_email_without_a_name(client: TestClient) -> None:
-    email = f"{random_lower_string()[:8]}.x@example.com"
+def test_signup_without_a_name_never_derives_the_username_from_the_email(
+    client: TestClient,
+) -> None:
+    local = random_lower_string()[:10]
     response = client.post(
-        f"{USERS}/signup", json={"email": email, "password": random_lower_string()}
+        f"{USERS}/signup",
+        json={"email": f"{local}@example.com", "password": random_lower_string()},
     )
-    assert response.json()["username"].endswith("_x")
+    data = response.json()
+    # usernames are public, so no part of the email may leak into them
+    assert data["username"] == f"member_{data['id'].replace('-', '')[:8]}"
+    assert local not in data["username"]
 
 
 def test_signup_with_username_normalizes_to_lowercase(client: TestClient) -> None:
@@ -111,11 +117,11 @@ def test_crud_generates_a_username_on_clash_and_for_reserved(db: Session) -> Non
         session=db, user_create=UserCreate(email=random_email(), password="x" * 8)
     )
     assert first.username
-    # `admin@...` would be the reserved name `admin`
+    # the full name "Admin" would be the reserved name `admin`
     reserved = crud.create_user(
         session=db,
         user_create=UserCreate(
-            email=f"admin@{random_lower_string()}.com", password="x" * 8
+            email=random_email(), password="x" * 8, full_name="Admin"
         ),
     )
     assert reserved.username.startswith("admin_")
