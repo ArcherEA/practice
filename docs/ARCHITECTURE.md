@@ -156,6 +156,63 @@ and Twitter card tags; every value goes through `html.escape`. Unknown or draft 
 - Local dev: Vite on :5173 does not run this. Test with `bun run build` then `fastapi dev` (backend on :8000 serves the
   build), or `docker compose watch`.
 
+## Community module (task 014)
+Enable with `MODULES=items,content,community`. **`community` needs `content`**: settings validation fails at startup with
+"Module 'community' requires module(s) content ..." otherwise (`MODULE_DEPENDENCIES` in `app/modules/__init__.py`).
+Code: `app/modules/community/` (`models.py`, `schemas.py`, `service.py`, `routes.py`, `deps.py`, `events.py`); routes under
+`/api/v1/community`. Product decisions: D17 (comments on blog content, one reply level, publish-then-moderate, plain text).
+
+**Data model** (tables always exist; one migration; no core table changed):
+| Table | Columns / notes |
+|---|---|
+| `comment` | `post_id` / `page_id` (exactly one, check constraint; both FK ON DELETE CASCADE), `author_id` -> user SET NULL (shown as a deleted user), `parent_id` -> comment CASCADE (null or a top-level comment), `body` text, `status` visible\|hidden, `deleted_at`, `removed_by_moderator`, `like_count`, `created_at`, `edited_at` |
+| `comment_like` | (`comment_id`, `user_id`) primary key, both CASCADE; `comment.like_count` is the stored counter |
+| `post_like`, `post_like_count` | likes of posts and their counter, keyed by post id, so the content module is unchanged |
+| `comment_report` | `comment_id`, `reporter_id`, `reason` spam\|abuse\|other, `note`, `status` open\|resolved, `resolved_by/at`; unique (`comment_id`, `reporter_id`), so a user reports a comment once, even after it was resolved |
+| `community_suspension` | `user_id`, `until` (null = indefinite), `reason`, `created_by`, `created_at`, `ended_at`. Active while `ended_at` is null and `until` is null or in the future. Ending a suspension sets `ended_at` (history is kept) |
+
+**Comments:** plain text, 1-5000 characters after trimming; line breaks are normalised to `
+`; NUL and other control
+characters (except newline and tab) are rejected (422). The API never escapes or renders anything, the frontend shows it
+as text. Only **published** posts/pages accept comments (404 otherwise). Replies go one level deep: `parent_id` must be a
+visible top-level comment of the same post/page (replying to a reply is 400). Authors edit within **15 minutes** (sets
+`edited_at`; moderators cannot edit others). The module clock is `service.now()`, which tests replace instead of sleeping.
+- *Delete:* an author deleting a comment that has replies leaves a placeholder (`[deleted]`); without replies the row is
+  removed. A moderator delete is the same with `[removed by a moderator]`; placeholders carry no author and no like count.
+- *Hidden* (moderator): not listed, unless it has visible replies, then it is shown as a placeholder. Restore brings it back.
+  A top-level placeholder (hidden/deleted/removed) is only listed while it has at least one visible reply.
+- *Post unpublished:* its comments are not listed (the list answers 404, like for a draft) and cannot be liked, edited,
+  reported or replied to; they come back when the post is published again. *Post or page deleted:* the comments, likes and
+  reports are deleted by the database (ON DELETE CASCADE), so the content module needs no code for it.
+- *Responses:* authors are `{id, display_name, avatar_url}`; `display_name` is `full_name` or `Member <first 8 id chars>`,
+  **never the email**. Avatars and likes are batch-loaded, so a list costs a constant number of queries.
+
+**Permissions:**
+| Action | Who |
+|---|---|
+| list comments, read post like state | anyone (a valid token adds `liked_by_me` / `can_edit`) |
+| comment, reply, edit own, like, report | any logged-in user who is not suspended (editors and moderators too) |
+| delete own comment, remove own like | any logged-in user, also while suspended |
+| `/moderation/*` | `require_role(UserRole.moderator)`: moderator, admin, superuser. Editor and member get 403 (editor and moderator are siblings) |
+Same rule as user management (task 005): only **superusers** may moderate comments written by, or suspend, an **admin or
+superuser**; moderators and admins get 403. A moderator can act on members, editors and other moderators (not on themselves
+for suspensions).
+
+**Moderation flow:** members report (`POST /comments/{id}/report`) -> the comment shows up in `GET /moderation/comments`
+(open reports + hidden ones; filter `reported` / `hidden`) with its real body, author and the open reports -> a moderator
+hides, restores or deletes it, or resolves the reports (deleting with replies also closes its reports). A moderator can
+suspend the member (`POST /moderation/suspensions`, optional `until`): the member gets **403 "You are suspended from
+commenting"** on comment, edit, like and report, while login and every other module keep working
+(`GET /community/me/suspension` tells the UI). `DELETE /moderation/suspensions/{id}` ends it.
+
+**Rate limits** (database counts like the uploads, per user, superusers exempt, HTTP 429; a per-user advisory lock stops
+parallel requests from overshooting): `COMMENTS_PER_USER_PER_HOUR` (30, rows created in the last hour) and
+`REPORTS_PER_USER_PER_DAY` (20, reports in the last 24 hours). Both are in `.env.example` and `compose.yml`.
+
+**Events for notifications (task 015):** `events.emit(CommunityEvent)` is a no-op hook called after the commit for
+`comment_replied` (to the parent's author), `comment_liked`, `comment_hidden` and `comment_deleted_by_moderator`; nothing
+is sent to the actor themselves.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|
