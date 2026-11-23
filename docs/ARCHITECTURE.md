@@ -147,6 +147,12 @@ and Twitter card tags; every value goes through `html.escape`. Unknown or draft 
 - Modules declare such routes with `Module.public_router`; `create_app` includes them **before** `application.frontend(...)`
   so they win over the SPA mount. They use `include_in_schema=False`, so the generated client is unaffected.
 - `SITE_URL` (public base URL, no trailing slash) is the one setting; see `docs/deploy-vercel.md` for how Vercel serves this.
+- Frontend: the public site lives in its own pathless layout route `src/routes/_public.tsx` (header with site name, Blog link,
+  "Log in" or "Dashboard", footer), **not** under `_layout`, so no login is required. Children: `/blog`, `/blog/$slug`,
+  `/blog/category/$slug`, `/blog/tag/$slug`, `/p/$slug`; code in `src/features/content/public/`. The layout guards with
+  `requireModule(..., "content")`; an API 404 in a loader becomes the layout's own not-found page. Each route's `head()` builds
+  title and description with the same rules as `seo.py` (`public/api.ts`), so SPA navigation and a direct hit agree. Bodies render
+  through the read-only `ContentRenderer`; image and cover URLs are prefixed with `VITE_API_URL`.
 - Local dev: Vite on :5173 does not run this. Test with `bun run build` then `fastapi dev` (backend on :8000 serves the
   build), or `docker compose watch`.
 

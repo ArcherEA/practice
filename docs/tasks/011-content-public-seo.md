@@ -1,6 +1,6 @@
 # 011 — Content module: public pages and SEO
 
-**Status:** approved 2026-11-23, in progress · **Agents:** backend-engineer (meta injection, sitemap), then frontend-engineer
+**Status:** implemented 2026-11-23 · **Agents:** backend-engineer (meta injection, sitemap), then frontend-engineer
 (public pages) · **Branch:** `feat/011-content-public` · **Needs:** 009 and 010 merged
 
 ## Decision (agreed with the user)
