@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -177,6 +177,39 @@ export class UsersService {
     }
     
     /**
+     * Delete Avatar Me
+     *
+     * Remove my avatar and delete its file.
+     */
+    public static deleteAvatarMe<ThrowOnError extends boolean = true>(options?: Options<usersDeleteAvatarMeData, ThrowOnError>) {
+        return (options?.client ?? client).delete<usersDeleteAvatarMeResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/users/me/avatar',
+            ...options
+        });
+    }
+    
+    /**
+     * Set Avatar Me
+     *
+     * Use one of my confirmed image files (JPEG, PNG, WebP, GIF) as my avatar.
+     * The previous avatar file is deleted (row and object).
+     */
+    public static setAvatarMe<ThrowOnError extends boolean = true>(options: Options<usersSetAvatarMeData, ThrowOnError>) {
+        return (options.client ?? client).put<usersSetAvatarMeResponses, usersSetAvatarMeErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/users/me/avatar',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
      * Update Password Me
      *
      * Update own password.
@@ -255,6 +288,98 @@ export class UsersService {
                 'Content-Type': 'application/json',
                 ...options.headers
             }
+        });
+    }
+}
+
+export class FilesService {
+    /**
+     * Read Files
+     *
+     * List my confirmed files, newest first.
+     */
+    public static readFiles<ThrowOnError extends boolean = true>(options?: Options<filesReadFilesData, ThrowOnError>) {
+        return (options?.client ?? client).get<filesReadFilesResponses, filesReadFilesErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Upload
+     *
+     * Reserve a file and get a presigned PUT URL. Upload the bytes straight to
+     * `upload_url` (with `upload_headers`), then call `POST /files/{id}/confirm`.
+     * Errors: 413 too large or user quota full, 429 daily limit, 507 storage full.
+     */
+    public static createUpload<ThrowOnError extends boolean = true>(options: Options<filesCreateUploadData, ThrowOnError>) {
+        return (options.client ?? client).post<filesCreateUploadResponses, filesCreateUploadErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Read Usage
+     *
+     * Total storage used vs limit, file count and top users by bytes (admin only).
+     */
+    public static readUsage<ThrowOnError extends boolean = true>(options?: Options<filesReadUsageData, ThrowOnError>) {
+        return (options?.client ?? client).get<filesReadUsageResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/usage',
+            ...options
+        });
+    }
+    
+    /**
+     * Confirm Upload
+     *
+     * Verify the uploaded object (real size) and mark the file ready; 400 and delete otherwise.
+     */
+    public static confirmUpload<ThrowOnError extends boolean = true>(options: Options<filesConfirmUploadData, ThrowOnError>) {
+        return (options.client ?? client).post<filesConfirmUploadResponses, filesConfirmUploadErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/{file_id}/confirm',
+            ...options
+        });
+    }
+    
+    /**
+     * Get Download Url
+     *
+     * Short-lived signed URL. Only images are shown inline; other types download.
+     */
+    public static getDownloadUrl<ThrowOnError extends boolean = true>(options: Options<filesGetDownloadUrlData, ThrowOnError>) {
+        return (options.client ?? client).get<filesGetDownloadUrlResponses, filesGetDownloadUrlErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/{file_id}/download',
+            ...options
+        });
+    }
+    
+    /**
+     * Delete File
+     *
+     * Delete a file (row and object). Owner or admin.
+     */
+    public static deleteFile<ThrowOnError extends boolean = true>(options: Options<filesDeleteFileData, ThrowOnError>) {
+        return (options.client ?? client).delete<filesDeleteFileResponses, filesDeleteFileErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/files/{file_id}',
+            ...options
         });
     }
 }
