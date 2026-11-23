@@ -131,6 +131,25 @@ sent by the client goes through the same function. Renaming a title does not cha
 and the bundled link disabled, own Link with http/https/mailto//path rule, Image with a `fileId` attribute); the editor
 cannot produce anything outside the backend allow-list. `ContentRenderer` is the read-only renderer reused by public pages.
 
+## Public pages and SEO (task 011, content module)
+The SPA stays a single-page app (D16). Routes **outside `/api`** return the built `index.html` with real tags:
+`/blog`, `/blog/{slug}`, `/blog/category/{slug}`, `/blog/tag/{slug}`, `/p/{slug}` (`modules/content/public_routes.py`,
+logic in `seo.py`). Per request the backend replaces/injects `<title>`, `description`, `canonical`, Open Graph
+(`og:title/description/type/url/site_name`, `og:image` = `SITE_URL` + `/api/v1/files/{id}/content` when there is a cover)
+and Twitter card tags; every value goes through `html.escape`. Unknown or draft slugs return the same shell with
+**404** and `<meta name="robots" content="noindex">`, so the SPA can render its own not-found page. Responses are
+`Cache-Control: public, max-age=60, s-maxage=60` (404: `no-cache`).
+- The template is `backend/app/frontend/index.html` (path in `app.state.frontend_dir`). If it is missing (local dev
+  without a build) a minimal HTML page with the tags and a link to `FRONTEND_HOST` is returned and a warning is logged.
+- `GET /sitemap.xml` (content module only): `/blog`, published posts and pages, categories/tags that have published
+  posts; absolute URLs from `SITE_URL`, `lastmod` = last update date. `GET /robots.txt` is a core route, always on
+  (disallows `/content/`, `/admin`, `/settings`, `/api/`); the `Sitemap:` line is present only when `content` is enabled.
+- Modules declare such routes with `Module.public_router`; `create_app` includes them **before** `application.frontend(...)`
+  so they win over the SPA mount. They use `include_in_schema=False`, so the generated client is unaffected.
+- `SITE_URL` (public base URL, no trailing slash) is the one setting; see `docs/deploy-vercel.md` for how Vercel serves this.
+- Local dev: Vite on :5173 does not run this. Test with `bun run build` then `fastapi dev` (backend on :8000 serves the
+  build), or `docker compose watch`.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|

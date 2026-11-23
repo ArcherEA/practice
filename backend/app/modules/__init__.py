@@ -26,3 +26,5 @@ DEFAULT_MODULES: tuple[str, ...] = ("items",)
 class Module:
     name: str
     router: APIRouter
+    # Optional routes outside ``/api`` (SEO pages, sitemap). Mounted before the SPA.
+    public_router: APIRouter | None = None
