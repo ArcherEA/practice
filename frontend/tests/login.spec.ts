@@ -102,7 +102,9 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Log out" }).click()
   await page.waitForURL("/login")
 
-  await page.goto("/settings")
+  // The app redirects while /settings is still loading, so only wait for the
+  // navigation to start ("commit"); waiting for "load" can be aborted (ERR_ABORTED).
+  await page.goto("/settings", { waitUntil: "commit" })
   await page.waitForURL("/login")
 })
 
@@ -111,7 +113,9 @@ test("Redirects to /login when token is wrong", async ({ page }) => {
   await page.evaluate(() => {
     localStorage.setItem("access_token", "invalid_token")
   })
-  await page.goto("/settings")
+  // Auth errors now log out immediately (no retries, task 008), which can abort a
+  // full page load of /settings; wait for the redirect instead.
+  await page.goto("/settings", { waitUntil: "commit" })
   await page.waitForURL("/login")
   await expect(page).toHaveURL("/login")
 })
