@@ -1,0 +1,71 @@
+name: Backup Neon database
+
+# Daily encrypted pg_dump of the production (Neon) database, kept as a workflow artifact.
+# The repo is public and anyone signed in to GitHub can download artifacts of public repos,
+# so the dump is encrypted (gpg, AES256) BEFORE upload. Restore steps: docs/DATABASE.md.
+#
+# Required repository secrets:
+#   NEON_DATABASE_URL_DIRECT  - Neon direct (unpooled) connection string
+#   BACKUP_PASSPHRASE         - passphrase used to encrypt the dump (keep a copy in your password manager)
+
+on:
+  schedule:
+    - cron: "17 3 * * *" # daily 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-neon
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check secrets are configured
+        env:
+          DB_URL: ${{ secrets.NEON_DATABASE_URL_DIRECT }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$PASSPHRASE" ]; then
+            echo "::error::Set repository secrets NEON_DATABASE_URL_DIRECT and BACKUP_PASSPHRASE (see docs/DATABASE.md)"
+            exit 1
+          fi
+
+      - name: Dump database (pg_dump 18 in a container)
+        env:
+          DB_URL: ${{ secrets.NEON_DATABASE_URL_DIRECT }}
+        run: |
+          mkdir -p out
+          docker run --rm -e DB_URL -v "$PWD/out:/out" postgres:18 \
+            sh -c 'pg_dump "$DB_URL" -Fc -f /out/neon.dump'
+          ls -l out/neon.dump
+
+      - name: Sanity-check the dump
+        run: |
+          docker run --rm -v "$PWD/out:/out" postgres:18 pg_restore --list /out/neon.dump > out/toc.txt
+          grep -q 'TABLE DATA public alembic_version' out/toc.txt
+          grep -q 'TABLE DATA public user' out/toc.txt
+          echo "Dump contains $(grep -c 'TABLE DATA' out/toc.txt) tables with data"
+
+      - name: Encrypt
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          printf '%s' "$PASSPHRASE" > passphrase.txt
+          gpg --batch --yes --pinentry-mode loopback --passphrase-file passphrase.txt \
+            --symmetric --cipher-algo AES256 \
+            -o "out/neon-$(date -u +%Y%m%d-%H%M).dump.gpg" out/neon.dump
+          rm -f passphrase.txt out/neon.dump out/toc.txt
+          ls -l out
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: neon-backup-${{ github.run_id }}
+          path: out/*.dump.gpg
+          if-no-files-found: error
+          retention-days: 30
