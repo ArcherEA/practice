@@ -25,7 +25,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 018 Published content is easy to find: View on site / Copy link, View blog link, published pages in the public menu  — implemented 2026-11-23
 - [ ] **Phase 3 — Community** (approved 2026-11-23; task files drafted 2026-11-23; build in this order)
   - [x] 014 Comments on posts/pages (1 level of replies), likes, reports, moderation queue + suspensions (backend)  — implemented 2026-11-23
-  - [ ] 015 Usernames, public profiles, follows, in-app notifications (backend)
+  - [x] 015 Usernames, public profiles, follows, in-app notifications (backend)  — implemented 2026-11-23
   - [ ] 016 Comments, likes, reporting and moderation UI
   - [ ] 017 Profiles (/u/<username>), follows and notifications bell UI
   - Later: forum/discussions, social feed, email notifications, blocking/muting

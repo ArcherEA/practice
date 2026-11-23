@@ -12,7 +12,7 @@ from typing import Literal
 from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 
-from app.modules.community.models import ReportReason
+from app.modules.community.models import NotificationType, ReportReason
 
 COMMENT_MAX_LENGTH = 5000
 TargetType = Literal["post", "page"]
@@ -55,6 +55,8 @@ def clean_comment_body(value: str) -> str:
 
 class AuthorPublic(SQLModel):
     id: uuid.UUID
+    # Lets the UI link to the profile (`/u/<username>`).
+    username: str
     # `full_name`, or "Member xxxxxxxx" when the user has none. Never the email.
     display_name: str
     avatar_url: str | None = None
@@ -204,3 +206,85 @@ class MySuspension(SQLModel):
     suspended: bool
     until: datetime | None = None
     reason: str | None = None
+
+
+# --- profiles and follows ---
+
+
+class ProfilePublic(SQLModel):
+    """A member's public profile. Never contains the email address."""
+
+    id: uuid.UUID
+    username: str
+    display_name: str
+    avatar_url: str | None = None
+    bio: str | None = None
+    joined_at: datetime | None = None
+    # Visible comments on published posts and pages.
+    comment_count: int
+    follower_count: int
+    following_count: int
+    # Only for logged-in viewers.
+    followed_by_me: bool | None = None
+    # Only for moderators and above; None for everybody else.
+    is_suspended: bool | None = None
+
+
+class CommentTargetPublic(SQLModel):
+    """The post or page a comment belongs to, enough to link to it."""
+
+    type: TargetType
+    id: uuid.UUID
+    title: str
+    slug: str
+
+
+class UserCommentPublic(SQLModel):
+    id: uuid.UUID
+    author: AuthorPublic
+    body: str
+    parent_id: uuid.UUID | None = None
+    created_at: datetime
+    like_count: int
+    target: CommentTargetPublic
+
+
+class UserCommentsPublic(SQLModel):
+    data: list[UserCommentPublic]
+    count: int
+
+
+class AuthorsPublic(SQLModel):
+    data: list[AuthorPublic]
+    count: int
+
+
+class FollowState(SQLModel):
+    following: bool
+    follower_count: int
+
+
+# --- notifications ---
+
+
+class NotificationPublic(SQLModel):
+    id: uuid.UUID
+    type: NotificationType
+    # None when the actor deleted their account.
+    actor: AuthorPublic | None = None
+    comment_id: uuid.UUID | None = None
+    # At most 140 characters; None for follows and when the comment is gone or hidden.
+    comment_snippet: str | None = None
+    # The post or page to link to; None when it is gone or not published.
+    target: CommentTargetPublic | None = None
+    created_at: datetime
+    read: bool
+
+
+class NotificationsPublic(SQLModel):
+    data: list[NotificationPublic]
+    count: int
+
+
+class UnreadCount(SQLModel):
+    unread_count: int

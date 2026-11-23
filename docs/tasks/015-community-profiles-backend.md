@@ -1,6 +1,6 @@
 # 015 — Community: usernames, public profiles, follows and notifications (backend)
 
-**Status:** draft (needs user approval) · **Agent:** backend-engineer · **Branch:** `feat/015-community-profiles` ·
+**Status:** implemented (approved 2026-11-23) · **Agent:** backend-engineer · **Branch:** `feat/015-community-profiles` ·
 **Needs:** 014 merged
 
 ## Scope
