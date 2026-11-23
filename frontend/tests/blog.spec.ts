@@ -102,4 +102,63 @@ test.describe("Public blog", () => {
       page.getByRole("heading", { name: `Live post ${id}` }),
     ).toBeVisible()
   })
+
+  test("Published pages are linked in the public header, drafts are not", async ({
+    page,
+  }) => {
+    const id = unique()
+    const api = await createEditorApi()
+    // The menu lists the first pages by title, so sort ahead of other tests' pages.
+    const live = await api.page({ title: `AAA Menu ${id}` })
+    const draft = await api.page({ title: `AAA Draft ${id}` }, { draft: true })
+    try {
+      await page.goto("/blog")
+      const header = page.getByRole("navigation", { name: "Main" })
+      await expect(
+        header.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
+      ).toBeVisible()
+      await expect(
+        header.getByRole("link", { name: `AAA Draft ${id}`, exact: true }),
+      ).toHaveCount(0)
+
+      await header
+        .getByRole("link", { name: `AAA Menu ${id}`, exact: true })
+        .click()
+      await expect(page).toHaveURL(`/p/${live.slug}`)
+      await expect(
+        page.getByRole("heading", { name: `AAA Menu ${id}`, level: 1 }),
+      ).toBeVisible()
+    } finally {
+      await api.deletePage(live.id)
+      await api.deletePage(draft.id)
+    }
+  })
+
+  test("On a narrow screen the pages move to the footer", async ({ page }) => {
+    const id = unique()
+    const api = await createEditorApi()
+    const live = await api.page({ title: `AAA Narrow ${id}` })
+    try {
+      await page.setViewportSize({ width: 375, height: 800 })
+      await page.goto("/blog")
+      await expect(
+        page
+          .getByRole("navigation", { name: "Pages" })
+          .getByRole("link", { name: `AAA Narrow ${id}`, exact: true }),
+      ).toBeVisible()
+      await expect(
+        page
+          .getByRole("navigation", { name: "Main" })
+          .getByRole("link", { name: `AAA Narrow ${id}`, exact: true }),
+      ).toBeHidden()
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      )
+      expect(overflow).toBe(false)
+    } finally {
+      await api.deletePage(live.id)
+    }
+  })
 })

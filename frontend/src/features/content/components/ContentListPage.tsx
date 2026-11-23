@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Plus, Search } from "lucide-react"
+import { ExternalLink, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import type { ContentStatus, PageSummary, PostSummary } from "@/client"
@@ -28,6 +28,7 @@ import {
   fetchPosts,
   type ListFilters,
   PAGE_SIZE,
+  publicPath,
 } from "../api"
 import { ContentTabs, formatDate, StatusBadge } from "./shared"
 
@@ -178,6 +179,9 @@ export default function ContentListPage({ kind }: { kind: ContentKind }) {
               <TableHead>Status</TableHead>
               {kind === "post" && <TableHead>Category</TableHead>}
               <TableHead>Updated</TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">Actions</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -197,12 +201,27 @@ export default function ContentListPage({ kind }: { kind: ContentKind }) {
                 <TableCell className="text-muted-foreground">
                   {formatDate(row.updated_at)}
                 </TableCell>
+                <TableCell>
+                  {row.status === "published" && (
+                    <Button asChild variant="ghost" size="icon">
+                      <a
+                        href={publicPath(kind, row.slug)}
+                        target="_blank"
+                        rel="noopener"
+                        aria-label={`View ${row.title} on site`}
+                        title="View on site"
+                      >
+                        <ExternalLink />
+                      </a>
+                    </Button>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
             {!isLoading && rows.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={kind === "post" ? 4 : 3}
+                  colSpan={kind === "post" ? 5 : 4}
                   className="py-10 text-center text-muted-foreground"
                 >
                   {text.empty}

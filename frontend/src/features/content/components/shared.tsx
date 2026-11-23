@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router"
+import { ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
 
 import type { ContentStatus } from "@/client"
@@ -41,26 +42,36 @@ const tabs = [
 export function ContentTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   return (
-    <nav aria-label="Content sections" className="flex gap-1 border-b">
-      {tabs.map((tab) => {
-        const active = pathname.startsWith(tab.to)
-        return (
-          <Link
-            key={tab.to}
-            to={tab.to}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
-              active
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {tab.label}
-          </Link>
-        )
-      })}
-    </nav>
+    <div className="flex items-end justify-between gap-3 border-b">
+      <nav aria-label="Content sections" className="flex gap-1">
+        {tabs.map((tab) => {
+          const active = pathname.startsWith(tab.to)
+          return (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "-mb-px border-b-2 px-3 py-2 text-sm font-medium",
+                active
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {tab.label}
+            </Link>
+          )
+        })}
+      </nav>
+      <Link
+        to="/blog"
+        data-testid="content-view-blog"
+        className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ExternalLink className="size-4" />
+        View blog
+      </Link>
+    </div>
   )
 }
 

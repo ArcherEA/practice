@@ -1,4 +1,9 @@
-import { Briefcase, FileText, type LucideIcon } from "lucide-react"
+import {
+  Briefcase,
+  ExternalLink,
+  FileText,
+  type LucideIcon,
+} from "lucide-react"
 
 import type { UserPublic, UserRole } from "@/client"
 import { hasRole } from "@/features/auth/permissions"
@@ -23,6 +28,8 @@ export const moduleNavItems: ModuleNavItem[] = [
     path: "/content",
     requiredRole: "editor",
   },
+  // Link to the public site, for every logged-in user.
+  { module: "content", title: "View blog", icon: ExternalLink, path: "/blog" },
 ]
 
 /** Whether the nav entry may be shown to this user (module enablement is checked separately). */

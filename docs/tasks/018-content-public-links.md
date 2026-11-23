@@ -1,6 +1,6 @@
 # 018 — Make published content easy to find (view/copy links, blog link, pages menu)
 
-**Status:** approved 2026-11-23 · **Who:** lead (backend endpoint) + frontend-engineer · **Branch:** `feat/018-content-public-links`
+**Status:** implemented 2026-11-23 · **Who:** lead (backend endpoint) + frontend-engineer · **Branch:** `feat/018-content-public-links`
 
 ## Why
 After publishing, editors only see the editing URL (`/content/posts/<id>`); nothing links to the public page

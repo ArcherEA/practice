@@ -5,12 +5,16 @@ import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
 import { configQueryOptions } from "@/features/modules/api"
 import { isLoggedIn } from "@/hooks/useAuth"
+import { menuPagesOptions } from "../api"
 
 /** Header + footer for the public site (no login needed). */
 export function PublicLayout() {
   const { data: config } = useQuery(configQueryOptions)
   const siteName = config?.project_name ?? ""
   const loggedIn = isLoggedIn()
+  // A failed or empty menu request just hides the page links.
+  const { data: menuPages } = useQuery(menuPagesOptions)
+  const pages = menuPages?.data ?? []
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -26,6 +30,19 @@ export function PublicLayout() {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/blog">Blog</Link>
             </Button>
+            {pages.map((p) => (
+              <Button
+                key={p.id}
+                variant="ghost"
+                size="sm"
+                asChild
+                className="hidden sm:inline-flex"
+              >
+                <Link to="/p/$slug" params={{ slug: p.slug }}>
+                  {p.title}
+                </Link>
+              </Button>
+            ))}
             {loggedIn ? (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">Dashboard</Link>
@@ -43,6 +60,23 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+        {pages.length > 0 && (
+          <nav
+            aria-label="Pages"
+            className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1 px-4 sm:hidden"
+          >
+            {pages.map((p) => (
+              <Link
+                key={p.id}
+                to="/p/$slug"
+                params={{ slug: p.slug }}
+                className="hover:text-foreground hover:underline"
+              >
+                {p.title}
+              </Link>
+            ))}
+          </nav>
+        )}
         &copy; {new Date().getFullYear()} {siteName}
       </footer>
     </div>
