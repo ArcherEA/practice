@@ -36,3 +36,5 @@ pull requests and is advisory.
 3. CI runs on the PR, and Vercel posts a **preview deployment** link — try the change there before merging.
 4. When the checks are green and the change is approved, merge the PR (merge commit or squash) and delete the branch.
 5. **Migrations:** apply them to Neon *before* merging the PR (see `docs/DATABASE.md`) — merging deploys to production.
+
+<!-- docs-only test change for PR #4 verification; not to be merged -->
