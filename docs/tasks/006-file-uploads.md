@@ -10,6 +10,27 @@
 | Allowed files | **Any type, max 10 MB.** Only images (JPEG, PNG, WebP, GIF) are ever shown inline; everything else — including SVG and HTML — is always served as a download (`Content-Disposition: attachment`) so a malicious file can't run in the browser. Avatars additionally must be one of those image types. |
 | Visibility | **Private by default:** files are reached only through short-lived signed URLs handed out by the API to allowed users. Avatars may be public (permanent URL) when `S3_PUBLIC_BASE_URL` is configured; otherwise they're served with signed URLs too. |
 
+## Usage limits (stay inside the R2 free tier)
+Cloudflare has **no hard spending cap for R2** (only email alerts), so the app enforces limits itself. R2 free tier per
+month: 10 GB Standard storage, 1M Class A ops (uploads/lists), 10M Class B ops (downloads/heads); egress and deletes free.
+
+| Setting (env var) | Default | Enforced where |
+|---|---|---|
+| `STORAGE_TOTAL_LIMIT_BYTES` | 8 GB (8 × 1024³) | create-upload: refuse (HTTP 507 "Storage is full") if `sum(size of ready + pending files) + declared size` would exceed it |
+| `STORAGE_USER_QUOTA_BYTES` | 100 MB | create-upload: refuse (HTTP 413 "Your storage quota is full") per owner, same sum |
+| `UPLOADS_PER_USER_PER_DAY` | 50 | create-upload: refuse (HTTP 429) when the user created ≥ N file rows in the last 24 h (count rows, incl. pending/deleted-by-cleanup is fine — keep it simple and DB-based, no Redis) |
+| `UPLOAD_MAX_BYTES` | 10 MB | per file (see Decisions) |
+
+- Superusers are exempt from the per-user quota and daily limit, **not** from the total limit.
+- Pending reservations count toward totals, so parallel uploads can't overshoot; pending files older than 24 h are
+  removed by the cleanup command (object + row).
+- Replacing an avatar deletes the previous avatar file (object + row). Deleting a user deletes their files' objects.
+- Never use the Infrequent Access storage class (the free tier doesn't cover it) — don't set `StorageClass` at all.
+- `GET /api/v1/files/usage` (admin or superuser): total bytes / limit, file count, top users by bytes. Plain JSON, no UI yet.
+- Limits are env vars so they can be tuned without code changes; document them in `.env.example` and `docs/deploy-vercel.md`.
+- Docs: add a short "Stay in the R2 free tier" section to `docs/deploy-vercel.md`: set a Cloudflare **budget alert** at
+  $1 (informational only, it doesn't block), optional lifecycle rule ideas, and what each limit protects.
+
 ## Why
 Content (images), Community (avatars, attachments) and Commerce (product photos) all need files. The backend must
 stay stateless for Vercel, so files go to object storage, not local disk.
@@ -56,4 +77,5 @@ Image resizing/thumbnails, virus scanning, a media library UI (comes with Conten
 ## Acceptance criteria
 - Locally with Docker: upload an avatar in Settings, refresh, it's still shown; the object is visible in the MinIO console.
 - Files over 10 MB are rejected (before upload when declared, and at confirm by real size); non-images download instead of opening; a non-image avatar is rejected. Deleting a file removes the object.
+- Each usage limit has a test (total full → 507, user quota → 413, daily count → 429, superuser exemptions, old avatar deleted on replace).
 - Tests for the service (fake storage) and endpoints; Playwright avatar upload flow. CI green; `requirements.txt` regenerated (task 003).
