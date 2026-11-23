@@ -1,4 +1,4 @@
-import { Briefcase, Home, Users } from "lucide-react"
+import { Home, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -8,18 +8,23 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar"
+import { moduleNavItems } from "@/features/modules/nav"
+import { useModules } from "@/features/modules/useModules"
 import useAuth from "@/hooks/useAuth"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
 
-const baseItems: Item[] = [
-  { icon: Home, title: "Dashboard", path: "/" },
-  { icon: Briefcase, title: "Items", path: "/items" },
-]
+const homeItem: Item = { icon: Home, title: "Dashboard", path: "/" }
 
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
 
+  const { isEnabled } = useModules()
+
+  const baseItems: Item[] = [
+    homeItem,
+    ...moduleNavItems.filter((item) => isEnabled(item.module)),
+  ]
   const items = currentUser?.is_superuser
     ? [...baseItems, { icon: Users, title: "Admin", path: "/admin" }]
     : baseItems

@@ -23,7 +23,7 @@
 3. Alembic/ORM: add `import app.modules.<name>.models` at the bottom of `app/models.py`; reference core models by string (`Optional["User"]`) with `TYPE_CHECKING` imports to avoid cycles. Then `uv run alembic revision --autogenerate -m "add <name>"` and review it.
 4. Tests in `backend/tests/modules/<name>/` (the registry test checks that names match).
 5. Run `scripts/generate-client.sh` so the frontend client includes the new endpoints.
-6. Frontend: `src/features/<name>/` (components, hooks), routes in `src/routes/_layout/<name>.tsx` guarded by `isModuleEnabled("<name>")`, and a sidebar entry shown only when enabled.
+6. Frontend: `src/features/<name>/` (components, hooks; see `features/items/`), a route `src/routes/_layout/<name>.tsx` that is thin (imports the page from the feature) and has `beforeLoad: ({ context }) => requireModule(context.queryClient, "<name>")` (shows NotFound when the module is off), and one entry in `moduleNavItems` in `src/features/modules/nav.ts` (the sidebar shows it only when enabled). `useModules()` / `isEnabled(name)` come from `src/features/modules/`.
 7. Docs: mention any extra env vars in `.env.example` and `docs/deploy-vercel.md`.
 
 The frontend learns which modules are on from the public `GET /api/v1/utils/config` (`{project_name, modules}`).
