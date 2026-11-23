@@ -6,6 +6,7 @@ rest of the API.
 
 import uuid
 from collections.abc import Sequence
+from datetime import datetime
 from typing import Literal
 
 from fastapi import HTTPException
@@ -509,3 +510,21 @@ def to_page_public(page: Page) -> PagePublic:
         seo_title=page.seo_title,
         seo_description=page.seo_description,
     )
+
+
+ARCHIVE_LIMIT = 1000
+
+
+def list_archive(session: Session) -> list[tuple[str, str, datetime]]:
+    """(title, slug, published_at) of published posts, newest first (timeline)."""
+    rows = session.exec(
+        select(Post.title, Post.slug, Post.published_at)
+        .where(Post.status == ContentStatus.published)
+        .order_by(col(Post.published_at).desc(), col(Post.id))
+        .limit(ARCHIVE_LIMIT)
+    ).all()
+    return [
+        (title, slug, published_at)
+        for title, slug, published_at in rows
+        if published_at
+    ]

@@ -98,6 +98,19 @@ class PostUpdate(SQLModel):
     seo_description: str | None = Field(default=None, max_length=500)
 
 
+class ArchiveEntry(SQLModel):
+    """One published post in the archive / timeline (title, slug and date only)."""
+
+    title: str
+    slug: str
+    published_at: datetime
+
+
+class PostsArchive(SQLModel):
+    data: list[ArchiveEntry]
+    count: int
+
+
 class PostSummary(SQLModel):
     """A post without its body, for lists."""
 

@@ -15,6 +15,7 @@ from app.models import Message, User
 from app.modules.content import service
 from app.modules.content.models import ContentStatus
 from app.modules.content.schemas import (
+    ArchiveEntry,
     CategoriesPublic,
     CategoryCreate,
     CategoryPublic,
@@ -25,6 +26,7 @@ from app.modules.content.schemas import (
     PageUpdate,
     PostCreate,
     PostPublic,
+    PostsArchive,
     PostsPublic,
     PostUpdate,
     TagCreate,
@@ -60,6 +62,16 @@ def read_published_posts(
         tag_slug=tag,
     )
     return PostsPublic(data=[service.to_post_summary(p) for p in posts], count=count)
+
+
+@router.get("/posts/archive", response_model=PostsArchive)
+def read_posts_archive(session: SessionDep) -> PostsArchive:
+    """Title, slug and date of every published post, newest first (blog timeline)."""
+    entries = [
+        ArchiveEntry(title=t, slug=s, published_at=d)
+        for t, s, d in service.list_archive(session)
+    ]
+    return PostsArchive(data=entries, count=len(entries))
 
 
 @router.get("/posts/{slug}", response_model=PostPublic)
