@@ -22,9 +22,13 @@ client.setConfig({
 // A 403 from the community module is a rule ("You are suspended from
 // commenting", moderators acting on an admin's content), not a dead session:
 // show it, don't log out. Other 403s (and every 401) still end the session.
+// The backend also answers 403 "Could not validate credentials" for a bad or expired
+// token — that one is a dead session everywhere, so it still logs out.
 const isCommunityRule = (error: AxiosError) =>
   error.response?.status === 403 &&
-  (error.config?.url ?? "").includes("/api/v1/community/")
+  (error.config?.url ?? "").includes("/api/v1/community/") &&
+  (error.response?.data as { detail?: unknown } | undefined)?.detail !==
+    "Could not validate credentials"
 
 const isAuthError = (error: Error) =>
   error instanceof AxiosError &&
