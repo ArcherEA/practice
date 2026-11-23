@@ -5,26 +5,6 @@ export type ClientOptions = {
 };
 
 /**
- * ArchiveEntry
- *
- * One published post in the archive / timeline (title, slug and date only).
- */
-export type ArchiveEntry = {
-    /**
-     * Title
-     */
-    title: string;
-    /**
-     * Slug
-     */
-    slug: string;
-    /**
-     * Published At
-     */
-    published_at: string;
-};
-
-/**
  * AvatarSet
  */
 export type AvatarSet = {
@@ -725,20 +705,6 @@ export type PostUpdate = {
      * Seo Description
      */
     seo_description?: string | null;
-};
-
-/**
- * PostsArchive
- */
-export type PostsArchive = {
-    /**
-     * Data
-     */
-    data: Array<ArchiveEntry>;
-    /**
-     * Count
-     */
-    count: number;
 };
 
 /**
@@ -1985,22 +1951,6 @@ export type contentReadPublishedPostsResponses = {
 };
 
 export type contentReadPublishedPostsResponse = contentReadPublishedPostsResponses[keyof contentReadPublishedPostsResponses];
-
-export type contentReadPostsArchiveData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/content/posts/archive';
-};
-
-export type contentReadPostsArchiveResponses = {
-    /**
-     * Successful Response
-     */
-    200: PostsArchive;
-};
-
-export type contentReadPostsArchiveResponse = contentReadPostsArchiveResponses[keyof contentReadPostsArchiveResponses];
 
 export type contentReadPublishedPostData = {
     body?: never;

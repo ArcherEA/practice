@@ -1117,32 +1117,3 @@ def test_public_page_list_shows_published_pages_only(
     assert "body" not in items[0]
     assert r.json()["count"] >= 1
     assert content_client.get(f"{BASE}/pages", params={"limit": 101}).status_code == 422
-
-
-def test_posts_archive_lists_published_posts_newest_first(
-    content_client: TestClient, editor: tuple[User, Headers]
-) -> None:
-    _, headers = editor
-    older = create_post(
-        content_client, headers, title="Archive older", body=doc(para("a"))
-    )
-    newer = create_post(
-        content_client, headers, title="Archive newer", body=doc(para("b"))
-    )
-    draft = create_post(
-        content_client, headers, title="Archive draft", body=doc(para("c"))
-    )
-    for post in (older, newer):
-        content_client.post(f"{MANAGE}/posts/{post['id']}/publish", headers=headers)
-
-    r = content_client.get(f"{BASE}/posts/archive")  # public, no auth
-    assert r.status_code == 200
-    entries = r.json()["data"]
-    slugs = [e["slug"] for e in entries]
-    assert newer["slug"] in slugs and older["slug"] in slugs
-    assert draft["slug"] not in slugs
-    assert slugs.index(newer["slug"]) < slugs.index(older["slug"])  # newest first
-    assert set(entries[0]) == {"title", "slug", "published_at"}  # no body/excerpt
-    assert r.json()["count"] == len(entries)
-    # "archive" is not swallowed by /posts/{slug}
-    assert content_client.get(f"{BASE}/posts/{newer['slug']}").status_code == 200
