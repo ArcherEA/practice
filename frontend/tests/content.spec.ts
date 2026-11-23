@@ -377,6 +377,8 @@ test.describe("Content editor", () => {
     await page.getByRole("button", { name: "Publish" }).click()
     await expect(page.getByText("Page published")).toBeVisible()
     await page.goto("/content/pages")
+    // Search instead of relying on page 1: the list is sorted by title and paginated.
+    await page.getByPlaceholder("Search by title").fill(pageTitle)
     await expect(
       page
         .getByRole("row")
@@ -490,6 +492,10 @@ test.describe("Public links in the editor", () => {
     await page.getByRole("button", { name: "Save draft" }).click()
     await expect(page.getByText("Page saved")).toBeVisible()
     await page.goto("/content/pages")
+    await page.getByPlaceholder("Search by title").fill(title)
+    await expect(
+      page.getByRole("link", { name: title, exact: true }),
+    ).toBeVisible()
     await expect(
       page.getByRole("link", { name: `View ${title} on site`, exact: true }),
     ).toHaveCount(0)
