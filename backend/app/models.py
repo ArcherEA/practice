@@ -223,4 +223,5 @@ class NewPassword(SQLModel):
 # Import every module's models so SQLModel/Alembic see all tables (and the
 # User relationships resolve) whether or not the module is enabled.
 # Must stay at the bottom: module models import helpers from this file.
+import app.modules.content.models  # noqa: E402, F401
 import app.modules.items.models  # noqa: E402, F401

@@ -77,3 +77,37 @@ def test_modules_none_hides_items_but_core_works(
         config = client.get(f"{settings.API_V1_STR}/utils/config").json()
     assert config == {"project_name": settings.PROJECT_NAME, "modules": []}
     assert not any("/items" in path for path in app.openapi()["paths"])
+
+
+def test_content_enabled_exposes_public_content_api() -> None:
+    app = create_app(make_settings("items,content"))
+    with TestClient(app) as client:
+        response = client.get(f"{settings.API_V1_STR}/content/posts")
+        assert response.status_code == 200
+        config = client.get(f"{settings.API_V1_STR}/utils/config").json()
+    assert config["modules"] == ["items", "content"]
+    assert any("/v1/content/posts" in path for path in app.openapi()["paths"])
+
+
+def test_content_routes_are_404_when_module_is_off(
+    superuser_token_headers: dict[str, str],
+) -> None:
+    app = create_app(make_settings("items"))
+    with TestClient(app) as client:
+        for path in (
+            "/content/posts",
+            "/content/posts/some-slug",
+            "/content/pages/some-slug",
+            "/content/categories",
+            "/content/tags",
+            "/content/manage/posts",
+            "/content/manage/pages",
+        ):
+            response = client.get(
+                f"{settings.API_V1_STR}{path}", headers=superuser_token_headers
+            )
+            assert response.status_code == 404, path
+    assert not any(
+        path.startswith(f"{settings.API_V1_STR}/content")
+        for path in app.openapi()["paths"]
+    )
