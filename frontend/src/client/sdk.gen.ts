@@ -114,7 +114,8 @@ export class UsersService {
     /**
      * Create User
      *
-     * Create new user.
+     * Create new user. Admins and superusers only; only superusers may create admins
+     * or superusers.
      */
     public static createUser<ThrowOnError extends boolean = true>(options: Options<usersCreateUserData, ThrowOnError>) {
         return (options.client ?? client).post<usersCreateUserResponses, usersCreateUserErrors, ThrowOnError>({
@@ -241,7 +242,8 @@ export class UsersService {
     /**
      * Update User
      *
-     * Update a user.
+     * Update a user. Only superusers can grant/revoke admin, set the superuser flag
+     * or modify superusers; nobody can change their own role.
      */
     public static updateUser<ThrowOnError extends boolean = true>(options: Options<usersUpdateUserData, ThrowOnError>) {
         return (options.client ?? client).patch<usersUpdateUserResponses, usersUpdateUserErrors, ThrowOnError>({

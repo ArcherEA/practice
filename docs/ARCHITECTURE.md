@@ -28,6 +28,36 @@
 
 The frontend learns which modules are on from the public `GET /api/v1/utils/config` (`{project_name, modules}`).
 
+## Roles and permissions
+`User.role` (`member` default, `editor`, `moderator`, `admin`; VARCHAR(20), enum in `app/core/roles.py`) plus the
+`is_superuser` "owner" flag. One pure function, `has_role(user, required)`, decides everything.
+
+| Role | Also satisfies |
+|---|---|
+| `admin` | `editor`, `moderator`, `member` |
+| `editor` | `member` |
+| `moderator` | `member` |
+| `member` | — |
+| superuser | every check, regardless of `role` |
+
+`editor` and `moderator` are siblings: neither includes the other.
+
+Protect an endpoint in a module with the dependency from `app/api/deps.py`:
+```python
+from app.api.deps import require_role
+from app.core.roles import UserRole
+
+@router.post("/", dependencies=[Depends(require_role(UserRole.editor))])
+def create_article(...): ...
+# or use the aliases: RequireEditor, RequireModerator, RequireAdmin, AdminUser (injects the user)
+```
+It returns 403 "The user doesn't have enough privileges". `get_current_active_superuser` still exists for owner-only routes.
+
+User management (`/users` list/create/read/update/delete) needs `admin` or superuser. Only superusers can grant or revoke
+`admin`, create admins, set `is_superuser`, or modify/delete superusers. Nobody can change their own role (`/users/me`
+does not accept `role`; the admin endpoint returns 403). Signup always creates a `member`; `FIRST_SUPERUSER` is created as `admin`.
+To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration needed).
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|

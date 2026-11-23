@@ -221,7 +221,8 @@ def update_user(
     user_in: UserUpdate,
 ) -> Any:
     """
-    Update a user. See `_check_can_update` for who may change roles / superusers.
+    Update a user. Only superusers can grant/revoke admin, set the superuser flag
+    or modify superusers; nobody can change their own role.
     """
 
     db_user = session.get(User, user_id)
