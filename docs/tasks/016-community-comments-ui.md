@@ -1,6 +1,6 @@
 # 016 — Community: comments, likes, reporting and moderation UI
 
-**Status:** draft (needs user approval) · **Agent:** frontend-engineer · **Branch:** `feat/016-community-comments-ui` ·
+**Status:** implemented (approved 2026-11-23) · **Agent:** frontend-engineer · **Branch:** `feat/016-community-comments-ui` ·
 **Needs:** 014 merged
 
 ## Scope

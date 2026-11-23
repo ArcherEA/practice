@@ -26,7 +26,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
 - [ ] **Phase 3 — Community** (approved 2026-11-23; task files drafted 2026-11-23; build in this order)
   - [x] 014 Comments on posts/pages (1 level of replies), likes, reports, moderation queue + suspensions (backend)  — implemented 2026-11-23
   - [x] 015 Usernames, public profiles, follows, in-app notifications (backend)  — implemented 2026-11-23
-  - [ ] 016 Comments, likes, reporting and moderation UI
+  - [x] 016 Comments, likes, reporting and moderation UI
   - [ ] 017 Profiles (/u/<username>), follows and notifications bell UI
   - Later: forum/discussions, social feed, email notifications, blocking/muting
 - [ ] **Phase 4 — Commerce** (Stripe Checkout)

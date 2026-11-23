@@ -152,6 +152,15 @@ class ReportPublic(SQLModel):
 # --- moderation ---
 
 
+class CommentTargetPublic(SQLModel):
+    """The post or page a comment belongs to, enough to link to it."""
+
+    type: TargetType
+    id: uuid.UUID
+    title: str
+    slug: str
+
+
 class ModerationComment(SQLModel):
     """A comment with its real body and author, for the moderator queue."""
 
@@ -168,6 +177,8 @@ class ModerationComment(SQLModel):
     open_report_count: int
     # Open reports only, oldest first.
     reports: list[ReportPublic]
+    # The post or page it belongs to, to link to it.
+    target: CommentTargetPublic | None = None
 
 
 class ModerationQueue(SQLModel):
@@ -228,15 +239,6 @@ class ProfilePublic(SQLModel):
     followed_by_me: bool | None = None
     # Only for moderators and above; None for everybody else.
     is_suspended: bool | None = None
-
-
-class CommentTargetPublic(SQLModel):
-    """The post or page a comment belongs to, enough to link to it."""
-
-    type: TargetType
-    id: uuid.UUID
-    title: str
-    slug: str
 
 
 class UserCommentPublic(SQLModel):
