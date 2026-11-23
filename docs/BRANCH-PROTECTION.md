@@ -12,23 +12,24 @@ GitHub → repository **Settings → Rules → Rulesets → New ruleset → New 
 | Restrict deletions | ✅ |
 | Block force pushes | ✅ |
 | Require a pull request before merging | ✅ — required approvals **0** while working alone (raise to 1 when others join); allowed merge methods: merge and squash |
-| Require status checks to pass | ✅ — add the three checks below; "Require branches to be up to date" optional |
+| Require status checks to pass | ✅ — add the four checks below; "Require branches to be up to date" optional |
 
 **Required status checks** (type the job names; they appear in the picker after they have run once):
 
 | Check | Workflow | Notes |
 |---|---|---|
-| `alls-green-backend` | Test Backend | lint/types/tests + 90 % coverage |
+| `alls-green-backend` | Test Backend | migrations, backend tests + 90 % coverage |
+| `pre-commit-alls-green` | pre-commit | **lint and types**: ruff, ruff format, mypy, ty, biome, typos, YAML/TOML checks |
 | `alls-green-docker-compose` | Test Docker Compose | the full stack builds and starts |
 | `alls-green-playwright` | Playwright Tests | end-to-end tests (4 shards) |
 
-Mark the **`alls-green-*`** jobs as required, not the test jobs themselves: each workflow first decides whether
+Mark the **`alls-green-*`** / **`pre-commit-alls-green`** jobs as required, not the jobs behind them: each workflow first decides whether
 anything besides documentation changed; for docs-only pull requests the test job is *skipped* and `alls-green-*` still
 reports **success**, so the PR isn't stuck waiting for a check that never runs. If the tests run and fail,
 `alls-green-*` fails too.
 
-Not required (they only run when their files change): *Check requirements.txt*, *Zizmor*. *pre-commit* runs on
-pull requests and is advisory.
+*pre-commit* runs on every pull request (docs-only too) and always reports, so it is safe to require. Not required
+(they only run when their files change): *Check requirements.txt*, *Zizmor*.
 
 ## Day-to-day workflow with the ruleset
 1. Work happens on a branch `feat/NNN-<slug>` (one task file = one branch).
