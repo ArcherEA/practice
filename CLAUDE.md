@@ -20,7 +20,8 @@ Read `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/DECISIONS.md` before chang
      flows you touched** (run from `frontend/`, see `docs/TROUBLESHOOTING.md`). Don't run the full Playwright suite.
   3. *CI* runs everything (full Playwright in 4 shards, coverage ≥ 90%). Docs-only changes (`docs/**`, `*.md`) skip the test workflows.
 - The lead re-runs checks only where risk is high (migrations, permissions/auth, storage, deploy config) and otherwise reviews the diff and the reported results.
-- The lead reviews; the user approves every merge to `main`.
+- The lead reviews; the user approves every merge to `main`. Changes reach `main` through a **pull request**
+  (CI + Vercel preview on the PR), never by pushing to `main` directly — see `docs/BRANCH-PROTECTION.md`.
 
 ## Code rules
 - Follow the template's existing patterns first (look at `users`/`items` routes, models, crud, tests, frontend routes).

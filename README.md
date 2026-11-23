@@ -101,6 +101,7 @@ anything others can reach. Full guide (backups, Neon production database, recove
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how the code is organised, modules, roles, storage
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — problems we hit and how they were solved
 - [CLAUDE.md](CLAUDE.md) — rules for contributors (human or AI): workflow, testing tiers, code rules
+- [docs/BRANCH-PROTECTION.md](docs/BRANCH-PROTECTION.md) — `main` is changed only through pull requests with green CI
 
 ## Running tests
 ```bash
