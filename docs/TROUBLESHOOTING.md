@@ -5,6 +5,18 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-23 — Playwright: reset-password tests fail with "HTML instead of JSON"; browser executable missing
+- **Symptom 1:** `reset-password.spec.ts` (link + weak password tests) fail; `tests/utils/mailpit.ts` gets HTML, not JSON.
+- **Cause 1:** the tests read `process.env.MAILPIT_HOST`, which `playwright.config.ts` loads via `import 'dotenv/config'` from
+  **the current directory's** `.env` (`frontend/.env` → `http://localhost:8025`). Started from another folder (or with a
+  config that skips that import) the variable is empty, the request goes to the Vite dev server, and it returns `index.html`.
+  Mailpit itself was running fine.
+- **Fix 1:** always run Playwright from `frontend/` (`cd frontend; bunx playwright test`).
+- **Symptom 2:** `browserType.launch: Executable doesn't exist at ...chromium_headless_shell-1248...`.
+- **Cause 2:** the installed Playwright browser build is older than the one `@playwright/test` expects.
+- **Fix 2:** `bunx playwright install chromium` (downloads ~150 MB), or temporarily run with installed Chrome using a
+  throwaway config next to `playwright.config.ts` that spreads it and sets `use.channel = "chrome"` on each project (don't commit it).
+
 ## 2026-11-22 — Login fails locally after running backend tests (admin user gone) — FIXED (task 007)
 - **Symptom:** after `uv run pytest`, logging in locally failed (400 "Incorrect email or password").
 - **Cause:** the template's `backend/tests/conftest.py` deleted all `Item` and `User` rows when the test session ended,
