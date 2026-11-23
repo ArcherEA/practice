@@ -17,7 +17,7 @@ import { User } from "./User"
 const homeItem: Item = { icon: Home, title: "Dashboard", path: "/" }
 
 export function AppSidebar() {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, canManageUsers } = useAuth()
 
   const { isEnabled } = useModules()
 
@@ -25,7 +25,7 @@ export function AppSidebar() {
     homeItem,
     ...moduleNavItems.filter((item) => isEnabled(item.module)),
   ]
-  const items = currentUser?.is_superuser
+  const items = canManageUsers
     ? [...baseItems, { icon: Users, title: "Admin", path: "/admin" }]
     : baseItems
 

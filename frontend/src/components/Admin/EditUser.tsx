@@ -28,8 +28,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
+import { RoleField } from "./RoleField"
 
 const formSchema = z
   .object({
@@ -41,6 +43,7 @@ const formSchema = z
       .optional()
       .or(z.literal("")),
     confirm_password: z.string().optional(),
+    role: z.enum(["member", "editor", "moderator", "admin"]).optional(),
     is_superuser: z.boolean().optional(),
     is_active: z.boolean().optional(),
   })
@@ -60,6 +63,9 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { user: currentUser } = useAuth()
+  const isSuperuser = !!currentUser?.is_superuser
+  const isSelf = currentUser?.id === user.id
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -68,6 +74,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
     defaultValues: {
       email: user.email,
       full_name: user.full_name ?? undefined,
+      role: user.role,
       is_superuser: user.is_superuser,
       is_active: user.is_active,
     },
@@ -92,6 +99,14 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
     const { confirm_password: _, ...submitData } = data
     if (!submitData.password) {
       delete submitData.password
+    }
+    // Nobody can change their own role; the backend rejects it, so don't send it.
+    if (isSelf) {
+      delete submitData.role
+    }
+    // Only superusers may set the flag; omit it for everyone else.
+    if (!isSuperuser) {
+      delete submitData.is_superuser
     }
     mutation.mutate(submitData)
   }
@@ -186,21 +201,32 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
                 )}
               />
 
-              <FormField
+              <RoleField
                 control={form.control}
-                name="is_superuser"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Is superuser?</FormLabel>
-                  </FormItem>
-                )}
+                canAssignAdmin={isSuperuser}
+                disabled={isSelf}
+                hint={isSelf ? "You cannot change your own role." : undefined}
               />
+
+              {isSuperuser && (
+                <FormField
+                  control={form.control}
+                  name="is_superuser"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Is superuser?
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

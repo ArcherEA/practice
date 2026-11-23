@@ -18,9 +18,11 @@ interface UserActionsMenuProps {
 
 export const UserActionsMenu = ({ user }: UserActionsMenuProps) => {
   const [open, setOpen] = useState(false)
-  const { user: currentUser } = useAuth()
+  const { canEditUser, canDeleteUser } = useAuth()
+  const mayEdit = canEditUser(user)
+  const mayDelete = canDeleteUser(user)
 
-  if (user.id === currentUser?.id) {
+  if (!mayEdit && !mayDelete) {
     return null
   }
 
@@ -32,8 +34,10 @@ export const UserActionsMenu = ({ user }: UserActionsMenuProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <EditUser user={user} onSuccess={() => setOpen(false)} />
-        <DeleteUser id={user.id} onSuccess={() => setOpen(false)} />
+        {mayEdit && <EditUser user={user} onSuccess={() => setOpen(false)} />}
+        {mayDelete && (
+          <DeleteUser id={user.id} onSuccess={() => setOpen(false)} />
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

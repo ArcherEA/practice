@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type UserCreate, UsersService } from "@/client"
+import { type UserCreate, type UserRole, UsersService } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -28,8 +28,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
+import { RoleField } from "./RoleField"
 
 const formSchema = z
   .object({
@@ -42,6 +44,7 @@ const formSchema = z
     confirm_password: z
       .string()
       .min(1, { message: "Please confirm your password" }),
+    role: z.enum(["member", "editor", "moderator", "admin"]),
     is_superuser: z.boolean(),
     is_active: z.boolean(),
   })
@@ -56,6 +59,8 @@ const AddUser = () => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { user: currentUser } = useAuth()
+  const isSuperuser = !!currentUser?.is_superuser
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -66,6 +71,7 @@ const AddUser = () => {
       full_name: "",
       password: "",
       confirm_password: "",
+      role: "member" as UserRole,
       is_superuser: false,
       is_active: false,
     },
@@ -85,7 +91,7 @@ const AddUser = () => {
   })
 
   const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+    mutation.mutate(isSuperuser ? data : { ...data, is_superuser: false })
   }
 
   return (
@@ -184,21 +190,27 @@ const AddUser = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_superuser"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Is superuser?</FormLabel>
-                  </FormItem>
-                )}
-              />
+              <RoleField control={form.control} canAssignAdmin={isSuperuser} />
+
+              {isSuperuser && (
+                <FormField
+                  control={form.control}
+                  name="is_superuser"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Is superuser?
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

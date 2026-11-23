@@ -6,8 +6,15 @@ import {
   LoginService,
   type UserPublic,
   type UserRegister,
+  type UserRole,
   UsersService,
 } from "@/client"
+import {
+  canDeleteUser,
+  canEditUser,
+  canManageUsers,
+  hasRole,
+} from "@/features/auth/permissions"
 import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 
@@ -59,6 +66,10 @@ const useAuth = () => {
   }
 
   return {
+    hasRole: (required: UserRole) => hasRole(user, required),
+    canManageUsers: canManageUsers(user),
+    canEditUser: (target: UserPublic) => canEditUser(user, target),
+    canDeleteUser: (target: UserPublic) => canDeleteUser(user, target),
     signUpMutation,
     loginMutation,
     logout,

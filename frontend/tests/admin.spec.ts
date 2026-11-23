@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
-import { createUser } from "./utils/privateApi"
+import { createUser, createUserWithRole } from "./utils/privateApi"
 import { randomEmail, randomPassword } from "./utils/random"
 import { logInUser } from "./utils/user"
 
@@ -201,5 +201,120 @@ test.describe("Admin page access control", () => {
     await page.goto("/admin")
 
     await expect(page.getByRole("heading", { name: "Users" })).toBeVisible()
+  })
+})
+
+test.describe("Roles", () => {
+  const addUserViaUi = async (
+    page: import("@playwright/test").Page,
+    email: string,
+    password: string,
+  ) => {
+    await page.getByRole("button", { name: "Add User" }).click()
+    await page.getByPlaceholder("Email").fill(email)
+    await page.getByPlaceholder("Password").first().fill(password)
+    await page.getByPlaceholder("Password").last().fill(password)
+  }
+
+  test("Superuser sees the admin option and the superuser checkbox", async ({
+    page,
+  }) => {
+    await page.goto("/admin")
+    await page.getByRole("button", { name: "Add User" }).click()
+    await expect(page.getByLabel("Is superuser?")).toBeVisible()
+    await page.getByRole("combobox", { name: "Role" }).click()
+    await expect(page.getByRole("option", { name: "Admin" })).toBeVisible()
+    await expect(page.getByRole("option", { name: "Editor" })).toBeVisible()
+  })
+
+  test("Superuser sets a user's role to editor and the table shows it", async ({
+    page,
+  }) => {
+    await page.goto("/admin")
+    const email = randomEmail()
+    await addUserViaUi(page, email, randomPassword())
+    await page.getByRole("button", { name: "Save" }).click()
+    await expect(page.getByText("User created successfully")).toBeVisible()
+    await expect(page.getByRole("dialog")).not.toBeVisible()
+
+    const userRow = page.getByRole("row").filter({ hasText: email })
+    await expect(userRow.getByText("Member")).toBeVisible()
+    await userRow.getByRole("button").click()
+    await page.getByRole("menuitem", { name: "Edit User" }).click()
+    await page.getByRole("combobox", { name: "Role" }).click()
+    await page.getByRole("option", { name: "Editor" }).click()
+    await page.getByRole("button", { name: "Save" }).click()
+
+    await expect(page.getByText("User updated successfully")).toBeVisible()
+    await expect(userRow.getByText("Editor")).toBeVisible()
+  })
+
+  test("Role is disabled when a superuser edits themselves", async ({
+    page,
+  }) => {
+    await page.goto("/admin")
+    const row = page.getByRole("row").filter({ hasText: firstSuperuser })
+    await row.getByRole("button").click()
+    await page.getByRole("menuitem", { name: "Edit User" }).click()
+    await expect(page.getByRole("combobox", { name: "Role" })).toBeDisabled()
+    await expect(
+      page.getByText("You cannot change your own role."),
+    ).toBeVisible()
+  })
+
+  test.describe("as a non-superuser admin", () => {
+    test.use({ storageState: { cookies: [], origins: [] } })
+
+    test("sees Admin, no admin option, and cannot edit admins or superusers", async ({
+      page,
+    }) => {
+      const adminEmail = randomEmail()
+      const otherAdminEmail = randomEmail()
+      const superEmail = randomEmail()
+      const memberEmail = randomEmail()
+      const password = randomPassword()
+      await createUserWithRole({ email: adminEmail, password, role: "admin" })
+      await createUserWithRole({
+        email: otherAdminEmail,
+        password,
+        role: "admin",
+      })
+      await createUserWithRole({
+        email: superEmail,
+        password,
+        role: "member",
+        isSuperuser: true,
+      })
+      await createUserWithRole({ email: memberEmail, password, role: "member" })
+
+      await logInUser(page, adminEmail, password)
+      await expect(page.getByRole("link", { name: "Admin" })).toBeVisible()
+      await page.getByRole("link", { name: "Admin" }).click()
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible()
+
+      const rowOf = (email: string) =>
+        page.getByRole("row").filter({ hasText: email })
+      await expect(rowOf(memberEmail)).toBeVisible()
+      await expect(rowOf(memberEmail).getByRole("button")).toBeVisible()
+      await expect(rowOf(otherAdminEmail)).toBeVisible()
+      await expect(rowOf(otherAdminEmail).getByRole("button")).toHaveCount(0)
+      await expect(rowOf(superEmail)).toBeVisible()
+      await expect(rowOf(superEmail).getByRole("button")).toHaveCount(0)
+      await expect(rowOf(adminEmail).getByRole("button")).toHaveCount(0)
+
+      await page.getByRole("button", { name: "Add User" }).click()
+      await expect(page.getByLabel("Is superuser?")).toHaveCount(0)
+      await page.getByRole("combobox", { name: "Role" }).click()
+      await expect(page.getByRole("option", { name: "Editor" })).toBeVisible()
+      await expect(page.getByRole("option", { name: "Admin" })).toHaveCount(0)
+    })
+
+    test("a member does not see Admin in the sidebar", async ({ page }) => {
+      const email = randomEmail()
+      const password = randomPassword()
+      await createUserWithRole({ email, password, role: "member" })
+      await logInUser(page, email, password)
+      await expect(page.getByRole("link", { name: "Admin" })).toHaveCount(0)
+    })
   })
 })
