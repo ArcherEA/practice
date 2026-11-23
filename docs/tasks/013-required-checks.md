@@ -12,5 +12,6 @@ skipped docs-only changes with `paths-ignore`, so as *required* checks they woul
 - `docs/BRANCH-PROTECTION.md`: exact ruleset settings and the PR workflow. `CLAUDE.md`: changes reach `main` via PRs.
 
 ## Acceptance criteria
-- On this PR (code changes): tests run; `alls-green-backend`, `alls-green-docker-compose`, `alls-green-playwright` green.
+- On this PR (code changes): tests run; `alls-green-backend`, `alls-green-docker-compose`, `alls-green-playwright` and
+  `pre-commit-alls-green` (lint/types, required too — review feedback) green.
 - On a docs-only PR: test jobs skipped, the three `alls-green-*` checks still **green**.
