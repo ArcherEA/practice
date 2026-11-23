@@ -19,5 +19,5 @@ export const Route = createFileRoute("/_public/p/$slug")({
 
 function PublicPage() {
   const page = Route.useLoaderData()
-  return <PageView title={page.title} body={page.body} />
+  return <PageView id={page.id} title={page.title} body={page.body} />
 }

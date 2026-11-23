@@ -46,6 +46,7 @@ from app.modules.community.schemas import (
     CommentSort,
     CommentsPublic,
     CommentState,
+    CommentTargetPublic,
     CommentUpdate,
     LikeState,
     ModerationComment,
@@ -845,9 +846,24 @@ def moderation_queue(
                 created_at=r.created_at,
             )
         )
+    post_ids = {c.post_id for c in comments if c.post_id is not None}
+    page_ids = {c.page_id for c in comments if c.page_id is not None}
+    posts = (
+        {p.id: p for p in session.exec(select(Post).where(col(Post.id).in_(post_ids)))}
+        if post_ids
+        else {}
+    )
+    pages = (
+        {p.id: p for p in session.exec(select(Page).where(col(Page.id).in_(page_ids)))}
+        if page_ids
+        else {}
+    )
     data: list[ModerationComment] = []
     for c in comments:
         target_type, target_id = _target(c)
+        content = (
+            posts.get(target_id) if target_type == "post" else pages.get(target_id)
+        )
         open_reports = by_comment.get(c.id, [])
         data.append(
             ModerationComment(
@@ -863,6 +879,14 @@ def moderation_queue(
                 like_count=c.like_count,
                 open_report_count=len(open_reports),
                 reports=open_reports,
+                target=CommentTargetPublic(
+                    type=target_type,
+                    id=target_id,
+                    title=content.title,
+                    slug=content.slug,
+                )
+                if content is not None
+                else None,
             )
         )
     return ModerationQueue(data=data, count=count)

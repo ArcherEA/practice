@@ -3,6 +3,7 @@ import {
   ExternalLink,
   FileText,
   type LucideIcon,
+  ShieldCheck,
 } from "lucide-react"
 
 import type { UserPublic, UserRole } from "@/client"
@@ -27,6 +28,13 @@ export const moduleNavItems: ModuleNavItem[] = [
     icon: FileText,
     path: "/content",
     requiredRole: "editor",
+  },
+  {
+    module: "community",
+    title: "Moderation",
+    icon: ShieldCheck,
+    path: "/moderation",
+    requiredRole: "moderator",
   },
   // Link to the public site, for every logged-in user.
   { module: "content", title: "View blog", icon: ExternalLink, path: "/blog" },

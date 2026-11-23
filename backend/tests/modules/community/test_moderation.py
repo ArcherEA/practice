@@ -122,6 +122,10 @@ def test_hidden_comments_leave_public_lists_unless_they_have_visible_replies(
     hidden = {c["id"]: c for c in queue(cclient, mod, filter="hidden")}
     assert hidden[lonely["id"]]["state"] == "hidden"
     assert hidden[parent["id"]]["body"] == "parent text"
+    target = hidden[parent["id"]]["target"]
+    assert target["type"] == "post"
+    assert target["id"] == str(post.id)
+    assert target["slug"] == post.slug
 
     # Hiding a reply removes it completely.
     assert (

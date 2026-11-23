@@ -258,6 +258,17 @@ type, actor, `comment_snippet` of at most 140 characters, target post/page with 
 is left out for comments that are not public (except for their own author) and the target for unpublished content.
 Retention is 90 days via `cleanup_notifications` (see above); there is no push, the UI polls (D18).
 
+**Comments and moderation UI (task 016, `frontend/src/features/community/`):** `CommentSection` is rendered under
+`/blog/$slug` and `/p/$slug` only when the `community` module is enabled (nothing is rendered or requested otherwise).
+It holds the post like button, newest/oldest sort, comment form (5000-character counter), one reply level, the actions
+menu (Edit when `can_edit`, Delete for own comments, Report for others'), placeholders and a suspension notice. Bodies are
+plain text (`whitespace-pre-wrap`, never HTML). Anonymous visitors get "Log in to comment" -> `/login?redirect=<path>`;
+`features/auth/redirect.ts` accepts only same-site relative paths. `/moderation` (sidebar entry via `moduleNavItems`,
+`requiredRole: moderator`) has Reported, Hidden and Suspensions tabs; route guards = module + `canModerate`
+(`hasRole(user, "moderator")`, so editors are excluded). A 403 from `/api/v1/community/*` does not log the user out (it
+is a rule such as "You are suspended from commenting"); it is shown as a toast. `ModerationComment` carries `target`
+(type, id, title, slug) so the queue can link to the post or page.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|
