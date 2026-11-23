@@ -63,6 +63,7 @@ export async function createEditorApi() {
       if (!draft) await call("POST", `/content/manage/posts/${post.id}/publish`)
       return post
     },
+    deletePage: (id: string) => call("DELETE", `/content/manage/pages/${id}`),
     async page(
       data: Record<string, unknown> & { title: string },
       { draft = false }: { draft?: boolean } = {},

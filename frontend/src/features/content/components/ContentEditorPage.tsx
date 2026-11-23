@@ -46,6 +46,7 @@ import {
 import { EMPTY_BODY, slugify, toEditorContent } from "../body"
 import { ContentRenderer } from "./ContentRenderer"
 import { CharCounter, CoverImageField, TagPicker } from "./fields"
+import { PublicLinkActions } from "./PublicLinkActions"
 import { RichTextEditor } from "./RichTextEditor"
 import { ConfirmDeleteDialog, StatusBadge } from "./shared"
 
@@ -418,6 +419,15 @@ function EditorForm({ kind, initial }: EditorFormProps) {
             )}
           </div>
         </div>
+
+        {current.id && (
+          <PublicLinkActions
+            kind={kind}
+            slug={current.values.slug}
+            published={isPublished}
+            slugDirty={form.watch("slug").trim() !== current.values.slug}
+          />
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="flex min-w-0 flex-col gap-4">

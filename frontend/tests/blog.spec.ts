@@ -35,7 +35,7 @@ test.describe("Public blog", () => {
     await page.goto("/blog")
     await expect(page.getByRole("heading", { name: "Blog" })).toBeVisible()
     await expect(page.getByRole("link", { name: "Log in" })).toBeVisible()
-    await page.getByRole("link", { name: title }).click()
+    await page.getByRole("main").getByRole("link", { name: title }).click()
 
     // Client-side navigation: the title matches what the server injects.
     await expect(page).toHaveURL(`/blog/${post.slug}`)
@@ -49,15 +49,25 @@ test.describe("Public blog", () => {
       `Description ${id}`,
     )
 
-    await page.getByRole("link", { name: `Tag ${id}` }).click()
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: `Tag ${id}` })
+      .click()
     await expect(page).toHaveURL(`/blog/tag/${tag.slug}`)
-    await expect(page.getByRole("link", { name: title })).toBeVisible()
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toBeVisible()
     await expect.poll(() => page.title()).toBe(`Posts tagged Tag ${id}`)
 
     await page.goBack()
-    await page.getByRole("link", { name: `Cat ${id}`, exact: true }).click()
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: `Cat ${id}`, exact: true })
+      .click()
     await expect(page).toHaveURL(`/blog/category/${category.slug}`)
-    await expect(page.getByRole("link", { name: title })).toBeVisible()
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toBeVisible()
     await expect.poll(() => page.title()).toBe(`Cat ${id}`)
 
     await page.goto(`/p/${staticPage.slug}`)
@@ -84,9 +94,11 @@ test.describe("Public blog", () => {
 
     await page.goto("/blog")
     await expect(
-      page.getByRole("link", { name: `Live post ${id}` }),
+      page.getByRole("main").getByRole("link", { name: `Live post ${id}` }),
     ).toBeVisible()
-    await expect(page.getByRole("link", { name: title })).toHaveCount(0)
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toHaveCount(0)
 
     await page.goto(`/blog/${draft.slug}`)
     await expect(page.getByTestId("not-found")).toBeVisible()
@@ -101,5 +113,58 @@ test.describe("Public blog", () => {
     await expect(
       page.getByRole("heading", { name: `Live post ${id}` }),
     ).toBeVisible()
+  })
+
+  test("Public pages have no sidebar and no page links; pages open by direct link", async ({
+    page,
+  }) => {
+    const id = unique()
+    const api = await createEditorApi()
+    const live = await api.page({ title: `Direct page ${id}` })
+    try {
+      await page.goto("/blog")
+      await expect(
+        page.getByRole("heading", { name: "Blog", level: 1 }),
+      ).toBeVisible()
+      // No sidebar and no link to the page anywhere on the blog.
+      await expect(page.getByRole("complementary")).toHaveCount(0)
+      await expect(
+        page.getByRole("link", { name: `Direct page ${id}` }),
+      ).toHaveCount(0)
+      await expect(
+        page.getByRole("button", { name: "More", exact: true }),
+      ).toHaveCount(0)
+      // Footer is only the copyright line.
+      await expect(
+        page.locator("footer", { hasText: "©" }).getByRole("link"),
+      ).toHaveCount(0)
+
+      // The page is still reachable by its URL.
+      await page.goto(`/p/${live.slug}`)
+      await expect(
+        page.getByRole("heading", { name: `Direct page ${id}`, level: 1 }),
+      ).toBeVisible()
+      await expect(page.getByRole("complementary")).toHaveCount(0)
+    } finally {
+      await api.deletePage(live.id)
+    }
+  })
+
+  test("The blog fits a phone screen without horizontal scrolling", async ({
+    page,
+  }) => {
+    const api = await createEditorApi()
+    await api.post({ title: `Narrow post ${unique()}` })
+    await page.setViewportSize({ width: 375, height: 800 })
+    await page.goto("/blog")
+    await expect(
+      page.getByRole("heading", { name: "Blog", level: 1 }),
+    ).toBeVisible()
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    )
+    expect(overflow).toBe(false)
   })
 })

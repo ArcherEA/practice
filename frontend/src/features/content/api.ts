@@ -59,3 +59,7 @@ export const fetchTags = async () => (await ContentService.readTags()).data
 /** Where each kind lives in the admin UI. */
 export const listPath = (kind: ContentKind) =>
   kind === "post" ? "/content/posts" : "/content/pages"
+
+/** Public (reader-facing) path of an item, from its saved slug. */
+export const publicPath = (kind: ContentKind, slug: string) =>
+  kind === "post" ? `/blog/${slug}` : `/p/${slug}`

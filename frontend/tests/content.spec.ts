@@ -377,6 +377,8 @@ test.describe("Content editor", () => {
     await page.getByRole("button", { name: "Publish" }).click()
     await expect(page.getByText("Page published")).toBeVisible()
     await page.goto("/content/pages")
+    // Search instead of relying on page 1: the list is sorted by title and paginated.
+    await page.getByPlaceholder("Search by title").fill(pageTitle)
     await expect(
       page
         .getByRole("row")
@@ -413,5 +415,118 @@ test.describe("Content module disabled", () => {
     ).toHaveCount(0)
     await page.goto("/content/posts")
     await expect(page.getByText("404")).toBeVisible()
+  })
+})
+
+test.describe("Public links in the editor", () => {
+  test.use({
+    storageState: { cookies: [], origins: [] },
+    permissions: ["clipboard-read", "clipboard-write"],
+  })
+
+  test("Published post: View on site, Copy link, list icon; draft: hint", async ({
+    page,
+  }) => {
+    await loginAsEditor(page)
+    await page.goto("/content/posts/new")
+    const title = randomTitle()
+    await titleInput(page).fill(title)
+    await bodyEditor(page).click()
+    await page.keyboard.type("Visible on the public site")
+    const slug = title.toLowerCase().replace(/\s+/g, "-")
+
+    await page.getByRole("button", { name: "Save draft" }).click()
+    await expect(page.getByText("Post saved")).toBeVisible()
+    await expect(page.getByText("Not published yet")).toBeVisible()
+    await expect(page.getByRole("link", { name: "View on site" })).toHaveCount(
+      0,
+    )
+
+    await page.getByRole("button", { name: "Publish" }).click()
+    await expect(page.getByText("Post published")).toBeVisible()
+    const view = page.getByRole("link", { name: "View on site", exact: true })
+    await expect(view).toHaveAttribute("href", `/blog/${slug}`)
+    await expect(view).toHaveAttribute("target", "_blank")
+    await expect(view).toHaveAttribute("rel", /noopener/)
+
+    // An unsaved slug edit keeps the saved link and shows a hint.
+    await page.getByRole("textbox", { name: "Slug" }).fill(`${slug}-new`)
+    await expect(page.getByText("Save to update the link")).toBeVisible()
+    await expect(view).toHaveAttribute("href", `/blog/${slug}`)
+    await page.getByRole("textbox", { name: "Slug" }).fill(slug)
+
+    await page.getByRole("button", { name: "Copy link", exact: true }).click()
+    await expect(page.getByText("Link copied")).toBeVisible()
+    const origin = new URL(page.url()).origin
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      `${origin}/blog/${slug}`,
+    )
+
+    const [popup] = await Promise.all([
+      page.waitForEvent("popup"),
+      view.click(),
+    ])
+    await expect(popup).toHaveURL(`${origin}/blog/${slug}`)
+    await expect(
+      popup.getByRole("heading", { name: title, level: 1 }),
+    ).toBeVisible()
+    await popup.close()
+
+    // The list has an icon link for the published row.
+    await page.goto("/content/posts")
+    const icon = page.getByRole("link", {
+      name: `View ${title} on site`,
+      exact: true,
+    })
+    await expect(icon).toHaveAttribute("href", `/blog/${slug}`)
+    await expect(icon).toHaveAttribute("target", "_blank")
+  })
+
+  test("Published page links to /p/<slug>; drafts have no list icon", async ({
+    page,
+  }) => {
+    await loginAsEditor(page)
+    await page.goto("/content/pages/new")
+    const title = `Page ${Math.random().toString(36).substring(2, 8)}`
+    await titleInput(page).fill(title)
+    await page.getByRole("button", { name: "Save draft" }).click()
+    await expect(page.getByText("Page saved")).toBeVisible()
+    await page.goto("/content/pages")
+    await page.getByPlaceholder("Search by title").fill(title)
+    await expect(
+      page.getByRole("link", { name: title, exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: `View ${title} on site`, exact: true }),
+    ).toHaveCount(0)
+
+    await page.getByRole("link", { name: title, exact: true }).click()
+    await page.getByRole("button", { name: "Publish" }).click()
+    await expect(page.getByText("Page published")).toBeVisible()
+    const slug = title.toLowerCase().replace(/\s+/g, "-")
+    await expect(
+      page.getByRole("link", { name: "View on site", exact: true }),
+    ).toHaveAttribute("href", `/p/${slug}`)
+  })
+
+  test("View blog opens /blog from the sidebar and the content header", async ({
+    page,
+  }) => {
+    await loginAsEditor(page)
+    await page
+      .getByRole("link", { name: "View blog", exact: true })
+      .first()
+      .click()
+    await expect(page).toHaveURL(/\/blog$/)
+
+    await page.goto("/content/posts")
+    await page.getByTestId("content-view-blog").click()
+    await expect(page).toHaveURL(/\/blog$/)
+  })
+
+  test("Members also get the View blog link", async ({ page }) => {
+    await loginAsEditor(page, "member")
+    await page.getByRole("link", { name: "View blog", exact: true }).click()
+    await expect(page).toHaveURL(/\/blog$/)
   })
 })
