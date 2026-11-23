@@ -5,7 +5,7 @@
 ## Decisions (agreed with the user)
 | Topic | Decision |
 |---|---|
-| Production storage | **Cloudflare R2** (S3-compatible). Locally and on the own server: **MinIO**. One S3 code path everywhere. |
+| Production storage | **Cloudflare R2** (S3-compatible). Locally and on the own server: **SeaweedFS** (MinIO is no longer maintained — see D14). One S3 code path everywhere. |
 | First use | **Profile avatars** (upload in Settings, shown in the sidebar). The generic `/files` API is built too, without a file-manager UI. |
 | Allowed files | **Any type, max 10 MB.** Only images (JPEG, PNG, WebP, GIF) are ever shown inline; everything else — including SVG and HTML — is always served as a download (`Content-Disposition: attachment`) so a malicious file can't run in the browser. Avatars additionally must be one of those image types. |
 | Visibility | **Private by default:** files are reached only through short-lived signed URLs handed out by the API to allowed users. Avatars may be public (permanent URL) when `S3_PUBLIC_BASE_URL` is configured; otherwise they're served with signed URLs too. |
@@ -39,7 +39,7 @@ stay stateless for Vercel, so files go to object storage, not local disk.
 - **Direct-to-bucket uploads with presigned URLs:** the browser asks the API for a short-lived upload URL, uploads the
   file straight to the bucket, then confirms. Reason: Vercel functions reject request bodies over ~4.5 MB, and this keeps
   large files off our server entirely.
-- Same code everywhere through the S3 API: **MinIO** container locally and on the own server, **Cloudflare R2** on Vercel
+- Same code everywhere through the S3 API: **SeaweedFS** container locally and on the own server, **Cloudflare R2** on Vercel
   (R2: free egress, generous free tier).
 - Files are private by default; downloads use short-lived presigned GET URLs. A `public` flag allows permanent public URLs (e.g. avatars).
 
@@ -59,7 +59,7 @@ stay stateless for Vercel, so files go to object storage, not local disk.
 - **First consumer:** user avatar — `avatar_file_id` on User, set via `/users/me`.
 
 ## Scope — infrastructure and docs
-- Add MinIO (+ one-shot bucket/CORS setup) to `compose.yml`/`compose.override.yml`; add to `compose.deploy.yml` for the own server.
+- Add SeaweedFS (+ one-shot bucket/CORS setup) to `compose.yml`/`compose.override.yml`; add to `compose.deploy.yml` for the own server.
 - Document R2 setup for Vercel in `docs/deploy-vercel.md` (bucket, API token, CORS for the Vercel domain).
 
 ## Scope — frontend
@@ -70,12 +70,12 @@ stay stateless for Vercel, so files go to object storage, not local disk.
 Image resizing/thumbnails, virus scanning, a media library UI (comes with Content).
 
 ## New dependencies
-- `boto3` (Apache-2.0) — the standard, maintained S3 client for Python; works with MinIO and R2 (decision D7).
+- `boto3` (Apache-2.0) — the standard, maintained S3 client for Python; works with SeaweedFS and R2 (decisions D7, D14).
 - `boto3-stubs[s3]` (MIT, dev only) — keeps mypy strict.
-- MinIO server image (AGPL, used as an unmodified service — no obligation for our code).
+- SeaweedFS server image `chrislusf/seaweedfs` (Apache-2.0) and `amazon/aws-cli` for bucket/CORS init (D14).
 
 ## Acceptance criteria
-- Locally with Docker: upload an avatar in Settings, refresh, it's still shown; the object is visible in the MinIO console.
+- Locally with Docker: upload an avatar in Settings, refresh, it's still shown; the object is visible in the SeaweedFS filer UI (http://127.0.0.1:8888).
 - Files over 10 MB are rejected (before upload when declared, and at confirm by real size); non-images download instead of opening; a non-image avatar is rejected. Deleting a file removes the object.
 - Each usage limit has a test (total full → 507, user quota → 413, daily count → 429, superuser exemptions, old avatar deleted on replace).
 - Tests for the service (fake storage) and endpoints; Playwright avatar upload flow. CI green; `requirements.txt` regenerated (task 003).
