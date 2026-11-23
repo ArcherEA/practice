@@ -10,6 +10,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
 - [ ] **Phase 1 — Core gaps** (task files drafted, awaiting approval; build in this order)
   - [x] 003 Keep `requirements.txt` in sync with `uv.lock` (CI check) — implemented 2026-11-22: `scripts/export-requirements.sh` + `check-requirements.yml`; Dependabot kept, fix documented in `docs/deploy-vercel.md`
   - [x] 004 Module system + feature flags (`MODULES` env var; items demo becomes the reference module)
+  - [x] 007 Backend tests use their own `<db>_test` database (dev data no longer wiped by `pytest`)
   - [ ] 005 Roles: member / editor / moderator / admin (+ superuser as owner)
   - [ ] 006 File uploads: presigned URLs to S3-compatible storage (MinIO local/own server, R2 on Vercel); avatar as first use
 - [ ] **Phase 2 — Content:** models + API, Tiptap editor, public pages + SEO

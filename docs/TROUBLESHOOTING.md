@@ -5,12 +5,15 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
-## 2026-11-22 — Login fails locally after running backend tests (admin user gone)
-- **Symptom:** after `uv run pytest`, logging in locally fails (400 "Incorrect email or password").
-- **Cause:** the template's `backend/tests/conftest.py` deletes all `Item` and `User` rows when the test session ends,
-  and the tests use the same database as local development (`localhost:5432/app`).
-- **Fix:** recreate the admin: from `backend/`, `uv run python app/initial_data.py`.
-- **Prevention / later:** give tests their own database (e.g. `app_test`) so they never touch dev data — candidate follow-up task.
+## 2026-11-22 — Login fails locally after running backend tests (admin user gone) — FIXED (task 007)
+- **Symptom:** after `uv run pytest`, logging in locally failed (400 "Incorrect email or password").
+- **Cause:** the template's `backend/tests/conftest.py` deleted all `Item` and `User` rows when the test session ended,
+  and the tests used the same database as local development (`localhost:5432/app`).
+- **Fix (task 007):** tests now use their own database. `tests/conftest.py` sets `DATABASE_URL` to `<name>_test`
+  (e.g. `app_test`; same server and credentials, or `TEST_DATABASE_URL` if set) before any `app.*` import. A session
+  fixture creates the database if missing, runs `alembic upgrade head` on it, and cleans every table afterwards.
+  Cleanup refuses to run unless the database name ends with `_test`. Code: `backend/tests/db_setup.py`.
+- **If you still lost the admin (older checkout):** from `backend/`, `uv run python app/initial_data.py`.
 
 ## 2026-11-22 — Neon migrations silently ran against the LOCAL database
 - **Symptom:** `prestart.sh` printed "Initial data created" but Neon had no tables (`relation "alembic_version" does not exist`).

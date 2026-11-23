@@ -68,6 +68,8 @@ $ uv run bash scripts/test.sh
 
 The tests run with Pytest. Modify existing tests or add new ones in `./backend/tests/`.
 
+Tests never touch your development database: they run against `<database>_test` (e.g. `app_test`, created and migrated automatically; override with `TEST_DATABASE_URL`).
+
 If you use GitHub Actions, the tests will run automatically.
 
 ### Test a Running Stack
