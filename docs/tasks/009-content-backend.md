@@ -1,6 +1,6 @@
 # 009 — Content module: backend (posts, pages, categories, tags)
 
-**Status:** draft (needs user approval) · **Agent:** backend-engineer · **Branch:** `feat/009-content-backend`
+**Status:** approved 2026-11-23, in progress · **Agent:** backend-engineer · **Branch:** `feat/009-content-backend`
 
 ## Decisions (agreed with the user, 2026-11-23)
 | Topic | Decision |
