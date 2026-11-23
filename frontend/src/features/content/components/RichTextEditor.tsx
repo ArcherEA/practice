@@ -98,10 +98,22 @@ function Toolbar({ editor }: { editor: Editor }) {
   const [linkOpen, setLinkOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
   const [linkError, setLinkError] = useState<string | null>(null)
+  // Selection captured when the link bar opens: typing in the URL field moves focus
+  // out of the editor, so re-apply this range instead of trusting the live selection.
+  const [linkRange, setLinkRange] = useState<{
+    from: number
+    to: number
+  } | null>(null)
 
   const chain = () => editor.chain().focus()
+  const linkChain = () =>
+    linkRange
+      ? editor.chain().focus().setTextSelection(linkRange)
+      : editor.chain().focus()
 
   const openLink = () => {
+    const { from, to } = editor.state.selection
+    setLinkRange({ from, to })
     setLinkUrl((editor.getAttributes("link").href as string | undefined) ?? "")
     setLinkError(null)
     setLinkOpen(true)
@@ -110,7 +122,7 @@ function Toolbar({ editor }: { editor: Editor }) {
   const applyLink = () => {
     const url = linkUrl.trim()
     if (!url) {
-      chain().extendMarkRange("link").unsetLink().run()
+      linkChain().extendMarkRange("link").unsetLink().run()
       setLinkOpen(false)
       return
     }
@@ -118,12 +130,12 @@ function Toolbar({ editor }: { editor: Editor }) {
       setLinkError("Use an http://, https:// or mailto: address, or a /path.")
       return
     }
-    chain().extendMarkRange("link").setLink({ href: url.trim() }).run()
+    linkChain().extendMarkRange("link").setLink({ href: url }).run()
     setLinkOpen(false)
   }
 
   const removeLink = () => {
-    chain().extendMarkRange("link").unsetLink().run()
+    linkChain().extendMarkRange("link").unsetLink().run()
     setLinkOpen(false)
   }
 

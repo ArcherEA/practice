@@ -102,6 +102,10 @@ test.describe("Content editor", () => {
     await page.keyboard.press("Enter")
     await page.keyboard.type("a link")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("a link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("https://example.com")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -223,6 +227,10 @@ test.describe("Content editor", () => {
     await tool(page, "Horizontal rule").click()
     await type("linked")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("linked")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("/about")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -288,6 +296,10 @@ test.describe("Content editor", () => {
     await bodyEditor(page).click()
     await page.keyboard.type("bad link")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("bad link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("javascript:alert(1)")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -458,9 +470,17 @@ test.describe("Public links in the editor", () => {
     await page.getByRole("button", { name: "Copy link", exact: true }).click()
     await expect(page.getByText("Link copied")).toBeVisible()
     const origin = new URL(page.url()).origin
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-      `${origin}/blog/${slug}`,
+    // The Clipboard API only exists on secure pages (https or localhost). In CI the app
+    // runs at http://backend:8000, where the app uses its execCommand fallback and the
+    // test can't read the clipboard back, so only the toast is checked there.
+    const secure = await page.evaluate(
+      () => window.isSecureContext && Boolean(navigator.clipboard),
     )
+    if (secure) {
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+        `${origin}/blog/${slug}`,
+      )
+    }
 
     const [popup] = await Promise.all([
       page.waitForEvent("popup"),

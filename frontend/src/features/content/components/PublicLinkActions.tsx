@@ -4,6 +4,23 @@ import { Button } from "@/components/ui/button"
 import useCustomToast from "@/hooks/useCustomToast"
 import { type ContentKind, publicPath } from "../api"
 
+/** Copies text via a temporary textarea; works on non-secure (http) pages too. */
+function copyWithTextarea(text: string): boolean {
+  const area = document.createElement("textarea")
+  area.value = text
+  area.setAttribute("readonly", "")
+  area.style.position = "fixed"
+  area.style.opacity = "0"
+  document.body.appendChild(area)
+  area.select()
+  try {
+    // execCommand is deprecated but is the only option without the Clipboard API.
+    return document.execCommand("copy")
+  } finally {
+    area.remove()
+  }
+}
+
 interface PublicLinkActionsProps {
   kind: ContentKind
   /** The saved slug (not unsaved form edits). */
@@ -30,8 +47,15 @@ export function PublicLinkActions({
 
   const path = publicPath(kind, slug)
   const copy = async () => {
+    const url = `${window.location.origin}${path}`
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${path}`)
+      // navigator.clipboard only exists on secure pages (https:// or localhost);
+      // on plain http (e.g. an own server without TLS) fall back to execCommand.
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+      } else if (!copyWithTextarea(url)) {
+        throw new Error("copy failed")
+      }
       showSuccessToast("Link copied")
     } catch {
       showErrorToast("Could not copy the link")
