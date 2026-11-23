@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
@@ -19,9 +21,16 @@ def test_registry_matches_module_names() -> None:
     assert set(DEFAULT_MODULES) <= set(MODULE_NAMES)
 
 
-def test_default_modules(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_default_modules(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("MODULES", raising=False)
-    settings_from_env = Settings()  # type: ignore[call-arg] # required fields come from env
+    # The real .env (copied from .env.example in CI) sets MODULES; use a copy without it.
+    lines = Path("../.env").read_text(encoding="utf-8").splitlines()
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(line for line in lines if not line.startswith("MODULES=")),
+        encoding="utf-8",
+    )
+    settings_from_env = Settings(_env_file=env_file)  # type: ignore[call-arg] # required fields come from the env file
     assert settings_from_env.MODULES == list(DEFAULT_MODULES)
 
 
