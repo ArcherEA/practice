@@ -1982,6 +1982,40 @@ export type contentReadPublishedPostResponses = {
 
 export type contentReadPublishedPostResponse = contentReadPublishedPostResponses[keyof contentReadPublishedPostResponses];
 
+export type contentReadPublishedPagesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/content/pages';
+};
+
+export type contentReadPublishedPagesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadPublishedPagesError = contentReadPublishedPagesErrors[keyof contentReadPublishedPagesErrors];
+
+export type contentReadPublishedPagesResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagesPublic;
+};
+
+export type contentReadPublishedPagesResponse = contentReadPublishedPagesResponses[keyof contentReadPublishedPagesResponses];
+
 export type contentReadPublishedPageData = {
     body?: never;
     path: {

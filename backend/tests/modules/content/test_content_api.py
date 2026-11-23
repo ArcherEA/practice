@@ -1093,3 +1093,27 @@ def test_page_slugs_are_independent_from_post_slugs(
     assert post["slug"] == page["slug"]
     second_page = create_page(content_client, headers, title=title)
     assert second_page["slug"] == f"{page['slug']}-2"
+
+
+def test_public_page_list_shows_published_pages_only(
+    content_client: TestClient, editor: tuple[User, Headers]
+) -> None:
+    _, headers = editor
+    published = create_page(
+        content_client, headers, title="Zz Public Menu Page", body=doc(para("x"))
+    )
+    content_client.post(f"{MANAGE}/pages/{published['id']}/publish", headers=headers)
+    draft = create_page(
+        content_client, headers, title="Zz Draft Menu Page", body=doc(para("y"))
+    )
+
+    r = content_client.get(f"{BASE}/pages", params={"limit": 100})  # no auth needed
+    assert r.status_code == 200
+    items = r.json()["data"]
+    slugs = {p["slug"] for p in items}
+    assert published["slug"] in slugs
+    assert draft["slug"] not in slugs
+    assert all(p["status"] == "published" for p in items)
+    assert "body" not in items[0]
+    assert r.json()["count"] >= 1
+    assert content_client.get(f"{BASE}/pages", params={"limit": 101}).status_code == 422

@@ -68,6 +68,17 @@ def read_published_post(session: SessionDep, slug: str) -> PostPublic:
     return service.to_post_public(service.get_published_post(session, slug))
 
 
+@router.get("/pages", response_model=PagesPublic)
+def read_published_pages(
+    session: SessionDep, skip: Skip = 0, limit: Limit = 50
+) -> PagesPublic:
+    """Published pages by title (no body) — for the public site menu."""
+    pages, count = service.list_pages(
+        session, skip=skip, limit=limit, status=ContentStatus.published
+    )
+    return PagesPublic(data=[service.to_page_summary(p) for p in pages], count=count)
+
+
 @router.get("/pages/{slug}", response_model=PagePublic)
 def read_published_page(session: SessionDep, slug: str) -> PagePublic:
     """A published page by slug (404 for drafts and unknown slugs)."""
