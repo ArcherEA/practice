@@ -1,6 +1,6 @@
 # 010 — Content module: editor UI (admin side)
 
-**Status:** draft (needs user approval) · **Agent:** frontend-engineer · **Branch:** `feat/010-content-editor` · **Needs:** 009 merged
+**Status:** approved 2026-11-23, in progress · **Agent:** frontend-engineer · **Branch:** `feat/010-content-editor` · **Needs:** 009 merged
 
 ## Why
 Editors need screens to write and manage posts, pages, categories and tags.
