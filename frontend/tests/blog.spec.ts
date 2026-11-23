@@ -169,48 +169,12 @@ test.describe("Public blog", () => {
     }
   })
 
-  test("The timeline lists a new post under its month and marks the current one", async ({
-    page,
-  }) => {
-    const id = unique()
-    const api = await createEditorApi()
-    const title = `Timeline post ${id}`
-    const post = await api.post({ title })
-    const month = new Date().toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    })
-
-    await page.goto("/blog")
-    const timeline = page.getByRole("navigation", {
-      name: "Timeline",
-      exact: true,
-    })
-    const toggle = timeline.getByRole("button", { name: month })
-    await expect(toggle).toHaveAttribute("aria-expanded", "true")
-    await timeline.getByRole("link", { name: title, exact: true }).click()
-    await expect(page).toHaveURL(`/blog/${post.slug}`)
-    await expect(
-      timeline.getByRole("link", { name: title, exact: true }),
-    ).toHaveAttribute("aria-current", "page")
-
-    // Months collapse and expand with the button.
-    await toggle.click()
-    await expect(toggle).toHaveAttribute("aria-expanded", "false")
-    await expect(
-      timeline.getByRole("link", { name: title, exact: true }),
-    ).toHaveCount(0)
-    await toggle.click()
-    await expect(
-      timeline.getByRole("link", { name: title, exact: true }),
-    ).toBeVisible()
-  })
-
   test("On a narrow screen the sidebar sits below the content without overflow", async ({
     page,
   }) => {
     const api = await createEditorApi()
-    await api.post({ title: `Narrow post ${unique()}` })
+    // The sidebar shows published pages, so make sure there is one.
+    const sidebarPage = await api.page({ title: `AAA Narrow ${unique()}` })
     await page.setViewportSize({ width: 375, height: 800 })
     await page.goto("/blog")
     const sidebar = page.getByRole("complementary", {
@@ -227,13 +191,15 @@ test.describe("Public blog", () => {
         document.documentElement.clientWidth,
     )
     expect(overflow).toBe(false)
+    await api.deletePage(sidebarPage.id)
   })
 
   test("On a wide screen the sidebar sits beside the content", async ({
     page,
   }) => {
     const api = await createEditorApi()
-    await api.post({ title: `Wide post ${unique()}` })
+    // The sidebar shows published pages, so make sure there is one.
+    const sidebarPage = await api.page({ title: `AAA Wide ${unique()}` })
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto("/blog")
     const sidebar = page.getByRole("complementary", {
@@ -245,5 +211,6 @@ test.describe("Public blog", () => {
     const side = await sidebar.boundingBox()
     expect(main && side && side.x >= main.x + main.width - 1).toBe(true)
     expect(main && side && Math.abs(side.y - main.y) < 8).toBe(true)
+    await api.deletePage(sidebarPage.id)
   })
 })

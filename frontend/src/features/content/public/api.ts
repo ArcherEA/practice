@@ -20,7 +20,6 @@ export const publicKeys = {
   categories: ["public", "categories"] as const,
   tags: ["public", "tags"] as const,
   menuPages: ["public", "menu-pages"] as const,
-  archive: ["public", "archive"] as const,
 }
 
 export const publishedPostsOptions = (f: PostFilters) =>
@@ -150,12 +149,4 @@ export const menuPagesOptions = queryOptions({
         query: { limit: MENU_PAGES_LIMIT },
       })
     ).data,
-})
-
-/** Every published post (title, slug, date) for the sidebar timeline. */
-export const postsArchiveOptions = queryOptions({
-  queryKey: publicKeys.archive,
-  staleTime: 5 * 60 * 1000,
-  retry: false,
-  queryFn: async () => (await ContentService.readPostsArchive()).data,
 })
