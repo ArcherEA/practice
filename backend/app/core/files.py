@@ -63,7 +63,11 @@ def create_upload(
             status_code=400, detail="Only JPEG, PNG, WebP and GIF images can be public"
         )
 
-    session.execute(text("SELECT pg_advisory_xact_lock(:id)"), {"id": _UPLOAD_LOCK_ID})
+    # Serialize upload reservations (released at commit). Uses the connection, since
+    # SQLModel deprecates Session.execute in favour of exec().
+    session.connection().execute(
+        text("SELECT pg_advisory_xact_lock(:id)"), {"id": _UPLOAD_LOCK_ID}
+    )
     if not user.is_superuser:
         since = get_datetime_utc() - DAILY_WINDOW
         recent = session.exec(
