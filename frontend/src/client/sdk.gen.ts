@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { communityCreatePageCommentData, communityCreatePageCommentErrors, communityCreatePageCommentResponses, communityCreatePostCommentData, communityCreatePostCommentErrors, communityCreatePostCommentResponses, communityCreateSuspensionData, communityCreateSuspensionErrors, communityCreateSuspensionResponses, communityDeleteCommentData, communityDeleteCommentErrors, communityDeleteCommentResponses, communityEndSuspensionData, communityEndSuspensionErrors, communityEndSuspensionResponses, communityHideCommentData, communityHideCommentErrors, communityHideCommentResponses, communityLikeCommentData, communityLikeCommentErrors, communityLikeCommentResponses, communityLikePostData, communityLikePostErrors, communityLikePostResponses, communityModeratorDeleteCommentData, communityModeratorDeleteCommentErrors, communityModeratorDeleteCommentResponses, communityReadModerationQueueData, communityReadModerationQueueErrors, communityReadModerationQueueResponses, communityReadMySuspensionData, communityReadMySuspensionResponses, communityReadPageCommentsData, communityReadPageCommentsErrors, communityReadPageCommentsResponses, communityReadPostCommentsData, communityReadPostCommentsErrors, communityReadPostCommentsResponses, communityReadPostLikesData, communityReadPostLikesErrors, communityReadPostLikesResponses, communityReadSuspensionsData, communityReadSuspensionsErrors, communityReadSuspensionsResponses, communityReportCommentData, communityReportCommentErrors, communityReportCommentResponses, communityResolveCommentReportsData, communityResolveCommentReportsErrors, communityResolveCommentReportsResponses, communityRestoreCommentData, communityRestoreCommentErrors, communityRestoreCommentResponses, communityUnlikeCommentData, communityUnlikeCommentErrors, communityUnlikeCommentResponses, communityUnlikePostData, communityUnlikePostErrors, communityUnlikePostResponses, communityUpdateCommentData, communityUpdateCommentErrors, communityUpdateCommentResponses, contentCreateManageCategoryData, contentCreateManageCategoryErrors, contentCreateManageCategoryResponses, contentCreateManagePageData, contentCreateManagePageErrors, contentCreateManagePageResponses, contentCreateManagePostData, contentCreateManagePostErrors, contentCreateManagePostResponses, contentCreateManageTagData, contentCreateManageTagErrors, contentCreateManageTagResponses, contentDeleteManageCategoryData, contentDeleteManageCategoryErrors, contentDeleteManageCategoryResponses, contentDeleteManagePageData, contentDeleteManagePageErrors, contentDeleteManagePageResponses, contentDeleteManagePostData, contentDeleteManagePostErrors, contentDeleteManagePostResponses, contentDeleteManageTagData, contentDeleteManageTagErrors, contentDeleteManageTagResponses, contentPublishManagePageData, contentPublishManagePageErrors, contentPublishManagePageResponses, contentPublishManagePostData, contentPublishManagePostErrors, contentPublishManagePostResponses, contentReadCategoriesData, contentReadCategoriesResponses, contentReadManagePageData, contentReadManagePageErrors, contentReadManagePageResponses, contentReadManagePagesData, contentReadManagePagesErrors, contentReadManagePagesResponses, contentReadManagePostData, contentReadManagePostErrors, contentReadManagePostResponses, contentReadManagePostsData, contentReadManagePostsErrors, contentReadManagePostsResponses, contentReadPublishedPageData, contentReadPublishedPageErrors, contentReadPublishedPageResponses, contentReadPublishedPostData, contentReadPublishedPostErrors, contentReadPublishedPostResponses, contentReadPublishedPostsData, contentReadPublishedPostsErrors, contentReadPublishedPostsResponses, contentReadTagsData, contentReadTagsResponses, contentUnpublishManagePageData, contentUnpublishManagePageErrors, contentUnpublishManagePageResponses, contentUnpublishManagePostData, contentUnpublishManagePostErrors, contentUnpublishManagePostResponses, contentUpdateManageCategoryData, contentUpdateManageCategoryErrors, contentUpdateManageCategoryResponses, contentUpdateManagePageData, contentUpdateManagePageErrors, contentUpdateManagePageResponses, contentUpdateManagePostData, contentUpdateManagePostErrors, contentUpdateManagePostResponses, contentUpdateManageTagData, contentUpdateManageTagErrors, contentUpdateManageTagResponses, filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesGetPublicContentData, filesGetPublicContentErrors, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { communityCreatePageCommentData, communityCreatePageCommentErrors, communityCreatePageCommentResponses, communityCreatePostCommentData, communityCreatePostCommentErrors, communityCreatePostCommentResponses, communityCreateSuspensionData, communityCreateSuspensionErrors, communityCreateSuspensionResponses, communityDeleteCommentData, communityDeleteCommentErrors, communityDeleteCommentResponses, communityEndSuspensionData, communityEndSuspensionErrors, communityEndSuspensionResponses, communityFollowUserData, communityFollowUserErrors, communityFollowUserResponses, communityHideCommentData, communityHideCommentErrors, communityHideCommentResponses, communityLikeCommentData, communityLikeCommentErrors, communityLikeCommentResponses, communityLikePostData, communityLikePostErrors, communityLikePostResponses, communityModeratorDeleteCommentData, communityModeratorDeleteCommentErrors, communityModeratorDeleteCommentResponses, communityReadAllNotificationsData, communityReadAllNotificationsResponses, communityReadFollowersData, communityReadFollowersErrors, communityReadFollowersResponses, communityReadFollowingActivityData, communityReadFollowingActivityErrors, communityReadFollowingActivityResponses, communityReadFollowingData, communityReadFollowingErrors, communityReadFollowingResponses, communityReadModerationQueueData, communityReadModerationQueueErrors, communityReadModerationQueueResponses, communityReadMySuspensionData, communityReadMySuspensionResponses, communityReadNotificationData, communityReadNotificationErrors, communityReadNotificationResponses, communityReadNotificationsData, communityReadNotificationsErrors, communityReadNotificationsResponses, communityReadPageCommentsData, communityReadPageCommentsErrors, communityReadPageCommentsResponses, communityReadPostCommentsData, communityReadPostCommentsErrors, communityReadPostCommentsResponses, communityReadPostLikesData, communityReadPostLikesErrors, communityReadPostLikesResponses, communityReadProfileData, communityReadProfileErrors, communityReadProfileResponses, communityReadSuspensionsData, communityReadSuspensionsErrors, communityReadSuspensionsResponses, communityReadUnreadCountData, communityReadUnreadCountResponses, communityReadUserCommentsData, communityReadUserCommentsErrors, communityReadUserCommentsResponses, communityReportCommentData, communityReportCommentErrors, communityReportCommentResponses, communityResolveCommentReportsData, communityResolveCommentReportsErrors, communityResolveCommentReportsResponses, communityRestoreCommentData, communityRestoreCommentErrors, communityRestoreCommentResponses, communityUnfollowUserData, communityUnfollowUserErrors, communityUnfollowUserResponses, communityUnlikeCommentData, communityUnlikeCommentErrors, communityUnlikeCommentResponses, communityUnlikePostData, communityUnlikePostErrors, communityUnlikePostResponses, communityUpdateCommentData, communityUpdateCommentErrors, communityUpdateCommentResponses, contentCreateManageCategoryData, contentCreateManageCategoryErrors, contentCreateManageCategoryResponses, contentCreateManagePageData, contentCreateManagePageErrors, contentCreateManagePageResponses, contentCreateManagePostData, contentCreateManagePostErrors, contentCreateManagePostResponses, contentCreateManageTagData, contentCreateManageTagErrors, contentCreateManageTagResponses, contentDeleteManageCategoryData, contentDeleteManageCategoryErrors, contentDeleteManageCategoryResponses, contentDeleteManagePageData, contentDeleteManagePageErrors, contentDeleteManagePageResponses, contentDeleteManagePostData, contentDeleteManagePostErrors, contentDeleteManagePostResponses, contentDeleteManageTagData, contentDeleteManageTagErrors, contentDeleteManageTagResponses, contentPublishManagePageData, contentPublishManagePageErrors, contentPublishManagePageResponses, contentPublishManagePostData, contentPublishManagePostErrors, contentPublishManagePostResponses, contentReadCategoriesData, contentReadCategoriesResponses, contentReadManagePageData, contentReadManagePageErrors, contentReadManagePageResponses, contentReadManagePagesData, contentReadManagePagesErrors, contentReadManagePagesResponses, contentReadManagePostData, contentReadManagePostErrors, contentReadManagePostResponses, contentReadManagePostsData, contentReadManagePostsErrors, contentReadManagePostsResponses, contentReadPublishedPageData, contentReadPublishedPageErrors, contentReadPublishedPageResponses, contentReadPublishedPostData, contentReadPublishedPostErrors, contentReadPublishedPostResponses, contentReadPublishedPostsData, contentReadPublishedPostsErrors, contentReadPublishedPostsResponses, contentReadTagsData, contentReadTagsResponses, contentUnpublishManagePageData, contentUnpublishManagePageErrors, contentUnpublishManagePageResponses, contentUnpublishManagePostData, contentUnpublishManagePostErrors, contentUnpublishManagePostResponses, contentUpdateManageCategoryData, contentUpdateManageCategoryErrors, contentUpdateManageCategoryResponses, contentUpdateManagePageData, contentUpdateManagePageErrors, contentUpdateManagePageResponses, contentUpdateManagePostData, contentUpdateManagePostErrors, contentUpdateManagePostResponses, contentUpdateManageTagData, contentUpdateManageTagErrors, contentUpdateManageTagResponses, filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesGetPublicContentData, filesGetPublicContentErrors, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -1054,6 +1054,150 @@ export class CommunityService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/community/me/suspension',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Profile
+     *
+     * Public profile by username (case-insensitive). Never contains the email;
+     * `is_suspended` only for moderators and above. Inactive users give 404.
+     */
+    public static readProfile<ThrowOnError extends boolean = true>(options: Options<communityReadProfileData, ThrowOnError>) {
+        return (options.client ?? client).get<communityReadProfileResponses, communityReadProfileErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/users/{username}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read User Comments
+     *
+     * A member's recent visible comments, with the post or page they belong to.
+     */
+    public static readUserComments<ThrowOnError extends boolean = true>(options: Options<communityReadUserCommentsData, ThrowOnError>) {
+        return (options.client ?? client).get<communityReadUserCommentsResponses, communityReadUserCommentsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/community/users/{username}/comments',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Followers
+     */
+    public static readFollowers<ThrowOnError extends boolean = true>(options: Options<communityReadFollowersData, ThrowOnError>) {
+        return (options.client ?? client).get<communityReadFollowersResponses, communityReadFollowersErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/community/users/{username}/followers',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Following
+     */
+    public static readFollowing<ThrowOnError extends boolean = true>(options: Options<communityReadFollowingData, ThrowOnError>) {
+        return (options.client ?? client).get<communityReadFollowingResponses, communityReadFollowingErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/community/users/{username}/following',
+            ...options
+        });
+    }
+    
+    /**
+     * Unfollow User
+     *
+     * Stop following a member. Idempotent.
+     */
+    public static unfollowUser<ThrowOnError extends boolean = true>(options: Options<communityUnfollowUserData, ThrowOnError>) {
+        return (options.client ?? client).delete<communityUnfollowUserResponses, communityUnfollowUserErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/users/{username}/follow',
+            ...options
+        });
+    }
+    
+    /**
+     * Follow User
+     *
+     * Follow a member. Idempotent; yourself is 400. Allowed while suspended.
+     */
+    public static followUser<ThrowOnError extends boolean = true>(options: Options<communityFollowUserData, ThrowOnError>) {
+        return (options.client ?? client).put<communityFollowUserResponses, communityFollowUserErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/users/{username}/follow',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Following Activity
+     *
+     * Recent visible comments of the people I follow, newest first.
+     */
+    public static readFollowingActivity<ThrowOnError extends boolean = true>(options?: Options<communityReadFollowingActivityData, ThrowOnError>) {
+        return (options?.client ?? client).get<communityReadFollowingActivityResponses, communityReadFollowingActivityErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/following/activity',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Notifications
+     *
+     * My notifications, newest first.
+     */
+    public static readNotifications<ThrowOnError extends boolean = true>(options?: Options<communityReadNotificationsData, ThrowOnError>) {
+        return (options?.client ?? client).get<communityReadNotificationsResponses, communityReadNotificationsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/notifications',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Unread Count
+     */
+    public static readUnreadCount<ThrowOnError extends boolean = true>(options?: Options<communityReadUnreadCountData, ThrowOnError>) {
+        return (options?.client ?? client).get<communityReadUnreadCountResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/notifications/unread-count',
+            ...options
+        });
+    }
+    
+    /**
+     * Read All Notifications
+     */
+    public static readAllNotifications<ThrowOnError extends boolean = true>(options?: Options<communityReadAllNotificationsData, ThrowOnError>) {
+        return (options?.client ?? client).post<communityReadAllNotificationsResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/notifications/read-all',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Notification
+     *
+     * Mark one of my notifications as read; someone else's is a 404.
+     */
+    public static readNotification<ThrowOnError extends boolean = true>(options: Options<communityReadNotificationData, ThrowOnError>) {
+        return (options.client ?? client).post<communityReadNotificationResponses, communityReadNotificationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/community/notifications/{notification_id}/read',
             ...options
         });
     }

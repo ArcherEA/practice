@@ -449,7 +449,12 @@ def test_authors_show_a_name_and_avatar_but_never_an_email(
     assert authors[str(named.id)]["avatar_url"]
     assert authors[str(unnamed.id)]["display_name"] == f"Member {str(unnamed.id)[:8]}"
     assert authors[str(unnamed.id)]["avatar_url"] is None
-    assert set(authors[str(named.id)]) == {"id", "display_name", "avatar_url"}
+    assert set(authors[str(named.id)]) == {
+        "id",
+        "username",
+        "display_name",
+        "avatar_url",
+    }
     own = db.get(File, uuid.UUID(file["id"]))
     assert own is not None
 

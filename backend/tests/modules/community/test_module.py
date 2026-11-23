@@ -13,6 +13,13 @@ COMMUNITY_PATHS = (
     "/community/pages/00000000-0000-0000-0000-000000000000/comments",
     "/community/posts/00000000-0000-0000-0000-000000000000/like",
     "/community/me/suspension",
+    "/community/users/someone",
+    "/community/users/someone/comments",
+    "/community/users/someone/followers",
+    "/community/users/someone/following",
+    "/community/following/activity",
+    "/community/notifications",
+    "/community/notifications/unread-count",
     "/community/moderation/comments",
     "/community/moderation/suspensions",
 )

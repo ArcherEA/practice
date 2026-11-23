@@ -1,6 +1,8 @@
 """Community module API, mounted at /api/v1/community.
 
 - Public: list comments of a published post/page, post like state.
+- Public: member profiles (`/users/{username}`), their comments, followers, following.
+- Logged in: follow / unfollow, activity feed, own notifications.
 - Logged in (any role): comment, reply, edit, delete own, like, report.
   Suspended members get 403 on create/edit/like/report.
 - `/moderation`: needs `require_role(UserRole.moderator)` (moderator, admin,
@@ -15,22 +17,28 @@ from fastapi import APIRouter, Depends, Query
 from app.api.deps import CurrentUser, SessionDep, StorageDep, require_role
 from app.core.roles import UserRole
 from app.models import Message, User
-from app.modules.community import service
+from app.modules.community import notifications, profiles, service
 from app.modules.community.deps import OptionalUser
 from app.modules.community.schemas import (
+    AuthorsPublic,
     CommentCreate,
     CommentPublic,
     CommentSort,
     CommentsPublic,
     CommentUpdate,
+    FollowState,
     LikeState,
     ModerationQueue,
     MySuspension,
+    NotificationsPublic,
+    ProfilePublic,
     QueueFilter,
     ReportCreate,
     SuspensionCreate,
     SuspensionPublic,
     SuspensionsPublic,
+    UnreadCount,
+    UserCommentsPublic,
 )
 
 router = APIRouter(prefix="/community", tags=["community"])
@@ -213,6 +221,123 @@ def report_comment(
 def read_my_suspension(session: SessionDep, user: CurrentUser) -> MySuspension:
     """Whether you are currently suspended from commenting, liking and reporting."""
     return service.my_suspension(session, user)
+
+
+# --- profiles, follows (public reads; logged in to follow) ---
+
+
+@router.get("/users/{username}", response_model=ProfilePublic)
+def read_profile(
+    session: SessionDep, storage: StorageDep, viewer: OptionalUser, username: str
+) -> ProfilePublic:
+    """Public profile by username (case-insensitive). Never contains the email;
+    `is_suspended` only for moderators and above. Inactive users give 404."""
+    return profiles.read_profile(
+        session=session, storage=storage, username=username, viewer=viewer
+    )
+
+
+@router.get("/users/{username}/comments", response_model=UserCommentsPublic)
+def read_user_comments(
+    session: SessionDep,
+    storage: StorageDep,
+    username: str,
+    skip: Skip = 0,
+    limit: Limit = 20,
+) -> UserCommentsPublic:
+    """A member's recent visible comments, with the post or page they belong to."""
+    return profiles.read_user_comments(
+        session=session, storage=storage, username=username, skip=skip, limit=limit
+    )
+
+
+@router.get("/users/{username}/followers", response_model=AuthorsPublic)
+def read_followers(
+    session: SessionDep,
+    storage: StorageDep,
+    username: str,
+    skip: Skip = 0,
+    limit: Limit = 20,
+) -> AuthorsPublic:
+    return profiles.list_followers(
+        session=session, storage=storage, username=username, skip=skip, limit=limit
+    )
+
+
+@router.get("/users/{username}/following", response_model=AuthorsPublic)
+def read_following(
+    session: SessionDep,
+    storage: StorageDep,
+    username: str,
+    skip: Skip = 0,
+    limit: Limit = 20,
+) -> AuthorsPublic:
+    return profiles.list_following(
+        session=session, storage=storage, username=username, skip=skip, limit=limit
+    )
+
+
+@router.put("/users/{username}/follow", response_model=FollowState)
+def follow_user(session: SessionDep, user: CurrentUser, username: str) -> FollowState:
+    """Follow a member. Idempotent; yourself is 400. Allowed while suspended."""
+    return profiles.follow(session=session, user=user, username=username)
+
+
+@router.delete("/users/{username}/follow", response_model=FollowState)
+def unfollow_user(session: SessionDep, user: CurrentUser, username: str) -> FollowState:
+    """Stop following a member. Idempotent."""
+    return profiles.unfollow(session=session, user=user, username=username)
+
+
+@router.get("/following/activity", response_model=UserCommentsPublic)
+def read_following_activity(
+    session: SessionDep,
+    storage: StorageDep,
+    user: CurrentUser,
+    skip: Skip = 0,
+    limit: Limit = 20,
+) -> UserCommentsPublic:
+    """Recent visible comments of the people I follow, newest first."""
+    return profiles.following_activity(
+        session=session, storage=storage, user=user, skip=skip, limit=limit
+    )
+
+
+# --- notifications (my own only) ---
+
+
+@router.get("/notifications", response_model=NotificationsPublic)
+def read_notifications(
+    session: SessionDep,
+    storage: StorageDep,
+    user: CurrentUser,
+    skip: Skip = 0,
+    limit: Limit = 20,
+) -> NotificationsPublic:
+    """My notifications, newest first."""
+    return notifications.list_notifications(
+        session=session, storage=storage, user=user, skip=skip, limit=limit
+    )
+
+
+@router.get("/notifications/unread-count", response_model=UnreadCount)
+def read_unread_count(session: SessionDep, user: CurrentUser) -> UnreadCount:
+    return notifications.unread_count(session=session, user=user)
+
+
+@router.post("/notifications/read-all", response_model=UnreadCount)
+def read_all_notifications(session: SessionDep, user: CurrentUser) -> UnreadCount:
+    return notifications.mark_all_read(session=session, user=user)
+
+
+@router.post("/notifications/{notification_id}/read", response_model=UnreadCount)
+def read_notification(
+    session: SessionDep, user: CurrentUser, notification_id: uuid.UUID
+) -> UnreadCount:
+    """Mark one of my notifications as read; someone else's is a 404."""
+    return notifications.mark_read(
+        session=session, user=user, notification_id=notification_id
+    )
 
 
 # --- moderation (moderator, admin, superuser) ---

@@ -93,7 +93,7 @@ def _lock(session: Session, key: str) -> None:
 # --- small helpers ---
 
 
-def _display_name(user: User) -> str:
+def display_name(user: User) -> str:
     return user.full_name or f"Member {str(user.id)[:8]}"
 
 
@@ -120,14 +120,18 @@ def _target(comment: Comment) -> tuple[TargetType, uuid.UUID]:
     return "page", comment.page_id
 
 
-def _visible() -> ColumnElement[bool]:
+def is_visible(comment: Comment) -> bool:
+    return _state(comment) == CommentState.visible
+
+
+def visible_clause() -> ColumnElement[bool]:
     return and_(
         col(Comment.status) == CommentStatus.visible,
         col(Comment.deleted_at).is_(None),
     )
 
 
-def _authors(
+def authors_public(
     session: Session, storage: Storage, user_ids: set[uuid.UUID]
 ) -> dict[uuid.UUID, AuthorPublic]:
     """Display name + avatar URL for many users, in two queries (no N+1)."""
@@ -137,7 +141,10 @@ def _authors(
     publics = files.to_users_public(session=session, storage=storage, users=users)
     return {
         user.id: AuthorPublic(
-            id=user.id, display_name=_display_name(user), avatar_url=public.avatar_url
+            id=user.id,
+            username=user.username,
+            display_name=display_name(user),
+            avatar_url=public.avatar_url,
         )
         for user, public in zip(users, publics, strict=True)
     }
@@ -261,7 +268,7 @@ def _to_suspensions(
 ) -> list[SuspensionPublic]:
     ids: set[uuid.UUID] = {r.user_id for r in rows}
     ids |= {r.created_by for r in rows if r.created_by is not None}
-    authors = _authors(session, storage, ids)
+    authors = authors_public(session, storage, ids)
     current = now()
     return [
         SuspensionPublic(
@@ -374,7 +381,7 @@ def _to_replies(
     viewer: User | None,
 ) -> list[ReplyPublic]:
     """Public view: placeholders hide the body and the author."""
-    authors = _authors(
+    authors = authors_public(
         session, storage, {c.author_id for c in comments if c.author_id is not None}
     )
     liked = _liked_ids(session, viewer, [c.id for c in comments])
@@ -452,7 +459,7 @@ def list_comments(
     where = [
         target_col == target_id,
         col(Comment.parent_id).is_(None),
-        or_(_visible(), has_visible_reply),
+        or_(visible_clause(), has_visible_reply),
     ]
     count = session.exec(select(func.count()).select_from(Comment).where(*where)).one()
     order = (
@@ -470,7 +477,7 @@ def list_comments(
     replies = (
         session.exec(
             select(Comment)
-            .where(col(Comment.parent_id).in_([t.id for t in tops]), _visible())
+            .where(col(Comment.parent_id).in_([t.id for t in tops]), visible_clause())
             .order_by(col(Comment.created_at).asc(), col(Comment.id))
         ).all()
         if tops
@@ -826,7 +833,7 @@ def moderation_queue(
     reports = _open_reports(session, [c.id for c in comments]) if comments else []
     ids = {c.author_id for c in comments if c.author_id is not None}
     ids |= {r.reporter_id for r in reports}
-    authors = _authors(session, storage, ids)
+    authors = authors_public(session, storage, ids)
     by_comment: dict[uuid.UUID, list[ReportPublic]] = {}
     for r in reports:
         by_comment.setdefault(r.comment_id, []).append(
