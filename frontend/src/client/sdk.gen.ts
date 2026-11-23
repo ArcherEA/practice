@@ -242,8 +242,8 @@ export class UsersService {
     /**
      * Update User
      *
-     * Update a user. Only superusers can grant/revoke admin, set the superuser flag
-     * or modify superusers; nobody can change their own role.
+     * Update a user. Only superusers can modify admins or superusers, grant/revoke
+     * admin or set the superuser flag; nobody can change their own role.
      */
     public static updateUser<ThrowOnError extends boolean = true>(options: Options<usersUpdateUserData, ThrowOnError>) {
         return (options.client ?? client).patch<usersUpdateUserResponses, usersUpdateUserErrors, ThrowOnError>({

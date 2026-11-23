@@ -54,7 +54,8 @@ def create_article(...): ...
 It returns 403 "The user doesn't have enough privileges". `get_current_active_superuser` still exists for owner-only routes.
 
 User management (`/users` list/create/read/update/delete) needs `admin` or superuser. Only superusers can grant or revoke
-`admin`, create admins, set `is_superuser`, or modify/delete superusers. Nobody can change their own role (`/users/me`
+`admin`, create admins, set `is_superuser`, or modify/delete admins and superusers (admins manage everyone except
+admins and superusers; an admin edits their own record via `/users/me`). Nobody can change their own role (`/users/me`
 does not accept `role`; the admin endpoint returns 403). Signup always creates a `member`; `FIRST_SUPERUSER` is created as `admin`.
 To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration needed).
 

@@ -50,6 +50,8 @@ def _check_can_update(actor: User, target: User, user_in: UserUpdate) -> None:
         return
     if target.is_superuser:
         raise _forbidden("Only superusers can modify superusers")
+    if target.role == UserRole.admin:
+        raise _forbidden("Only superusers can modify admins")
     if user_in.is_superuser is not None and user_in.is_superuser != target.is_superuser:
         raise _forbidden("Only superusers can change the superuser flag")
     if changes_role and UserRole.admin in (user_in.role, target.role):
@@ -221,8 +223,8 @@ def update_user(
     user_in: UserUpdate,
 ) -> Any:
     """
-    Update a user. Only superusers can grant/revoke admin, set the superuser flag
-    or modify superusers; nobody can change their own role.
+    Update a user. Only superusers can modify admins or superusers, grant/revoke
+    admin or set the superuser flag; nobody can change their own role.
     """
 
     db_user = session.get(User, user_id)
@@ -259,6 +261,8 @@ def delete_user(
         )
     if user.is_superuser and not current_user.is_superuser:
         raise _forbidden("Only superusers can delete superusers")
+    if user.role == UserRole.admin and not current_user.is_superuser:
+        raise _forbidden("Only superusers can delete admins")
     # Module-owned rows (e.g. items) go via the ORM cascade / FK ON DELETE CASCADE.
     session.delete(user)
     session.commit()

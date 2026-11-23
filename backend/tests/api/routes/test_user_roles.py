@@ -204,8 +204,44 @@ def test_user_cannot_change_own_role_via_admin_endpoint(
     r = client.patch(f"{USERS}/{admin.id}", headers=admin_h, json={"role": "member"})
     assert r.status_code == 403
     assert "own role" in r.json()["detail"]
-    # Sending the unchanged role is fine.
+    # Even unchanged, a non-superuser admin cannot edit an admin (incl. themselves).
     r = client.patch(f"{USERS}/{admin.id}", headers=admin_h, json={"role": "admin"})
+    assert r.status_code == 403
+
+
+def test_admin_cannot_modify_or_delete_admins(client: TestClient, db: Session) -> None:
+    admin, admin_h = make_user(db, client, UserRole.admin)
+    other, _ = make_user(db, client, UserRole.admin)
+    for body in (
+        {"full_name": "x"},
+        {"email": random_email()},
+        {"password": random_lower_string()},
+        {"is_active": False},
+        {"role": "member"},
+    ):
+        r = client.patch(f"{USERS}/{other.id}", headers=admin_h, json=body)
+        assert r.status_code == 403, body
+    r = client.patch(f"{USERS}/{other.id}", headers=admin_h, json={"full_name": "x"})
+    assert r.json()["detail"] == "Only superusers can modify admins"
+    r = client.delete(f"{USERS}/{other.id}", headers=admin_h)
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Only superusers can delete admins"
+    # Self-service through the admin endpoint is also refused.
+    r = client.patch(f"{USERS}/{admin.id}", headers=admin_h, json={"full_name": "me"})
+    assert r.status_code == 403
+    r = client.patch(f"{USERS}/me", headers=admin_h, json={"full_name": "me"})
+    assert r.status_code == 200
+
+
+def test_superuser_can_modify_and_delete_admins(
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+) -> None:
+    other, _ = make_user(db, client, UserRole.admin)
+    r = client.patch(
+        f"{USERS}/{other.id}", headers=superuser_token_headers, json={"full_name": "x"}
+    )
+    assert r.status_code == 200
+    r = client.delete(f"{USERS}/{other.id}", headers=superuser_token_headers)
     assert r.status_code == 200
 
 
