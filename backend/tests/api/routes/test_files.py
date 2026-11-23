@@ -289,6 +289,31 @@ def test_admin_can_download_and_delete_foreign_file(
     assert client.delete(f"{API}/files/{file['id']}", headers=admin).status_code == 200
 
 
+def test_admin_cannot_touch_files_of_admins_or_superusers(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage
+) -> None:
+    _, admin = make_user(role=UserRole.admin)
+    _, other_admin = make_user(role=UserRole.admin)
+    _, superuser = make_user(superuser=True)
+    for owner in (other_admin, superuser):
+        file = upload_ready(client, fake_storage, owner)
+        url = f"{API}/files/{file['id']}"
+        assert client.get(f"{url}/download", headers=admin).status_code == 404
+        assert client.delete(url, headers=admin).status_code == 404
+        assert key_of(file) in fake_storage.objects
+
+
+def test_superuser_can_touch_files_of_admins(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage
+) -> None:
+    _, other_admin = make_user(role=UserRole.admin)
+    _, superuser = make_user(superuser=True)
+    file = upload_ready(client, fake_storage, other_admin)
+    url = f"{API}/files/{file['id']}"
+    assert client.get(f"{url}/download", headers=superuser).status_code == 200
+    assert client.delete(url, headers=superuser).status_code == 200
+
+
 def test_delete_removes_row_and_object(
     client: TestClient, make_user: MakeUser, db: Session, fake_storage: FakeStorage
 ) -> None:

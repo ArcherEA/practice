@@ -18,6 +18,7 @@ from app.models import (
     Message,
     StorageUsage,
     UploadTicket,
+    User,
 )
 
 router = APIRouter(prefix="/files", tags=["files"])
@@ -33,9 +34,15 @@ def _get_own_file(
     file = session.get(File, file_id)
     if file is None:
         raise HTTPException(status_code=404, detail="File not found")
-    is_owner = file.owner_id == current_user.id
-    if not is_owner and not (admin_ok and has_role(current_user, UserRole.admin)):
+    if file.owner_id == current_user.id:
+        return file
+    if not admin_ok or not has_role(current_user, UserRole.admin):
         raise HTTPException(status_code=404, detail="File not found")
+    # Same rule as user management: only superusers may act on files of admins/superusers.
+    if not current_user.is_superuser:
+        owner = session.get(User, file.owner_id)
+        if owner is not None and (owner.is_superuser or owner.role == UserRole.admin):
+            raise HTTPException(status_code=404, detail="File not found")
     return file
 
 
