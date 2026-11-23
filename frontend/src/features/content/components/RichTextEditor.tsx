@@ -272,8 +272,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         // Not a <form>: the editor lives inside the page's own form, and a
         // nested submit would bubble up and save the post.
         <div
-          role="group"
-          aria-label="Link"
+          data-testid="link-bar"
           className="flex flex-wrap items-center gap-2 border-t p-2"
         >
           <Input

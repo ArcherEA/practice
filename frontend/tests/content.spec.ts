@@ -43,9 +43,8 @@ async function loginAsEditor(page: Page, role: "editor" | "member" = "editor") {
 }
 
 // "Title" alone would also match the "SEO title" field.
-const titleInput = (page: Page) =>
-  page.getByRole("textbox", { name: /^Title/ })
-const bodyEditor =(page: Page) => page.getByRole("textbox", { name: "Body" })
+const titleInput = (page: Page) => page.getByRole("textbox", { name: /^Title/ })
+const bodyEditor = (page: Page) => page.getByRole("textbox", { name: "Body" })
 const tool = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true })
 
@@ -166,7 +165,9 @@ test.describe("Content editor", () => {
     await expect(row.getByText("Published")).toBeVisible()
     await page.getByLabel("Filter by status").click()
     await page.getByRole("option", { name: "Draft" }).click()
-    await expect(page.getByRole("row").filter({ hasText: title })).toHaveCount(0)
+    await expect(page.getByRole("row").filter({ hasText: title })).toHaveCount(
+      0,
+    )
   })
 
   test("Every toolbar action round-trips and the backend accepts it", async ({
@@ -291,9 +292,9 @@ test.describe("Content editor", () => {
     await page.getByLabel("Link URL").fill("javascript:alert(1)")
     await page.getByRole("button", { name: "Apply link" }).click()
     await expect(page.getByRole("alert")).toContainText("http://")
-    await expect(
-      page.getByTestId("rich-text-editor").locator("a"),
-    ).toHaveCount(0)
+    await expect(page.getByTestId("rich-text-editor").locator("a")).toHaveCount(
+      0,
+    )
   })
 
   test("Delete asks for confirmation; unsaved changes warn on leaving", async ({
@@ -319,10 +320,16 @@ test.describe("Content editor", () => {
     await expect(page).toHaveURL(/\/content\/posts\/[0-9a-f-]{36}$/)
 
     await page.getByRole("button", { name: "Delete" }).click()
-    await page.getByRole("dialog").getByRole("button", { name: "Cancel" }).click()
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Cancel" })
+      .click()
     await expect(titleInput(page)).toBeVisible()
     await page.getByRole("button", { name: "Delete" }).click()
-    await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Delete" })
+      .click()
     await expect(page.getByText("Post deleted")).toBeVisible()
     await expect(page).toHaveURL(/\/content\/posts$/)
   })
@@ -336,7 +343,9 @@ test.describe("Content editor", () => {
     await page.getByLabel("New category name").fill(categoryName)
     await page.getByRole("button", { name: "Add category" }).click()
     await expect(page.getByText("Category created")).toBeVisible()
-    await expect(page.getByRole("cell", { name: categoryName, exact: true })).toBeVisible()
+    await expect(
+      page.getByRole("cell", { name: categoryName, exact: true }),
+    ).toBeVisible()
 
     // A post can use the category and a tag created on the fly.
     await page.goto("/content/posts/new")
@@ -369,7 +378,10 @@ test.describe("Content editor", () => {
     await expect(page.getByText("Page published")).toBeVisible()
     await page.goto("/content/pages")
     await expect(
-      page.getByRole("row").filter({ hasText: pageTitle }).getByText("Published"),
+      page
+        .getByRole("row")
+        .filter({ hasText: pageTitle })
+        .getByText("Published"),
     ).toBeVisible()
   })
 
@@ -378,7 +390,9 @@ test.describe("Content editor", () => {
   }) => {
     await loginAsEditor(page, "member")
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Content", exact: true })).toHaveCount(0)
+    await expect(
+      page.getByRole("link", { name: "Content", exact: true }),
+    ).toHaveCount(0)
     await page.goto("/content/posts")
     await expect(page).toHaveURL(/\/$/)
     await expect(page.getByRole("heading", { name: "Posts" })).toHaveCount(0)
@@ -386,13 +400,17 @@ test.describe("Content editor", () => {
 })
 
 test.describe("Content module disabled", () => {
-  test("Content is hidden and /content/posts is not found", async ({ page }) => {
+  test("Content is hidden and /content/posts is not found", async ({
+    page,
+  }) => {
     await page.route("**/api/v1/utils/config", (route) =>
       route.fulfill({ json: { project_name: "Test", modules: [] } }),
     )
     await page.goto("/")
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Content", exact: true })).toHaveCount(0)
+    await expect(
+      page.getByRole("link", { name: "Content", exact: true }),
+    ).toHaveCount(0)
     await page.goto("/content/posts")
     await expect(page.getByText("404")).toBeVisible()
   })
