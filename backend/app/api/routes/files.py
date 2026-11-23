@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, RequireAdmin, SessionDep, StorageDep
@@ -113,6 +114,29 @@ def get_download_url(
     except StorageNotConfiguredError:
         raise HTTPException(status_code=503, detail="File storage is not configured")
     return DownloadUrl(url=url, expires_in=settings.DOWNLOAD_URL_EXPIRE_SECONDS)
+
+
+@router.get(
+    "/{file_id}/content",
+    response_class=RedirectResponse,
+    status_code=302,
+    responses={302: {"description": "Redirect to the image"}},
+)
+def get_public_content(
+    session: SessionDep, storage: StorageDep, file_id: uuid.UUID
+) -> RedirectResponse:
+    """
+    Stable, non-expiring URL for public images (no auth): 302 to the public URL or a
+    fresh signed URL. 404 unless the file is ready, public and a JPEG/PNG/WebP/GIF.
+    """
+    file = session.get(File, file_id)
+    if file is None:
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        url = file_service.public_image_url(storage=storage, file=file)
+    except StorageNotConfiguredError:
+        raise HTTPException(status_code=503, detail="File storage is not configured")
+    return RedirectResponse(url, status_code=302)
 
 
 @router.delete("/{file_id}", response_model=Message)

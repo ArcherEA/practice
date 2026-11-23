@@ -1,6 +1,5 @@
 import logging
 import uuid
-from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
 
@@ -8,75 +7,13 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
-from app import crud
 from app.core import files as file_service
 from app.core.config import settings
 from app.core.roles import UserRole
 from app.core.storage import StorageNotConfiguredError
-from app.models import File, FileStatus, User, UserCreate, get_datetime_utc
+from app.models import File, FileStatus, User, get_datetime_utc
+from tests.utils.files import API, Headers, MakeUser, create_upload, upload_ready
 from tests.utils.storage import FakeStorage
-from tests.utils.user import user_authentication_headers
-from tests.utils.utils import random_email, random_lower_string
-
-API = settings.API_V1_STR
-Headers = dict[str, str]
-MakeUser = Callable[..., tuple[User, Headers]]
-
-
-@pytest.fixture
-def make_user(client: TestClient, db: Session) -> MakeUser:
-    def _make(
-        role: UserRole = UserRole.member, superuser: bool = False
-    ) -> tuple[User, Headers]:
-        email, password = random_email(), random_lower_string()
-        user = crud.create_user(
-            session=db,
-            user_create=UserCreate(
-                email=email, password=password, role=role, is_superuser=superuser
-            ),
-        )
-        headers = user_authentication_headers(
-            client=client, email=email, password=password
-        )
-        return user, headers
-
-    return _make
-
-
-def create_upload(
-    client: TestClient,
-    headers: Headers,
-    *,
-    size: int = 1000,
-    content_type: str = "application/pdf",
-    filename: str = "doc.pdf",
-    public: bool = False,
-) -> Any:
-    return client.post(
-        f"{API}/files/",
-        headers=headers,
-        json={
-            "filename": filename,
-            "content_type": content_type,
-            "size": size,
-            "public": public,
-        },
-    )
-
-
-def upload_ready(
-    client: TestClient, storage: FakeStorage, headers: Headers, **kwargs: Any
-) -> dict[str, Any]:
-    """Create + simulate the browser upload + confirm. Returns the file JSON."""
-    ticket = create_upload(client, headers, **kwargs)
-    assert ticket.status_code == 200, ticket.text
-    file = ticket.json()["file"]
-    size = kwargs.get("size", 1000)
-    storage.simulate_upload(f"{file['owner_id']}/{file['id']}", size)
-    r = client.post(f"{API}/files/{file['id']}/confirm", headers=headers)
-    assert r.status_code == 200, r.text
-    result: dict[str, Any] = r.json()
-    return result
 
 
 def key_of(file: dict[str, Any]) -> str:
@@ -867,3 +804,77 @@ def test_s3_storage_presigns_locally_with_public_endpoint() -> None:
         )
         is None
     )
+
+
+# ---- stable public image URL: GET /files/{id}/content ----
+
+
+def test_content_redirects_public_image_to_public_url(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage
+) -> None:
+    fake_storage.public_base_url = "https://cdn.test"
+    _, headers = make_user()
+    file = upload_ready(
+        client, fake_storage, headers, content_type="image/png", public=True
+    )
+    r = client.get(f"{API}/files/{file['id']}/content", follow_redirects=False)
+    assert r.status_code == 302
+    assert r.headers["location"] == f"https://cdn.test/{key_of(file)}"
+
+
+def test_content_redirects_to_fresh_signed_url_without_public_base(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage
+) -> None:
+    _, headers = make_user()
+    file = upload_ready(
+        client, fake_storage, headers, content_type="image/webp", public=True
+    )
+    r = client.get(f"{API}/files/{file['id']}/content", follow_redirects=False)
+    assert r.status_code == 302
+    assert r.headers["location"].startswith(f"https://bucket.test/{key_of(file)}?")
+    assert "disposition=inline" in r.headers["location"]
+
+
+def test_content_needs_no_auth_but_hides_private_pending_and_unknown(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage, db: Session
+) -> None:
+    _, headers = make_user()
+    private = upload_ready(client, fake_storage, headers, content_type="image/png")
+    assert client.get(f"{API}/files/{private['id']}/content").status_code == 404
+    # even the owner gets 404 here: the endpoint only serves public files
+    assert (
+        client.get(f"{API}/files/{private['id']}/content", headers=headers).status_code
+        == 404
+    )
+    pending = create_upload(
+        client, headers, content_type="image/png", filename="p.png", public=True
+    ).json()["file"]
+    assert client.get(f"{API}/files/{pending['id']}/content").status_code == 404
+    assert client.get(f"{API}/files/{uuid.uuid4()}/content").status_code == 404
+    # a non-image file is never served, even if flagged public in the database
+    pdf = upload_ready(client, fake_storage, headers)
+    row = db.get(File, uuid.UUID(pdf["id"]))
+    assert row is not None
+    row.public = True
+    db.add(row)
+    db.commit()
+    assert client.get(f"{API}/files/{pdf['id']}/content").status_code == 404
+
+
+def test_content_503_when_storage_not_configured(
+    client: TestClient,
+    make_user: MakeUser,
+    fake_storage: FakeStorage,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, headers = make_user()
+    file = upload_ready(
+        client, fake_storage, headers, content_type="image/png", public=True
+    )
+
+    def unconfigured(*args: object, **kwargs: object) -> str:
+        raise StorageNotConfiguredError("File storage is not configured")
+
+    monkeypatch.setattr(fake_storage, "presign_download", unconfigured)
+    r = client.get(f"{API}/files/{file['id']}/content", follow_redirects=False)
+    assert r.status_code == 503
