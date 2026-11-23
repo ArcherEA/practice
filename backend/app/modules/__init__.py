@@ -14,7 +14,10 @@ from fastapi import APIRouter
 
 # Every module that exists in the codebase. Keep in sync with registry.MODULES
 # (a test enforces it).
-MODULE_NAMES: tuple[str, ...] = ("items", "content")
+MODULE_NAMES: tuple[str, ...] = ("items", "content", "community")
+
+# Modules that need other modules to be enabled too (checked when settings load).
+MODULE_DEPENDENCIES: dict[str, tuple[str, ...]] = {"community": ("content",)}
 
 # Setting value that disables all optional modules (an empty env var is ignored).
 NO_MODULES = "none"
