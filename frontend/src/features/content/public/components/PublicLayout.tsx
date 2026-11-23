@@ -1,11 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link, Outlet } from "@tanstack/react-router"
+import { ChevronDown } from "lucide-react"
 
 import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { configQueryOptions } from "@/features/modules/api"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { menuPagesOptions } from "../api"
+
+/** How many pages fit in the header before the rest go into a "More" menu. */
+const HEADER_PAGE_LIMIT = 4
 
 /** Header + footer for the public site (no login needed). */
 export function PublicLayout() {
@@ -15,6 +25,8 @@ export function PublicLayout() {
   // A failed or empty menu request just hides the page links.
   const { data: menuPages } = useQuery(menuPagesOptions)
   const pages = menuPages?.data ?? []
+  const headerPages = pages.slice(0, HEADER_PAGE_LIMIT)
+  const morePages = pages.slice(HEADER_PAGE_LIMIT)
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -30,7 +42,7 @@ export function PublicLayout() {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/blog">Blog</Link>
             </Button>
-            {pages.map((p) => (
+            {headerPages.map((p) => (
               <Button
                 key={p.id}
                 variant="ghost"
@@ -43,6 +55,29 @@ export function PublicLayout() {
                 </Link>
               </Button>
             ))}
+            {morePages.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hidden sm:inline-flex"
+                  >
+                    More
+                    <ChevronDown className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {morePages.map((p) => (
+                    <DropdownMenuItem key={p.id} asChild>
+                      <Link to="/p/$slug" params={{ slug: p.slug }}>
+                        {p.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             {loggedIn ? (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">Dashboard</Link>
@@ -63,7 +98,7 @@ export function PublicLayout() {
         {pages.length > 0 && (
           <nav
             aria-label="Pages"
-            className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1 px-4 sm:hidden"
+            className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1 px-4"
           >
             {pages.map((p) => (
               <Link
