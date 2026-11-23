@@ -19,13 +19,11 @@ After publishing, editors only see the editing URL (`/content/posts/<id>`); noth
 - Playwright: editor publishes a post → "View on site" opens its public page; "Copy link" puts the public URL on the
   clipboard; a published page appears in the public menu and a draft page doesn't; "View blog" opens `/blog`.
 
-## Follow-up (user requests): pages sidebar, no page links in header/footer
-- Every public page (`/blog`, `/blog/$slug`, category, tag, `/p/$slug`) has a sidebar (`PublicSidebar.tsx`) with a
-  **Pages** section listing published pages (hidden when there are none; current page highlighted).
-- A post **timeline** (year/month archive) was added and then **removed at the user's request**, together with its
-  `GET /content/posts/archive` endpoint (reverted), so no unused code remains.
-- Desktop (`lg`+): two columns, content plus a 17rem sticky sidebar on the right. Narrow screens: sidebar below the content.
-- The header keeps only site name, Blog, Log in/Dashboard and the theme switcher (no "More" menu); the footer keeps only
-  the copyright line.
-- Note: the not-found page (`PublicNotFound`) replaces the whole public layout (pre-existing), so it has no sidebar.
-- Tests: `frontend/tests/blog.spec.ts` (no page links in header/footer, sidebar pages only, layout at 375px/1280px).
+## Follow-up (user requests): plain public layout
+After reviewing the pages the user asked to simplify the public site step by step; final result:
+- **No page links** in the header (no "More" menu) or the footer, and **no sidebar**. The header keeps only site name,
+  Blog, Log in/Dashboard and the theme switcher; the footer keeps only the copyright line; single-column layout.
+- Published pages are reached by direct link (`/p/<slug>`) — e.g. via "View on site" / "Copy link" in the editor.
+- Tried and removed again at the user's request: page links in the header/footer, a pages sidebar, and a post
+  timeline. Their endpoints (`GET /content/pages`, `GET /content/posts/archive`) were removed too — no unused code left.
+- Scope item 4 ("pages in the public menu") is therefore **dropped**; items 1–3 stand.

@@ -5,9 +5,8 @@ import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
 import { configQueryOptions } from "@/features/modules/api"
 import { isLoggedIn } from "@/hooks/useAuth"
-import { PublicSidebar } from "./PublicSidebar"
 
-/** Header + sidebar + footer for the public site (no login needed). */
+/** Header + footer for the public site (no login needed). */
 export function PublicLayout() {
   const { data: config } = useQuery(configQueryOptions)
   const siteName = config?.project_name ?? ""
@@ -16,7 +15,7 @@ export function PublicLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="border-b">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link to="/blog" className="text-lg font-semibold">
             {siteName}
           </Link>
@@ -40,12 +39,9 @@ export function PublicLayout() {
           </nav>
         </div>
       </header>
-      <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-10 px-4 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-12">
-        <main className="min-w-0">
-          <Outlet />
-        </main>
-        <PublicSidebar />
-      </div>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-12">
+        <Outlet />
+      </main>
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
         &copy; {new Date().getFullYear()} {siteName}
       </footer>

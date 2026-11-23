@@ -115,102 +115,56 @@ test.describe("Public blog", () => {
     ).toBeVisible()
   })
 
-  test("Header and footer have no page links; the sidebar lists published pages only", async ({
+  test("Public pages have no sidebar and no page links; pages open by direct link", async ({
     page,
   }) => {
     const id = unique()
     const api = await createEditorApi()
-    // The sidebar lists the first pages by title, so sort ahead of other tests' pages.
-    const live = await api.page({ title: `AAA Menu ${id}` })
-    const draft = await api.page({ title: `AAA Draft ${id}` }, { draft: true })
+    const live = await api.page({ title: `Direct page ${id}` })
     try {
       await page.goto("/blog")
-      const sidebar = page.getByRole("complementary", {
-        name: "Sidebar",
-        exact: true,
-      })
-      const pages = sidebar.getByRole("navigation", {
-        name: "Pages",
-        exact: true,
-      })
       await expect(
-        pages.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
+        page.getByRole("heading", { name: "Blog", level: 1 }),
       ).toBeVisible()
+      // No sidebar and no link to the page anywhere on the blog.
+      await expect(page.getByRole("complementary")).toHaveCount(0)
       await expect(
-        pages.getByRole("link", { name: `AAA Draft ${id}`, exact: true }),
-      ).toHaveCount(0)
-
-      // No page links in the header or footer, and no "More" menu.
-      await expect(
-        page.getByRole("banner").getByRole("link", { name: `AAA Menu ${id}` }),
-      ).toHaveCount(0)
-      await expect(
-        page.locator("footer", { hasText: "©" }).getByRole("link"),
+        page.getByRole("link", { name: `Direct page ${id}` }),
       ).toHaveCount(0)
       await expect(
         page.getByRole("button", { name: "More", exact: true }),
       ).toHaveCount(0)
-      await expect(page.locator("footer", { hasText: "©" })).toBeVisible()
+      // Footer is only the copyright line.
+      await expect(
+        page.locator("footer", { hasText: "©" }).getByRole("link"),
+      ).toHaveCount(0)
 
-      await pages
-        .getByRole("link", { name: `AAA Menu ${id}`, exact: true })
-        .click()
-      await expect(page).toHaveURL(`/p/${live.slug}`)
+      // The page is still reachable by its URL.
+      await page.goto(`/p/${live.slug}`)
       await expect(
-        page.getByRole("heading", { name: `AAA Menu ${id}`, level: 1 }),
+        page.getByRole("heading", { name: `Direct page ${id}`, level: 1 }),
       ).toBeVisible()
-      // The current page is marked in the sidebar.
-      await expect(
-        sidebar.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
-      ).toHaveAttribute("aria-current", "page")
+      await expect(page.getByRole("complementary")).toHaveCount(0)
     } finally {
       await api.deletePage(live.id)
-      await api.deletePage(draft.id)
     }
   })
 
-  test("On a narrow screen the sidebar sits below the content without overflow", async ({
+  test("The blog fits a phone screen without horizontal scrolling", async ({
     page,
   }) => {
     const api = await createEditorApi()
-    // The sidebar shows published pages, so make sure there is one.
-    const sidebarPage = await api.page({ title: `AAA Narrow ${unique()}` })
+    await api.post({ title: `Narrow post ${unique()}` })
     await page.setViewportSize({ width: 375, height: 800 })
     await page.goto("/blog")
-    const sidebar = page.getByRole("complementary", {
-      name: "Sidebar",
-      exact: true,
-    })
-    await expect(sidebar).toBeVisible()
-    const main = await page.getByRole("main").boundingBox()
-    const side = await sidebar.boundingBox()
-    expect(main && side && side.y >= main.y + main.height - 1).toBe(true)
+    await expect(
+      page.getByRole("heading", { name: "Blog", level: 1 }),
+    ).toBeVisible()
     const overflow = await page.evaluate(
       () =>
         document.documentElement.scrollWidth >
         document.documentElement.clientWidth,
     )
     expect(overflow).toBe(false)
-    await api.deletePage(sidebarPage.id)
-  })
-
-  test("On a wide screen the sidebar sits beside the content", async ({
-    page,
-  }) => {
-    const api = await createEditorApi()
-    // The sidebar shows published pages, so make sure there is one.
-    const sidebarPage = await api.page({ title: `AAA Wide ${unique()}` })
-    await page.setViewportSize({ width: 1280, height: 800 })
-    await page.goto("/blog")
-    const sidebar = page.getByRole("complementary", {
-      name: "Sidebar",
-      exact: true,
-    })
-    await expect(sidebar).toBeVisible()
-    const main = await page.getByRole("main").boundingBox()
-    const side = await sidebar.boundingBox()
-    expect(main && side && side.x >= main.x + main.width - 1).toBe(true)
-    expect(main && side && Math.abs(side.y - main.y) < 8).toBe(true)
-    await api.deletePage(sidebarPage.id)
   })
 })

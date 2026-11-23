@@ -19,7 +19,6 @@ export const publicKeys = {
   page: (slug: string) => ["public", "page", slug] as const,
   categories: ["public", "categories"] as const,
   tags: ["public", "tags"] as const,
-  menuPages: ["public", "menu-pages"] as const,
 }
 
 export const publishedPostsOptions = (f: PostFilters) =>
@@ -136,17 +135,3 @@ export const formatDate = (iso: string | null | undefined): string =>
         day: "numeric",
       })
     : ""
-
-/** Published pages for the public menu (title and slug only are used). */
-export const MENU_PAGES_LIMIT = 20
-export const menuPagesOptions = queryOptions({
-  queryKey: publicKeys.menuPages,
-  staleTime: 5 * 60 * 1000,
-  retry: false,
-  queryFn: async () =>
-    (
-      await ContentService.readPublishedPages({
-        query: { limit: MENU_PAGES_LIMIT },
-      })
-    ).data,
-})
