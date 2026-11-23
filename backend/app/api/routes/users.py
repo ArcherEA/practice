@@ -1,8 +1,9 @@
 import uuid
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from sqlmodel import col, func, select
+from sqlmodel import Session, col, func, select
 
 from app import crud
 from app.api.deps import (
@@ -27,10 +28,23 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    get_datetime_utc,
 )
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+USERNAME_CHANGE_INTERVAL = timedelta(days=30)
+USERNAME_TAKEN = "This username is already taken"
+
+
+def _username_taken(session: Session, username: str, *, owner: uuid.UUID) -> bool:
+    other = crud.get_user_by_username(session=session, username=username)
+    return other is not None and other.id != owner
+
+
+def _utc(value: datetime) -> datetime:
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value
 
 
 def _forbidden(detail: str) -> HTTPException:
@@ -113,6 +127,10 @@ def create_user(
             status_code=400,
             detail="The user with this email already exists in the system.",
         )
+    if user_in.username and crud.get_user_by_username(
+        session=session, username=user_in.username
+    ):
+        raise HTTPException(status_code=400, detail=USERNAME_TAKEN)
 
     user = crud.create_user(session=session, user_create=user_in)
     if settings.emails_enabled and user_in.email:
@@ -146,6 +164,25 @@ def update_user_me(
                 status_code=409, detail="User with this email already exists"
             )
     user_data = user_in.model_dump(exclude_unset=True)
+    new_username = user_data.pop("username", None)
+    if new_username is not None and new_username != current_user.username:
+        last = current_user.username_changed_at
+        if (
+            last is not None
+            and _utc(last) + USERNAME_CHANGE_INTERVAL > get_datetime_utc()
+        ):
+            next_change = (_utc(last) + USERNAME_CHANGE_INTERVAL).date().isoformat()
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "You can change your username once every 30 days; "
+                    f"you can change it again on {next_change}"
+                ),
+            )
+        if _username_taken(session, new_username, owner=current_user.id):
+            raise HTTPException(status_code=409, detail=USERNAME_TAKEN)
+        user_data["username"] = new_username
+        user_data["username_changed_at"] = get_datetime_utc()
     current_user.sqlmodel_update(user_data)
     session.add(current_user)
     session.commit()
@@ -252,6 +289,10 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             status_code=400,
             detail="The user with this email already exists in the system",
         )
+    if user_in.username and crud.get_user_by_username(
+        session=session, username=user_in.username
+    ):
+        raise HTTPException(status_code=400, detail=USERNAME_TAKEN)
     user_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_create=user_create)
     return user
@@ -311,6 +352,8 @@ def update_user(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
+    if user_in.username and _username_taken(session, user_in.username, owner=user_id):
+        raise HTTPException(status_code=409, detail=USERNAME_TAKEN)
 
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
     return file_service.to_user_public(session=session, storage=storage, user=db_user)

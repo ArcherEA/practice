@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from app import crud
 from app.api.deps import SessionDep
 from app.core.security import get_password_hash
 from app.models import (
@@ -29,6 +30,9 @@ def create_user(user_in: PrivateUserCreate, session: SessionDep) -> Any:
     user = User(
         email=user_in.email,
         full_name=user_in.full_name,
+        username=crud.generate_username(
+            session=session, full_name=user_in.full_name, email=user_in.email
+        ),
         hashed_password=get_password_hash(user_in.password),
     )
 

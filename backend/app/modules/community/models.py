@@ -14,6 +14,13 @@ from sqlmodel import Field, SQLModel
 from app.models import get_datetime_utc
 
 
+class NotificationType(StrEnum):
+    comment_replied = "comment_replied"  # someone replied to my comment
+    comment_liked = "comment_liked"  # someone liked my comment
+    new_follower = "new_follower"  # someone followed me
+    comment_moderated = "comment_moderated"  # a moderator hid or deleted my comment
+
+
 class CommentStatus(StrEnum):
     visible = "visible"
     hidden = "hidden"
@@ -163,3 +170,48 @@ class CommunitySuspension(SQLModel, table=True):
     )
     created_at: datetime = Field(default_factory=get_datetime_utc)
     ended_at: datetime | None = Field(default=None)
+
+
+class UserFollow(SQLModel, table=True):
+    """`follower_id` follows `followee_id` (never the same user, checked in the service)."""
+
+    __tablename__ = "user_follow"
+    __table_args__ = (
+        CheckConstraint("follower_id <> followee_id", name="ck_user_follow_not_self"),
+    )
+
+    follower_id: uuid.UUID = Field(
+        foreign_key="user.id", primary_key=True, ondelete="CASCADE"
+    )
+    followee_id: uuid.UUID = Field(
+        foreign_key="user.id", primary_key=True, ondelete="CASCADE", index=True
+    )
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+
+
+class Notification(SQLModel, table=True):
+    """An in-app notification. Targets are SET NULL, so a deleted comment or post only
+    makes the notification lose its link; old ones are removed by the cleanup command."""
+
+    __tablename__ = "notification"
+    __table_args__ = (
+        Index("ix_notification_recipient_created", "recipient_id", "created_at"),
+    )
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    recipient_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
+    type: NotificationType = Field(sa_type=String(30), nullable=False)
+    actor_id: uuid.UUID | None = Field(
+        default=None, foreign_key="user.id", ondelete="SET NULL"
+    )
+    comment_id: uuid.UUID | None = Field(
+        default=None, foreign_key="comment.id", ondelete="SET NULL"
+    )
+    post_id: uuid.UUID | None = Field(
+        default=None, foreign_key="post.id", ondelete="SET NULL"
+    )
+    page_id: uuid.UUID | None = Field(
+        default=None, foreign_key="page.id", ondelete="SET NULL"
+    )
+    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+    read_at: datetime | None = Field(default=None)
