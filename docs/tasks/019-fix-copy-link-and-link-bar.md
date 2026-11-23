@@ -13,8 +13,10 @@ After PR #9 merged (the `main` ruleset was still *disabled*, so a running Playwr
 - `PublicLinkActions`: use the Clipboard API on secure pages, otherwise fall back to a temporary `<textarea>` +
   `document.execCommand("copy")`.
 - `RichTextEditor`: remember the selection when the link bar opens and re-apply the link to exactly that range.
-- Tests wait until the text is really selected before clicking "Link"; Playwright treats `http://backend:8000` as a
-  secure origin so the CI test can read the clipboard.
+- Tests wait until the text is really selected before clicking "Link". On insecure pages (CI's
+  `http://backend:8000`) the Copy-link test checks the toast only, since the clipboard can't be read back there; on
+  secure pages (local) it also checks the copied URL. (A Chromium flag to treat backend:8000 as secure was tried in CI
+  and had no effect, so it was removed.)
 
 ## Verified
 `content.spec.ts` 3× with `--fail-on-flaky-tests`: 34/34 passed; lint + build clean.
