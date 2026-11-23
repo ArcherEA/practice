@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"
+    # Public base URL of the site (no trailing slash): canonical links, og:url,
+    # sitemap.xml and robots.txt. Production URL on Vercel / own server.
+    SITE_URL: str = "http://localhost:5173"
     FASTAPI_ENV: Literal["development"] | None = None
 
     PROJECT_NAME: str
@@ -54,6 +57,11 @@ class Settings(BaseSettings):
                 f"(or '{NO_MODULES}' to disable all optional modules)."
             )
         return list(dict.fromkeys(names))
+
+    @field_validator("SITE_URL")
+    @classmethod
+    def _strip_trailing_slash(cls, value: str) -> str:
+        return value.rstrip("/")
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

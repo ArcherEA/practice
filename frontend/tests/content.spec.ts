@@ -84,7 +84,7 @@ test.describe("Content editor", () => {
     const title = randomTitle()
     await titleInput(page).fill(title)
     // The slug follows the title until it is edited.
-    await expect(page.getByLabel("Slug")).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Slug" })).toHaveValue(
       title.toLowerCase().replace(/\s+/g, "-"),
     )
     await page.getByLabel("Excerpt").fill("A short excerpt")

@@ -63,6 +63,7 @@ No `FASTAPI_ENV` on Vercel: the settings only accept the value `development` (or
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_TLS`, `EMAILS_FROM_EMAIL`, `EMAILS_FROM_NAME` | Your SMTP provider. Optional: without `SMTP_HOST` + `EMAILS_FROM_EMAIL` email features (password reset) are disabled. |
 | `SENTRY_DSN` | Optional |
 | `MODULES` | Optional. Comma-separated optional modules, e.g. `items,content`. **Add `content` to enable the blog/pages module** (its tables are migrated either way; apply the migration to Neon first, see `docs/DATABASE.md`). Unset = `items` (the demo module). `none` = Core only (an empty value is ignored). Unknown names fail at startup. |
+| `SITE_URL` | Public base URL, no trailing slash, e.g. `https://<project>.vercel.app` or your custom domain. Used for canonical links, Open Graph URLs, `sitemap.xml` and `robots.txt` (content module). Preview deployments can use the same production value (their canonical then points to production, which is what you want). |
 | `VITE_API_URL` | **Do not set** (empty = same domain) |
 | `FASTAPI_ENV` | **Do not set** (only `development` is valid; unset = production) |
 
@@ -156,6 +157,42 @@ Cloudflare has **no hard spending cap** for R2 (only email alerts), so the app l
    Optional R2 lifecycle rules (bucket > Settings > **Object lifecycle rules**): keep the default "abort incomplete
    multipart uploads after 7 days", and, if you add a prefix for temporary files later, a "delete objects after N days" rule
    on that prefix. Never add a rule that transitions objects to **Infrequent Access**.
+
+## Public content pages and SEO on Vercel (task 011)
+
+Checked against Vercel's docs (page dated 2026-11-14): <https://vercel.com/docs/frameworks/backend/fastapi> and
+<https://vercel.com/docs/functions/runtimes/python>.
+
+- **Routing precedence.** The docs say `app.frontend()` registers a low-priority frontend build and "every API route takes
+  priority over frontend files regardless of declaration order". The CDN `index.html` fallback only applies to requests that
+  match no route and no file. So `GET /blog/{slug}` (a FastAPI route) is expected to reach the function, not the static
+  fallback. Static files such as `/assets/*` stay on the CDN. `/sitemap.xml` and `/robots.txt` have an extension, so the
+  fallback never applies to them. We still declare the SEO routes before the mount in `create_app` (needed for Docker/local,
+  where Starlette matches in order). **Not verifiable offline**: the docs do not spell out dynamic path routes, so check the
+  preview (below). Contingency if the CDN wins: set `fallback=None` in `application.frontend(...)` (every miss then reaches
+  the function, which serves the SPA itself) or add `rewrites` for `/blog/:path*` and `/p/:path*` to `index.py` in `vercel.json`.
+- **Reading `index.html` at runtime.** "Promoted source directories are kept in the function bundle by default so the app can
+  read from them at runtime" (`[tool.vercel.fastapi.static] exclude = false` is the default, and we do not set `exclude`).
+  Python functions also include all project files reachable at build time. So `backend/app/frontend/index.html`, created by
+  our `buildCommand`, is in the bundle and `app.state.frontend_dir` (resolved from `main.py`'s location) finds it.
+  **Do not set `exclude = true`**, or the SEO routes lose their template.
+- **HTML template source (chosen: the file, plus a safe fallback).** Read `backend/app/frontend/index.html` if present;
+  otherwise return a minimal valid HTML page with the same tags and a link to `FRONTEND_HOST` (a warning is logged). We did
+  not add an embedded copy or `includeFiles`: the bundle keeps the file by default, and a build-time copy would be a second
+  source of truth. If the preview shows the minimal page, add `"includeFiles": "backend/app/frontend/**"` under
+  `functions."index.py"` in `vercel.json`.
+- **What to check on a preview** (replace `$URL`, `$SLUG` is a published post, `$DRAFT` a draft; `SITE_URL` must be set):
+  ```bash
+  curl -s -H "Accept: text/html" "$URL/blog/$SLUG" | grep -E "<title>|og:|canonical|twitter:|app\.js|assets/"
+  curl -s -o /dev/null -w "%{http_code}
+" -H "Accept: text/html" "$URL/blog/$DRAFT"   # 404
+  curl -s -H "Accept: text/html" "$URL/blog/$DRAFT" | grep -E "noindex|assets/"
+  curl -s "$URL/sitemap.xml" | head -20        # absolute SITE_URL links, published only
+  curl -s "$URL/robots.txt"                    # Disallow lines + Sitemap: $SITE_URL/sitemap.xml
+  curl -s -o /dev/null -w "%{http_code}
+" -H "Accept: text/html" "$URL/login"   # 200, plain SPA shell
+  ```
+  If `/blog/$SLUG` shows the plain shell (title not the post's) the CDN fallback won: apply the contingency above.
 
 ## Known limits
 - **Function timeout:** `vercel.json` sets `maxDuration` 60 s. Vercel allows up to 300 s on Hobby and 800 s on Pro by default. Long AI streams (Phase 3) must stay below that, or move to the fallback in `ARCHITECTURE.md` (frontend on Vercel, API on own server; only an env var changes). Streaming responses are supported, but the connection is cut at the limit.

@@ -114,6 +114,8 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
       # Optional modules (e.g. items,content). Empty -> the app default (items).
       MODULES: ${MODULES:-}
+      # Public base URL for canonical/og:url/sitemap (the Traefik/own-domain URL in production).
+      SITE_URL: ${SITE_URL:-http://localhost:5173}
       # Backend -> bucket uses the internal hostname; presigned URLs use the public
       # one, because the browser must be able to reach the host in the URL.
       S3_ENDPOINT_URL: http://storage:8333
