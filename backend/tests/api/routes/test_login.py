@@ -189,3 +189,21 @@ def test_login_with_argon2_password_keeps_hash(client: TestClient, db: Session) 
 
     assert user.hashed_password == original_hash
     assert user.hashed_password.startswith("$argon2")
+
+
+def test_token_of_deleted_user_returns_401(client: TestClient, db: Session) -> None:
+    """A still-valid token whose user was deleted must look like 'logged out' (401),
+    so the frontend redirects to the login page instead of breaking (task 008)."""
+    email, password = random_email(), random_lower_string()
+    user = create_user(
+        session=db, user_create=UserCreate(email=email, password=password)
+    )
+    headers = user_authentication_headers(client=client, email=email, password=password)
+    db.delete(user)
+    db.commit()
+
+    for path in ("/users/me", "/items/"):
+        r = client.get(f"{settings.API_V1_STR}{path}", headers=headers)
+        assert r.status_code == 401, path
+        assert r.json() == {"detail": "Could not validate credentials"}
+        assert r.headers["www-authenticate"] == "Bearer"

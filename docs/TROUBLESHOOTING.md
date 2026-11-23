@@ -5,6 +5,15 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-23 — FIXED (task 008): Items page broken and account menu missing after the dev DB was reset
+- **Symptom:** the app looks logged in, but the sidebar account menu is gone and data pages (Items) never load.
+- **Cause:** the browser kept a still-valid login token (8 days) for a user that no longer exists (the admin was
+  recreated with a new id). The backend answered 404 "User not found"; the frontend only logs out on 401/403.
+- **Fix:** `get_current_user` now returns **401** for a token whose user is gone, and the frontend no longer retries
+  401/403 (it used to retry ~7 s before logging out). You land on `/login` immediately.
+- **Manual workaround (old builds):** in the browser console run
+  `localStorage.removeItem("access_token"); location.href = "/login"`, then log in again.
+
 ## 2026-11-23 — Playwright: reset-password tests fail with "HTML instead of JSON"; browser executable missing
 - **Symptom 1:** `reset-password.spec.ts` (link + weak password tests) fail; `tests/utils/mailpit.ts` gets HTML, not JSON.
 - **Cause 1:** the tests read `process.env.MAILPIT_HOST`, which `playwright.config.ts` loads via `import 'dotenv/config'` from

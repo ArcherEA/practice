@@ -19,16 +19,25 @@ client.setConfig({
   auth: () => localStorage.getItem("access_token") || "",
 })
 
+const isAuthError = (error: Error) =>
+  error instanceof AxiosError &&
+  [401, 403].includes(error.response?.status ?? 0)
+
 const handleApiError = (error: Error) => {
-  if (
-    error instanceof AxiosError &&
-    [401, 403].includes(error.response?.status ?? 0)
-  ) {
+  if (isAuthError(error)) {
     localStorage.removeItem("access_token")
     window.location.href = "/login"
   }
 }
+
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Retrying a 401/403 can't succeed; fail fast so handleApiError logs out
+      // immediately instead of after ~7s of retries (task 008).
+      retry: (failureCount, error) => !isAuthError(error) && failureCount < 3,
+    },
+  },
   queryCache: new QueryCache({
     onError: handleApiError,
   }),
