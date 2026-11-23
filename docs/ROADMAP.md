@@ -15,7 +15,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 006 File uploads: presigned URLs to S3-compatible storage (SeaweedFS local/own server, R2 on Vercel); avatar as first use
 - [ ] **Phase 2 — Content** (task files drafted 2026-11-23, awaiting approval; build in this order)
   - [x] 009 Content backend: posts + pages, categories + tags, Tiptap JSON body (validated), stable public image URLs  — implemented 2026-11-23
-  - [ ] 010 Editor UI: Tiptap editor (open-source packages), posts/pages/taxonomy screens for editors+
+  - [x] 010 Editor UI: Tiptap editor (open-source packages), posts/pages/taxonomy screens for editors+  — implemented 2026-11-23
   - [ ] 011 Public pages + SEO: /blog, /p/<slug>, meta-tag injection in FastAPI, sitemap.xml, robots.txt
   - Later: scheduled publishing, revision history, RSS, search
 - [ ] **Phase 3 — AI:** provider layer (Pydantic AI), streaming chat UI, AI writing help, rate limits

@@ -8,7 +8,7 @@ Add an entry before adopting any new dependency. Format: what, license, why, rej
 | D2 | Pydantic AI for the AI layer | MIT | Same team as Pydantic → native FastAPI fit; one API for Claude/OpenAI/Gemini/local, so swapping provider is config; streaming, tools, typed output built in | Raw provider SDKs (lock-in, own abstraction); LangChain (heavy) |
 | D3 | assistant-ui or Vercel AI SDK UI for chat | MIT / Apache-2.0 | Ready chat components (streaming, markdown); final pick in the AI task based on Pydantic AI stream compatibility | Hand-built chat UI |
 | D4 | pgvector for search/RAG (later) | PostgreSQL | Vectors inside existing Postgres, supported by Neon; no extra service | Pinecone/Qdrant (extra service/cost) |
-| D5 | Tiptap editor | MIT (core) | Most used headless React editor, Tailwind-friendly, extensible for AI writing help | Quill, Slate (less active / lower level) |
+| D5 | Tiptap editor | MIT (core) | Most used headless React editor, Tailwind-friendly, extensible for AI writing help. Packages (task 010): @tiptap/react, pm, starter-kit, extension-link, extension-image, extension-placeholder (all MIT, v3); no Pro extensions | Quill, Slate (less active / lower level) |
 | D6 | Stripe Checkout + Billing | proprietary SDK, per-transaction fee | No realistic open alternative for card payments; hosted checkout keeps card data off our servers (PCI burden on Stripe) | Saleor (whole separate Django/GraphQL platform) |
 | D7 | boto3 + R2 / MinIO for files | Apache-2.0 / AGPL server (self-host use only) | One S3 API on both targets; keeps backend stateless for Vercel | Local disk (breaks Vercel) |
 | D8 | Authlib for OAuth (later) | BSD | Standard OAuth client, plugs into existing JWT auth | fastapi-users (would replace template auth) |

@@ -125,6 +125,12 @@ editor, admin and superuser pass; moderator and member get 403. Drafts are only 
 characters; nothing left (e.g. a Chinese title) -> 8 random hex characters; clashes get `-2`, `-3`... per table. A slug
 sent by the client goes through the same function. Renaming a title does not change the slug.
 
+**Editor UI (task 010):** `frontend/src/features/content/`, routes `/content/posts[/$id]`, `/content/pages[/$id]`,
+`/content/taxonomy` (guarded by `requireModule("content")` + `hasRole(user, "editor")`; the sidebar entry uses
+`requiredRole` in `moduleNavItems`). `extensions.ts` is the single Tiptap schema (StarterKit with headings 1-3, underline
+and the bundled link disabled, own Link with http/https/mailto//path rule, Image with a `fileId` attribute); the editor
+cannot produce anything outside the backend allow-list. `ContentRenderer` is the read-only renderer reused by public pages.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|
