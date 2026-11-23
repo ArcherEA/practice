@@ -1,11 +1,29 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic.networks import EmailStr
+from sqlmodel import SQLModel
 
 from app.api.deps import get_current_active_superuser
+from app.core.config import Settings
 from app.models import Message
 from app.utils import generate_test_email, send_email
 
 router = APIRouter(prefix="/utils", tags=["utils"])
+
+
+class PublicConfig(SQLModel):
+    project_name: str
+    modules: list[str]
+
+
+@router.get("/config")
+def get_public_config(request: Request) -> PublicConfig:
+    """
+    Public (no auth) deployment config for the frontend: name and enabled modules.
+    """
+    app_settings: Settings = request.app.state.settings
+    return PublicConfig(
+        project_name=app_settings.PROJECT_NAME, modules=app_settings.MODULES
+    )
 
 
 @router.post(

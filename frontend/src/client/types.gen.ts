@@ -159,6 +159,20 @@ export type PrivateUserCreate = {
 };
 
 /**
+ * PublicConfig
+ */
+export type PublicConfig = {
+    /**
+     * Project Name
+     */
+    project_name: string;
+    /**
+     * Modules
+     */
+    modules: Array<string>;
+};
+
+/**
  * Token
  */
 export type Token = {
@@ -723,6 +737,22 @@ export type usersUpdateUserResponses = {
 };
 
 export type usersUpdateUserResponse = usersUpdateUserResponses[keyof usersUpdateUserResponses];
+
+export type utilsGetPublicConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/utils/config';
+};
+
+export type utilsGetPublicConfigResponses = {
+    /**
+     * Successful Response
+     */
+    200: PublicConfig;
+};
+
+export type utilsGetPublicConfigResponse = utilsGetPublicConfigResponses[keyof utilsGetPublicConfigResponses];
 
 export type utilsTestEmailData = {
     body?: never;

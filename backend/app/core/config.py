@@ -1,5 +1,5 @@
 import warnings
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import (
     EmailStr,
@@ -9,7 +9,9 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+from app.modules import DEFAULT_MODULES, MODULE_NAMES, NO_MODULES
 
 
 class Settings(BaseSettings):
@@ -27,8 +29,31 @@ class Settings(BaseSettings):
     FASTAPI_ENV: Literal["development"] | None = None
 
     PROJECT_NAME: str
+    # Optional modules to enable, comma-separated (MODULES=items,content).
+    # Not set -> DEFAULT_MODULES. An empty value is ignored (env_ignore_empty),
+    # so use MODULES=none to run with Core only.
+    MODULES: Annotated[list[str], NoDecode] = list(DEFAULT_MODULES)
     SENTRY_DSN: HttpUrl | None = None
     DATABASE_URL: PostgresDsn
+
+    @field_validator("MODULES", mode="before")
+    @classmethod
+    def _parse_modules(cls, value: str | list[str]) -> list[str]:
+        if isinstance(value, str):
+            names = [name.strip() for name in value.split(",")]
+        else:
+            names = [name.strip() for name in value]
+        names = [name for name in names if name]
+        if names == [NO_MODULES]:
+            return []
+        unknown = [name for name in names if name not in MODULE_NAMES]
+        if unknown:
+            raise ValueError(
+                f"Unknown module(s) in MODULES: {', '.join(unknown)}. "
+                f"Valid names: {', '.join(MODULE_NAMES)} "
+                f"(or '{NO_MODULES}' to disable all optional modules)."
+            )
+        return list(dict.fromkeys(names))
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
