@@ -1,9 +1,11 @@
 import {
+  Bell,
   Briefcase,
   ExternalLink,
   FileText,
   type LucideIcon,
   ShieldCheck,
+  UserCheck,
 } from "lucide-react"
 
 import type { UserPublic, UserRole } from "@/client"
@@ -35,6 +37,18 @@ export const moduleNavItems: ModuleNavItem[] = [
     icon: ShieldCheck,
     path: "/moderation",
     requiredRole: "moderator",
+  },
+  {
+    module: "community",
+    title: "Notifications",
+    icon: Bell,
+    path: "/notifications",
+  },
+  {
+    module: "community",
+    title: "Following",
+    icon: UserCheck,
+    path: "/following",
   },
   // Link to the public site, for every logged-in user.
   { module: "content", title: "View blog", icon: ExternalLink, path: "/blog" },

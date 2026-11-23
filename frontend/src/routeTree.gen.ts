@@ -18,14 +18,17 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutContentRouteImport } from './routes/_layout/content'
+import { Route as LayoutFollowingRouteImport } from './routes/_layout/following'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutModerationRouteImport } from './routes/_layout/moderation'
+import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutContentIndexRouteImport } from './routes/_layout/content.index'
 import { Route as LayoutContentTaxonomyRouteImport } from './routes/_layout/content.taxonomy'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 import { Route as PublicPSlugRouteImport } from './routes/_public.p.$slug'
+import { Route as PublicUUsernameRouteImport } from './routes/_public.u.$username'
 import { Route as LayoutContentPagesIndexRouteImport } from './routes/_layout/content.pages.index'
 import { Route as LayoutContentPagesIdRouteImport } from './routes/_layout/content.pages.$id'
 import { Route as LayoutContentPostsIndexRouteImport } from './routes/_layout/content.posts.index'
@@ -76,6 +79,11 @@ const LayoutContentRoute = LayoutContentRouteImport.update({
   path: '/content',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutFollowingRoute = LayoutFollowingRouteImport.update({
+  id: '/following',
+  path: '/following',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
   id: '/items',
   path: '/items',
@@ -84,6 +92,11 @@ const LayoutItemsRoute = LayoutItemsRouteImport.update({
 const LayoutModerationRoute = LayoutModerationRouteImport.update({
   id: '/moderation',
   path: '/moderation',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutNotificationsRoute = LayoutNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
@@ -114,6 +127,11 @@ const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
 const PublicPSlugRoute = PublicPSlugRouteImport.update({
   id: '/p/$slug',
   path: '/p/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicUUsernameRoute = PublicUUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
   getParentRoute: () => PublicRoute,
 } as any)
 const LayoutContentPagesIndexRoute = LayoutContentPagesIndexRouteImport.update({
@@ -155,12 +173,15 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/content': typeof LayoutContentRouteWithChildren
+  '/following': typeof LayoutFollowingRoute
   '/items': typeof LayoutItemsRoute
   '/moderation': typeof LayoutModerationRoute
+  '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
+  '/u/$username': typeof PublicUUsernameRoute
   '/content/': typeof LayoutContentIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
@@ -177,12 +198,15 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/following': typeof LayoutFollowingRoute
   '/items': typeof LayoutItemsRoute
   '/moderation': typeof LayoutModerationRoute
+  '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
+  '/u/$username': typeof PublicUUsernameRoute
   '/content': typeof LayoutContentIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
@@ -202,13 +226,16 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/content': typeof LayoutContentRouteWithChildren
+  '/_layout/following': typeof LayoutFollowingRoute
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/moderation': typeof LayoutModerationRoute
+  '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/content/taxonomy': typeof LayoutContentTaxonomyRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/p/$slug': typeof PublicPSlugRoute
+  '/_public/u/$username': typeof PublicUUsernameRoute
   '/_layout/content/': typeof LayoutContentIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_layout/content/pages/$id': typeof LayoutContentPagesIdRoute
@@ -228,12 +255,15 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/content'
+    | '/following'
     | '/items'
     | '/moderation'
+    | '/notifications'
     | '/settings'
     | '/content/taxonomy'
     | '/blog/$slug'
     | '/p/$slug'
+    | '/u/$username'
     | '/content/'
     | '/blog/'
     | '/content/pages/$id'
@@ -250,12 +280,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/following'
     | '/items'
     | '/moderation'
+    | '/notifications'
     | '/settings'
     | '/content/taxonomy'
     | '/blog/$slug'
     | '/p/$slug'
+    | '/u/$username'
     | '/content'
     | '/blog'
     | '/content/pages/$id'
@@ -274,13 +307,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_layout/admin'
     | '/_layout/content'
+    | '/_layout/following'
     | '/_layout/items'
     | '/_layout/moderation'
+    | '/_layout/notifications'
     | '/_layout/settings'
     | '/_layout/'
     | '/_layout/content/taxonomy'
     | '/_public/blog/$slug'
     | '/_public/p/$slug'
+    | '/_public/u/$username'
     | '/_layout/content/'
     | '/_public/blog/'
     | '/_layout/content/pages/$id'
@@ -365,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutContentRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/following': {
+      id: '/_layout/following'
+      path: '/following'
+      fullPath: '/following'
+      preLoaderRoute: typeof LayoutFollowingRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/items': {
       id: '/_layout/items'
       path: '/items'
@@ -377,6 +420,13 @@ declare module '@tanstack/react-router' {
       path: '/moderation'
       fullPath: '/moderation'
       preLoaderRoute: typeof LayoutModerationRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/notifications': {
+      id: '/_layout/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof LayoutNotificationsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/settings': {
@@ -419,6 +469,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$slug'
       fullPath: '/p/$slug'
       preLoaderRoute: typeof PublicPSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/u/$username': {
+      id: '/_public/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof PublicUUsernameRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_layout/content/pages/': {
@@ -491,8 +548,10 @@ const LayoutContentRouteWithChildren = LayoutContentRoute._addFileChildren(
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutContentRoute: typeof LayoutContentRouteWithChildren
+  LayoutFollowingRoute: typeof LayoutFollowingRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutModerationRoute: typeof LayoutModerationRoute
+  LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -500,8 +559,10 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutContentRoute: LayoutContentRouteWithChildren,
+  LayoutFollowingRoute: LayoutFollowingRoute,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutModerationRoute: LayoutModerationRoute,
+  LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
@@ -512,6 +573,7 @@ const LayoutRouteWithChildren =
 interface PublicRouteChildren {
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicPSlugRoute: typeof PublicPSlugRoute
+  PublicUUsernameRoute: typeof PublicUUsernameRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicBlogCategorySlugRoute: typeof PublicBlogCategorySlugRoute
   PublicBlogTagSlugRoute: typeof PublicBlogTagSlugRoute
@@ -520,6 +582,7 @@ interface PublicRouteChildren {
 const PublicRouteChildren: PublicRouteChildren = {
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicPSlugRoute: PublicPSlugRoute,
+  PublicUUsernameRoute: PublicUUsernameRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicBlogCategorySlugRoute: PublicBlogCategorySlugRoute,
   PublicBlogTagSlugRoute: PublicBlogTagSlugRoute,

@@ -30,9 +30,18 @@ export async function createUserApi(role: Role = "member") {
     return (await res.json()) as T
   }
 
+  const me = await call<{ username: string }>("GET", "/users/me")
+
   return {
     email,
     password,
+    username: me.username,
+    follow: (username: string) =>
+      call("PUT", `/community/users/${username}/follow`),
+    likeComment: (commentId: string) =>
+      call("PUT", `/community/comments/${commentId}/like`),
+    setProfile: (data: { username?: string; bio?: string }) =>
+      call("PATCH", "/users/me", data),
     comment: (postId: string, body: string, parentId?: string) =>
       call<{ id: string }>("POST", `/community/posts/${postId}/comments`, {
         body,

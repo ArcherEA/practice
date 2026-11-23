@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 
@@ -90,14 +91,13 @@ export function CommentItem({
             <>
               <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
                 {author ? (
-                  // Plain anchor: the /u/<username> profile route arrives in
-                  // task 017 and is not in the typed route tree yet.
-                  <a
-                    href={`/u/${author.username}`}
+                  <Link
+                    to="/u/$username"
+                    params={{ username: author.username }}
                     className="font-medium hover:underline"
                   >
                     {name}
-                  </a>
+                  </Link>
                 ) : (
                   <span className="font-medium">{name}</span>
                 )}
