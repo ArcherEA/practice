@@ -1,6 +1,6 @@
 # 003 — Keep `requirements.txt` in sync with `uv.lock`
 
-**Status:** draft (needs user approval) · **Agent:** backend-engineer · **Branch:** `feat/003-requirements-sync` · **Size:** small
+**Status:** implemented · **Agent:** backend-engineer · **Branch:** `feat/003-requirements-sync` · **Size:** small
 
 ## Why
 Vercel installs Python packages from `requirements.txt`, which is generated from `uv.lock`. Dependabot (and any

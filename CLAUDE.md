@@ -20,6 +20,7 @@ Read `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/DECISIONS.md` before chang
 - Follow the template's existing patterns first (look at `users`/`items` routes, models, crud, tests, frontend routes).
 - Prefer a well-known open-source library over custom code — but **no new dependency unless the task lists it with a reason**. Must be permissive (MIT/BSD/Apache), maintained and widely used. Record it in `docs/DECISIONS.md`.
 - Modules live in their own folders (backend `app/modules/<name>/`, frontend `src/features/<name>/` + routes) and talk to each other only through service functions / public schemas.
+- After changing backend dependencies (`uv add/remove/lock`, merging a Dependabot uv PR), run `scripts/export-requirements.sh` and commit the updated root `requirements.txt` (Vercel installs from it; CI `check-requirements` fails if it is stale).
 - Every DB change = a new Alembic migration. Never edit an applied migration.
 - Backend must stay stateless (Vercel): no writes to local disk — files go to S3-compatible storage. All config via env vars, documented in `.env.example`.
 - AI calls only through `backend/app/ai/` (Pydantic AI), with timeouts, error handling and per-user rate limits. Keys server-side only.

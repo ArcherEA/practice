@@ -1,0 +1,31 @@
+name: Check requirements.txt
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  check-requirements:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: "latest-known"
+      - name: Regenerate requirements.txt from uv.lock
+        run: bash scripts/export-requirements.sh
+      - name: Fail if requirements.txt is out of date
+        run: |
+          if ! git diff --exit-code requirements.txt; then
+            echo "::error file=requirements.txt::requirements.txt is out of date — run scripts/export-requirements.sh and commit"
+            exit 1
+          fi

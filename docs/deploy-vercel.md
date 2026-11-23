@@ -26,10 +26,13 @@ So the simplest setup is the **native FastAPI preset**, not hand-written `routes
 - `index.py` (repo root): adds `backend/` to `sys.path` and re-exports `app` from `backend/app/main.py`. Needed because our app lives in `backend/`, not at the root.
 - `backend/app/main.py`: `app.frontend("/", ...)` is now mounted only if `backend/app/frontend/` exists. Vercel's build runs the Vite build first (so the folder exists and its files are promoted to the CDN); plain `uvicorn`/tests/dev without a build no longer crash.
 - `vercel.json`: `buildCommand` installs Bun and builds the frontend (output goes to `backend/app/frontend` per `frontend/vite.config.ts`); `maxDuration` 60 s for the function.
-- `requirements.txt` (repo root): generated from `uv.lock` (`uv export`). Our root `pyproject.toml` is only a uv workspace with no `[project]` dependencies (they live in `backend/pyproject.toml`), so Vercel needs this file to know what to install. **Regenerate when backend dependencies change:**
+- `requirements.txt` (repo root): generated from `uv.lock` (`uv export`). Our root `pyproject.toml` is only a uv workspace with no `[project]` dependencies (they live in `backend/pyproject.toml`), so Vercel needs this file to know what to install. **Regenerate when backend dependencies change** (any OS, from any directory; it wraps `uv export --package app --no-hashes --frozen --no-emit-workspace --no-dev -o requirements.txt`):
   ```bash
-  uv export --package app --no-hashes --frozen --no-emit-workspace --no-dev -o requirements.txt
+  scripts/export-requirements.sh
   ```
+  The `Check requirements.txt` workflow (`.github/workflows/check-requirements.yml`) regenerates the file in CI and fails with `requirements.txt is out of date` if it differs from the committed one.
+
+  **Dependabot:** the monthly `uv` group in `.github/dependabot.yml` only updates `uv.lock`, so its PRs fail this check until fixed. We kept it (a red check is a clear signal; silently skipping would hide stale deploys). Fix: check out the PR branch, run `scripts/export-requirements.sh`, commit `requirements.txt`, push.
 - `.vercelignore`: keeps `node_modules`, `.venv`, `.env` out of the upload.
 
 `VITE_API_URL` must be **unset/empty** on Vercel: the frontend then calls `/api/v1/...` on the same domain.
