@@ -41,6 +41,12 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
+        // In CI the browser runs inside Docker and opens the app at http://backend:8000,
+        // which is not a "secure context", so the Clipboard API would be missing.
+        // Treat it as secure so tests can read what "Copy link" copied (no effect locally).
+        launchOptions: {
+          args: ['--unsafely-treat-insecure-origin-as-secure=http://backend:8000'],
+        },
       },
       dependencies: ['setup'],
     },

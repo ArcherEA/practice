@@ -102,6 +102,10 @@ test.describe("Content editor", () => {
     await page.keyboard.press("Enter")
     await page.keyboard.type("a link")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("a link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("https://example.com")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -223,6 +227,10 @@ test.describe("Content editor", () => {
     await tool(page, "Horizontal rule").click()
     await type("linked")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("linked")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("/about")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -288,6 +296,10 @@ test.describe("Content editor", () => {
     await bodyEditor(page).click()
     await page.keyboard.type("bad link")
     await page.keyboard.press("Shift+Home")
+    // Wait until the text is really selected before opening the link bar (CI is slower).
+    await expect
+      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
+      .toBe("bad link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("javascript:alert(1)")
     await page.getByRole("button", { name: "Apply link" }).click()
