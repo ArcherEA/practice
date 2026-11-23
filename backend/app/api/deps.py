@@ -1,4 +1,4 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from typing import Annotated
 
 import jwt
@@ -11,6 +11,7 @@ from sqlmodel import Session
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
+from app.core.roles import UserRole, has_role
 from app.models import TokenPayload, User
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -55,3 +56,24 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
             status_code=403, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+def require_role(role: UserRole) -> Callable[[User], User]:
+    """Dependency factory: 403 unless the current user has `role` (or is superuser)."""
+
+    def _check(current_user: CurrentUser) -> User:
+        if not has_role(current_user, role):
+            raise HTTPException(
+                status_code=403, detail="The user doesn't have enough privileges"
+            )
+        return current_user
+
+    return _check
+
+
+# Convenient aliases for routes: `dependencies=[RequireAdmin]` or `user: AdminUser`.
+RequireMember = Depends(require_role(UserRole.member))
+RequireEditor = Depends(require_role(UserRole.editor))
+RequireModerator = Depends(require_role(UserRole.moderator))
+RequireAdmin = Depends(require_role(UserRole.admin))
+AdminUser = Annotated[User, RequireAdmin]
