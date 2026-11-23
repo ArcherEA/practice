@@ -551,6 +551,7 @@ export type ModerationComment = {
      * Reports
      */
     reports: Array<ReportPublic>;
+    target?: CommentTargetPublic | null;
 };
 
 /**
