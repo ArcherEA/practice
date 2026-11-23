@@ -70,7 +70,7 @@ No `FASTAPI_ENV` on Vercel: the settings only accept the value `development` (or
 4. Click **Deploy**.
 
 ### 3. Migrations and first superuser (from your machine, not in the function)
-Run once after the first deploy and after every new Alembic migration. Use the Neon string (pooled works; unpooled preferred):
+Run once after the first deploy and after every new Alembic migration (full procedure, backups and recovery: `docs/DATABASE.md`). Use the Neon string (pooled works; unpooled preferred):
 
 PowerShell, from the repo root:
 ```powershell

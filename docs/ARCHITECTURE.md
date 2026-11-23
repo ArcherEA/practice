@@ -60,6 +60,8 @@ does not accept `role`; the admin endpoint returns 403), remove their own superu
 this prevents locking out the last superuser. Signup always creates a `member`; `FIRST_SUPERUSER` is created as `admin`.
 To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration needed).
 
+Database operations (migrations, Neon, backups, recovery): see `docs/DATABASE.md`.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|

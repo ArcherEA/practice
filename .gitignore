@@ -21,3 +21,6 @@ backend/app/frontend/
 
 # Neon production secrets
 .env.neon
+
+# Database backups (contain user data)
+backups/
