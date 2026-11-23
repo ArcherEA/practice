@@ -5,6 +5,13 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-22 — Login fails locally after running backend tests (admin user gone)
+- **Symptom:** after `uv run pytest`, logging in locally fails (400 "Incorrect email or password").
+- **Cause:** the template's `backend/tests/conftest.py` deletes all `Item` and `User` rows when the test session ends,
+  and the tests use the same database as local development (`localhost:5432/app`).
+- **Fix:** recreate the admin: from `backend/`, `uv run python app/initial_data.py`.
+- **Prevention / later:** give tests their own database (e.g. `app_test`) so they never touch dev data — candidate follow-up task.
+
 ## 2026-11-22 — Neon migrations silently ran against the LOCAL database
 - **Symptom:** `prestart.sh` printed "Initial data created" but Neon had no tables (`relation "alembic_version" does not exist`).
   No "Running upgrade" lines appeared — a hint that the target DB was already up to date.
