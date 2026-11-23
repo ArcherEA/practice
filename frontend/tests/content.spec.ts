@@ -24,6 +24,26 @@ const ALLOWED_NODES = new Set([
   "image",
   "text",
 ])
+/** Text currently selected in the Tiptap editor's own state (Tiptap sets `dom.editor`). */
+function editorSelectionText(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const dom = document.querySelector(".ProseMirror") as
+      | (HTMLElement & {
+          editor?: {
+            state: {
+              selection: { from: number; to: number }
+              doc: { textBetween(from: number, to: number): string }
+            }
+          }
+        })
+      | null
+    const state = dom?.editor?.state
+    if (!state) return ""
+    const { from, to } = state.selection
+    return state.doc.textBetween(from, to)
+  })
+}
+
 const ALLOWED_MARKS = new Set(["bold", "italic", "strike", "code", "link"])
 
 interface DocNode {
@@ -102,10 +122,9 @@ test.describe("Content editor", () => {
     await page.keyboard.press("Enter")
     await page.keyboard.type("a link")
     await page.keyboard.press("Shift+Home")
-    // Wait until the text is really selected before opening the link bar (CI is slower).
-    await expect
-      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
-      .toBe("a link")
+    // Wait until the *editor* has the selection, not just the browser: ProseMirror picks
+    // up keyboard selections from an async selectionchange event (slow CI raced it).
+    await expect.poll(() => editorSelectionText(page)).toBe("a link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("https://example.com")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -227,10 +246,9 @@ test.describe("Content editor", () => {
     await tool(page, "Horizontal rule").click()
     await type("linked")
     await page.keyboard.press("Shift+Home")
-    // Wait until the text is really selected before opening the link bar (CI is slower).
-    await expect
-      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
-      .toBe("linked")
+    // Wait until the *editor* has the selection, not just the browser: ProseMirror picks
+    // up keyboard selections from an async selectionchange event (slow CI raced it).
+    await expect.poll(() => editorSelectionText(page)).toBe("linked")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("/about")
     await page.getByRole("button", { name: "Apply link" }).click()
@@ -296,10 +314,9 @@ test.describe("Content editor", () => {
     await bodyEditor(page).click()
     await page.keyboard.type("bad link")
     await page.keyboard.press("Shift+Home")
-    // Wait until the text is really selected before opening the link bar (CI is slower).
-    await expect
-      .poll(() => page.evaluate(() => window.getSelection()?.toString()))
-      .toBe("bad link")
+    // Wait until the *editor* has the selection, not just the browser: ProseMirror picks
+    // up keyboard selections from an async selectionchange event (slow CI raced it).
+    await expect.poll(() => editorSelectionText(page)).toBe("bad link")
     await tool(page, "Link").click()
     await page.getByLabel("Link URL").fill("javascript:alert(1)")
     await page.getByRole("button", { name: "Apply link" }).click()
