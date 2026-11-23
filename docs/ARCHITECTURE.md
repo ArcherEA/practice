@@ -93,6 +93,38 @@ To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration need
 
 Database operations (migrations, Neon, backups, recovery): see `docs/DATABASE.md`.
 
+## Content module (task 009)
+Enable with `MODULES=items,content`. Code: `app/modules/content/` (`models.py` tables, `schemas.py` API models,
+`body.py` + `slugs.py` pure functions, `service.py`, `routes.py`). Routes live under `/api/v1/content`.
+
+**Data model** (tables always exist; one migration):
+`post` (title, unique `slug`, excerpt, `body` JSONB, `cover_file_id` -> file SET NULL, `category_id` -> category SET NULL,
+`status` draft|published, `published_at`, `author_id` -> user SET NULL, `seo_title`, `seo_description`, timestamps),
+`page` (the same minus excerpt/cover/category/tags), `category` (name, unique slug, description; a post has one optional),
+`tag` (name, unique slug), `post_tag` (post_id, tag_id, both ON DELETE CASCADE). Publishing sets `published_at` on the
+first publish only; unpublishing returns to draft and keeps the date. Deleting posts/pages never deletes image files.
+
+**Body format:** Tiptap/ProseMirror JSON (`{"type":"doc","content":[...]}`), never HTML (D15). `body.sanitize_body` runs
+on every save and rejects anything not on the allow-list: nodes `paragraph`, `heading` (level 1-3), `bulletList`,
+`orderedList`, `listItem`, `blockquote`, `codeBlock`, `horizontalRule`, `hardBreak`, `image`, `text`; marks `bold`, `italic`,
+`strike`, `code`, `link`. Unknown node/mark types, unknown fields or attributes, misplaced children, nesting deeper than 24
+levels and bodies over 1 MB (UTF-8 bytes) are rejected with 422 (the message names the JSON path). Link `href` must be
+`http:`, `https:`, `mailto:` or start with a single `/` (trimmed, case-insensitive; `javascript:`, `data:`, `//host`
+and control characters are refused). The saved body is the cleaned copy.
+
+**Images:** an `image` node carries `attrs.fileId` only. On save the service checks the file exists, is `ready`, `public`
+and a JPEG/PNG/WebP/GIF; the owner may be any user, so editors can reuse each other's images. A `src` sent by the client is
+dropped; responses add `attrs.src` = `/api/v1/files/{id}/content`, and posts get `cover_url` the same way.
+`GET /api/v1/files/{id}/content` (no auth, part of the files routes) 302-redirects to `S3_PUBLIC_BASE_URL` or a fresh
+signed URL for public, ready, inline-image files and returns 404 otherwise, so the URL stored in pages never expires.
+
+**Permissions:** reading published content is public. Everything under `/content/manage` needs `require_role(UserRole.editor)`:
+editor, admin and superuser pass; moderator and member get 403. Drafts are only returned by `/manage` routes.
+
+**Slugs:** `slugs.py` lowercases to ASCII (accents folded), turns other characters into single hyphens, trims, max 80
+characters; nothing left (e.g. a Chinese title) -> 8 random hex characters; clashes get `-2`, `-3`... per table. A slug
+sent by the client goes through the same function. Renaming a title does not change the slug.
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|

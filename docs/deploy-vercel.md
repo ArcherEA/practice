@@ -62,7 +62,7 @@ No `FASTAPI_ENV` on Vercel: the settings only accept the value `development` (or
 | `FRONTEND_HOST` | Your production URL, e.g. `https://<project>.vercel.app` (only used for CORS; same-origin works anyway) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_TLS`, `EMAILS_FROM_EMAIL`, `EMAILS_FROM_NAME` | Your SMTP provider. Optional: without `SMTP_HOST` + `EMAILS_FROM_EMAIL` email features (password reset) are disabled. |
 | `SENTRY_DSN` | Optional |
-| `MODULES` | Optional. Comma-separated optional modules, e.g. `items,content`. Unset = `items` (the demo module). `none` = Core only (an empty value is ignored). Unknown names fail at startup. |
+| `MODULES` | Optional. Comma-separated optional modules, e.g. `items,content`. **Add `content` to enable the blog/pages module** (its tables are migrated either way; apply the migration to Neon first, see `docs/DATABASE.md`). Unset = `items` (the demo module). `none` = Core only (an empty value is ignored). Unknown names fail at startup. |
 | `VITE_API_URL` | **Do not set** (empty = same domain) |
 | `FASTAPI_ENV` | **Do not set** (only `development` is valid; unset = production) |
 

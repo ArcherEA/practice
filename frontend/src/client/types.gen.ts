@@ -45,6 +45,85 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * CategoriesPublic
+ */
+export type CategoriesPublic = {
+    /**
+     * Data
+     */
+    data: Array<CategoryPublic>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
+ * CategoryCreate
+ */
+export type CategoryCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     *
+     * Optional; generated from the name when omitted
+     */
+    slug?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+};
+
+/**
+ * CategoryPublic
+ */
+export type CategoryPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+};
+
+/**
+ * CategoryUpdate
+ */
+export type CategoryUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+};
+
+/**
+ * ContentStatus
+ */
+export type ContentStatus = 'draft' | 'published';
+
+/**
  * DownloadUrl
  */
 export type DownloadUrl = {
@@ -239,6 +318,410 @@ export type NewPassword = {
 };
 
 /**
+ * PageCreate
+ */
+export type PageCreate = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Body
+     */
+    body?: {
+        [key: string]: unknown;
+    };
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PagePublic
+ */
+export type PagePublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    status: ContentStatus;
+    /**
+     * Published At
+     */
+    published_at?: string | null;
+    /**
+     * Author Id
+     */
+    author_id?: string | null;
+    /**
+     * Author Name
+     */
+    author_name?: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Body
+     */
+    body: {
+        [key: string]: unknown;
+    };
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PageSummary
+ */
+export type PageSummary = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    status: ContentStatus;
+    /**
+     * Published At
+     */
+    published_at?: string | null;
+    /**
+     * Author Id
+     */
+    author_id?: string | null;
+    /**
+     * Author Name
+     */
+    author_name?: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+};
+
+/**
+ * PageUpdate
+ */
+export type PageUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Body
+     */
+    body?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PagesPublic
+ */
+export type PagesPublic = {
+    /**
+     * Data
+     */
+    data: Array<PageSummary>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
+ * PostCreate
+ */
+export type PostCreate = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     *
+     * Optional; generated from the title when omitted. Normalized and made unique.
+     */
+    slug?: string | null;
+    /**
+     * Excerpt
+     */
+    excerpt?: string | null;
+    /**
+     * Body
+     *
+     * Tiptap JSON document; see docs/ARCHITECTURE.md for the allow-list
+     */
+    body?: {
+        [key: string]: unknown;
+    };
+    /**
+     * Cover File Id
+     */
+    cover_file_id?: string | null;
+    /**
+     * Category Id
+     */
+    category_id?: string | null;
+    /**
+     * Tag Ids
+     */
+    tag_ids?: Array<string>;
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PostPublic
+ */
+export type PostPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Excerpt
+     */
+    excerpt?: string | null;
+    /**
+     * Cover File Id
+     */
+    cover_file_id?: string | null;
+    /**
+     * Cover Url
+     *
+     * Stable URL of the cover image (redirects to storage)
+     */
+    cover_url?: string | null;
+    status: ContentStatus;
+    /**
+     * Published At
+     */
+    published_at?: string | null;
+    /**
+     * Author Id
+     */
+    author_id?: string | null;
+    /**
+     * Author Name
+     */
+    author_name?: string | null;
+    category?: CategoryPublic | null;
+    /**
+     * Tags
+     */
+    tags: Array<TagPublic>;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Body
+     *
+     * Tiptap JSON; image nodes carry a resolved attrs.src
+     */
+    body: {
+        [key: string]: unknown;
+    };
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PostSummary
+ *
+ * A post without its body, for lists.
+ */
+export type PostSummary = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Excerpt
+     */
+    excerpt?: string | null;
+    /**
+     * Cover File Id
+     */
+    cover_file_id?: string | null;
+    /**
+     * Cover Url
+     *
+     * Stable URL of the cover image (redirects to storage)
+     */
+    cover_url?: string | null;
+    status: ContentStatus;
+    /**
+     * Published At
+     */
+    published_at?: string | null;
+    /**
+     * Author Id
+     */
+    author_id?: string | null;
+    /**
+     * Author Name
+     */
+    author_name?: string | null;
+    category?: CategoryPublic | null;
+    /**
+     * Tags
+     */
+    tags: Array<TagPublic>;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+};
+
+/**
+ * PostUpdate
+ *
+ * Only the fields you send are changed; send null to clear nullable ones.
+ */
+export type PostUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Excerpt
+     */
+    excerpt?: string | null;
+    /**
+     * Body
+     */
+    body?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Cover File Id
+     */
+    cover_file_id?: string | null;
+    /**
+     * Category Id
+     */
+    category_id?: string | null;
+    /**
+     * Tag Ids
+     */
+    tag_ids?: Array<string> | null;
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * PostsPublic
+ */
+export type PostsPublic = {
+    /**
+     * Data
+     */
+    data: Array<PostSummary>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * PrivateUserCreate
  */
 export type PrivateUserCreate = {
@@ -294,6 +777,66 @@ export type StorageUsage = {
      * Top Users
      */
     top_users: Array<UserUsage>;
+};
+
+/**
+ * TagCreate
+ */
+export type TagCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+};
+
+/**
+ * TagPublic
+ */
+export type TagPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     */
+    slug: string;
+};
+
+/**
+ * TagUpdate
+ */
+export type TagUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+};
+
+/**
+ * TagsPublic
+ */
+export type TagsPublic = {
+    /**
+     * Data
+     */
+    data: Array<TagPublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -1099,6 +1642,27 @@ export type filesGetDownloadUrlResponses = {
 
 export type filesGetDownloadUrlResponse = filesGetDownloadUrlResponses[keyof filesGetDownloadUrlResponses];
 
+export type filesGetPublicContentData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/files/{file_id}/content';
+};
+
+export type filesGetPublicContentErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesGetPublicContentError = filesGetPublicContentErrors[keyof filesGetPublicContentErrors];
+
 export type filesDeleteFileData = {
     body?: never;
     path: {
@@ -1341,6 +1905,764 @@ export type itemsUpdateItemResponses = {
 };
 
 export type itemsUpdateItemResponse = itemsUpdateItemResponses[keyof itemsUpdateItemResponses];
+
+export type contentReadPublishedPostsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Category
+         *
+         * Category slug
+         */
+        category?: string | null;
+        /**
+         * Tag
+         *
+         * Tag slug
+         */
+        tag?: string | null;
+    };
+    url: '/api/v1/content/posts';
+};
+
+export type contentReadPublishedPostsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadPublishedPostsError = contentReadPublishedPostsErrors[keyof contentReadPublishedPostsErrors];
+
+export type contentReadPublishedPostsResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostsPublic;
+};
+
+export type contentReadPublishedPostsResponse = contentReadPublishedPostsResponses[keyof contentReadPublishedPostsResponses];
+
+export type contentReadPublishedPostData = {
+    body?: never;
+    path: {
+        /**
+         * Slug
+         */
+        slug: string;
+    };
+    query?: never;
+    url: '/api/v1/content/posts/{slug}';
+};
+
+export type contentReadPublishedPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadPublishedPostError = contentReadPublishedPostErrors[keyof contentReadPublishedPostErrors];
+
+export type contentReadPublishedPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentReadPublishedPostResponse = contentReadPublishedPostResponses[keyof contentReadPublishedPostResponses];
+
+export type contentReadPublishedPageData = {
+    body?: never;
+    path: {
+        /**
+         * Slug
+         */
+        slug: string;
+    };
+    query?: never;
+    url: '/api/v1/content/pages/{slug}';
+};
+
+export type contentReadPublishedPageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadPublishedPageError = contentReadPublishedPageErrors[keyof contentReadPublishedPageErrors];
+
+export type contentReadPublishedPageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentReadPublishedPageResponse = contentReadPublishedPageResponses[keyof contentReadPublishedPageResponses];
+
+export type contentReadCategoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/categories';
+};
+
+export type contentReadCategoriesResponses = {
+    /**
+     * Successful Response
+     */
+    200: CategoriesPublic;
+};
+
+export type contentReadCategoriesResponse = contentReadCategoriesResponses[keyof contentReadCategoriesResponses];
+
+export type contentReadTagsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/tags';
+};
+
+export type contentReadTagsResponses = {
+    /**
+     * Successful Response
+     */
+    200: TagsPublic;
+};
+
+export type contentReadTagsResponse = contentReadTagsResponses[keyof contentReadTagsResponses];
+
+export type contentReadManagePostsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Status
+         */
+        status?: ContentStatus | null;
+        /**
+         * Q
+         *
+         * Title contains
+         */
+        q?: string | null;
+        /**
+         * Category
+         *
+         * Category slug
+         */
+        category?: string | null;
+        /**
+         * Tag
+         *
+         * Tag slug
+         */
+        tag?: string | null;
+    };
+    url: '/api/v1/content/manage/posts';
+};
+
+export type contentReadManagePostsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadManagePostsError = contentReadManagePostsErrors[keyof contentReadManagePostsErrors];
+
+export type contentReadManagePostsResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostsPublic;
+};
+
+export type contentReadManagePostsResponse = contentReadManagePostsResponses[keyof contentReadManagePostsResponses];
+
+export type contentCreateManagePostData = {
+    body: PostCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/manage/posts';
+};
+
+export type contentCreateManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentCreateManagePostError = contentCreateManagePostErrors[keyof contentCreateManagePostErrors];
+
+export type contentCreateManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentCreateManagePostResponse = contentCreateManagePostResponses[keyof contentCreateManagePostResponses];
+
+export type contentDeleteManagePostData = {
+    body?: never;
+    path: {
+        /**
+         * Post Id
+         */
+        post_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/posts/{post_id}';
+};
+
+export type contentDeleteManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentDeleteManagePostError = contentDeleteManagePostErrors[keyof contentDeleteManagePostErrors];
+
+export type contentDeleteManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type contentDeleteManagePostResponse = contentDeleteManagePostResponses[keyof contentDeleteManagePostResponses];
+
+export type contentReadManagePostData = {
+    body?: never;
+    path: {
+        /**
+         * Post Id
+         */
+        post_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/posts/{post_id}';
+};
+
+export type contentReadManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadManagePostError = contentReadManagePostErrors[keyof contentReadManagePostErrors];
+
+export type contentReadManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentReadManagePostResponse = contentReadManagePostResponses[keyof contentReadManagePostResponses];
+
+export type contentUpdateManagePostData = {
+    body: PostUpdate;
+    path: {
+        /**
+         * Post Id
+         */
+        post_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/posts/{post_id}';
+};
+
+export type contentUpdateManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUpdateManagePostError = contentUpdateManagePostErrors[keyof contentUpdateManagePostErrors];
+
+export type contentUpdateManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentUpdateManagePostResponse = contentUpdateManagePostResponses[keyof contentUpdateManagePostResponses];
+
+export type contentPublishManagePostData = {
+    body?: never;
+    path: {
+        /**
+         * Post Id
+         */
+        post_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/posts/{post_id}/publish';
+};
+
+export type contentPublishManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentPublishManagePostError = contentPublishManagePostErrors[keyof contentPublishManagePostErrors];
+
+export type contentPublishManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentPublishManagePostResponse = contentPublishManagePostResponses[keyof contentPublishManagePostResponses];
+
+export type contentUnpublishManagePostData = {
+    body?: never;
+    path: {
+        /**
+         * Post Id
+         */
+        post_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/posts/{post_id}/unpublish';
+};
+
+export type contentUnpublishManagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUnpublishManagePostError = contentUnpublishManagePostErrors[keyof contentUnpublishManagePostErrors];
+
+export type contentUnpublishManagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: PostPublic;
+};
+
+export type contentUnpublishManagePostResponse = contentUnpublishManagePostResponses[keyof contentUnpublishManagePostResponses];
+
+export type contentReadManagePagesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Status
+         */
+        status?: ContentStatus | null;
+        /**
+         * Q
+         *
+         * Title contains
+         */
+        q?: string | null;
+    };
+    url: '/api/v1/content/manage/pages';
+};
+
+export type contentReadManagePagesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadManagePagesError = contentReadManagePagesErrors[keyof contentReadManagePagesErrors];
+
+export type contentReadManagePagesResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagesPublic;
+};
+
+export type contentReadManagePagesResponse = contentReadManagePagesResponses[keyof contentReadManagePagesResponses];
+
+export type contentCreateManagePageData = {
+    body: PageCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/manage/pages';
+};
+
+export type contentCreateManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentCreateManagePageError = contentCreateManagePageErrors[keyof contentCreateManagePageErrors];
+
+export type contentCreateManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentCreateManagePageResponse = contentCreateManagePageResponses[keyof contentCreateManagePageResponses];
+
+export type contentDeleteManagePageData = {
+    body?: never;
+    path: {
+        /**
+         * Page Id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/pages/{page_id}';
+};
+
+export type contentDeleteManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentDeleteManagePageError = contentDeleteManagePageErrors[keyof contentDeleteManagePageErrors];
+
+export type contentDeleteManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type contentDeleteManagePageResponse = contentDeleteManagePageResponses[keyof contentDeleteManagePageResponses];
+
+export type contentReadManagePageData = {
+    body?: never;
+    path: {
+        /**
+         * Page Id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/pages/{page_id}';
+};
+
+export type contentReadManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentReadManagePageError = contentReadManagePageErrors[keyof contentReadManagePageErrors];
+
+export type contentReadManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentReadManagePageResponse = contentReadManagePageResponses[keyof contentReadManagePageResponses];
+
+export type contentUpdateManagePageData = {
+    body: PageUpdate;
+    path: {
+        /**
+         * Page Id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/pages/{page_id}';
+};
+
+export type contentUpdateManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUpdateManagePageError = contentUpdateManagePageErrors[keyof contentUpdateManagePageErrors];
+
+export type contentUpdateManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentUpdateManagePageResponse = contentUpdateManagePageResponses[keyof contentUpdateManagePageResponses];
+
+export type contentPublishManagePageData = {
+    body?: never;
+    path: {
+        /**
+         * Page Id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/pages/{page_id}/publish';
+};
+
+export type contentPublishManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentPublishManagePageError = contentPublishManagePageErrors[keyof contentPublishManagePageErrors];
+
+export type contentPublishManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentPublishManagePageResponse = contentPublishManagePageResponses[keyof contentPublishManagePageResponses];
+
+export type contentUnpublishManagePageData = {
+    body?: never;
+    path: {
+        /**
+         * Page Id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/pages/{page_id}/unpublish';
+};
+
+export type contentUnpublishManagePageErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUnpublishManagePageError = contentUnpublishManagePageErrors[keyof contentUnpublishManagePageErrors];
+
+export type contentUnpublishManagePageResponses = {
+    /**
+     * Successful Response
+     */
+    200: PagePublic;
+};
+
+export type contentUnpublishManagePageResponse = contentUnpublishManagePageResponses[keyof contentUnpublishManagePageResponses];
+
+export type contentCreateManageCategoryData = {
+    body: CategoryCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/manage/categories';
+};
+
+export type contentCreateManageCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentCreateManageCategoryError = contentCreateManageCategoryErrors[keyof contentCreateManageCategoryErrors];
+
+export type contentCreateManageCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: CategoryPublic;
+};
+
+export type contentCreateManageCategoryResponse = contentCreateManageCategoryResponses[keyof contentCreateManageCategoryResponses];
+
+export type contentDeleteManageCategoryData = {
+    body?: never;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/categories/{category_id}';
+};
+
+export type contentDeleteManageCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentDeleteManageCategoryError = contentDeleteManageCategoryErrors[keyof contentDeleteManageCategoryErrors];
+
+export type contentDeleteManageCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type contentDeleteManageCategoryResponse = contentDeleteManageCategoryResponses[keyof contentDeleteManageCategoryResponses];
+
+export type contentUpdateManageCategoryData = {
+    body: CategoryUpdate;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/categories/{category_id}';
+};
+
+export type contentUpdateManageCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUpdateManageCategoryError = contentUpdateManageCategoryErrors[keyof contentUpdateManageCategoryErrors];
+
+export type contentUpdateManageCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: CategoryPublic;
+};
+
+export type contentUpdateManageCategoryResponse = contentUpdateManageCategoryResponses[keyof contentUpdateManageCategoryResponses];
+
+export type contentCreateManageTagData = {
+    body: TagCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/content/manage/tags';
+};
+
+export type contentCreateManageTagErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentCreateManageTagError = contentCreateManageTagErrors[keyof contentCreateManageTagErrors];
+
+export type contentCreateManageTagResponses = {
+    /**
+     * Successful Response
+     */
+    200: TagPublic;
+};
+
+export type contentCreateManageTagResponse = contentCreateManageTagResponses[keyof contentCreateManageTagResponses];
+
+export type contentDeleteManageTagData = {
+    body?: never;
+    path: {
+        /**
+         * Tag Id
+         */
+        tag_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/tags/{tag_id}';
+};
+
+export type contentDeleteManageTagErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentDeleteManageTagError = contentDeleteManageTagErrors[keyof contentDeleteManageTagErrors];
+
+export type contentDeleteManageTagResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type contentDeleteManageTagResponse = contentDeleteManageTagResponses[keyof contentDeleteManageTagResponses];
+
+export type contentUpdateManageTagData = {
+    body: TagUpdate;
+    path: {
+        /**
+         * Tag Id
+         */
+        tag_id: string;
+    };
+    query?: never;
+    url: '/api/v1/content/manage/tags/{tag_id}';
+};
+
+export type contentUpdateManageTagErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type contentUpdateManageTagError = contentUpdateManageTagErrors[keyof contentUpdateManageTagErrors];
+
+export type contentUpdateManageTagResponses = {
+    /**
+     * Successful Response
+     */
+    200: TagPublic;
+};
+
+export type contentUpdateManageTagResponse = contentUpdateManageTagResponses[keyof contentUpdateManageTagResponses];
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

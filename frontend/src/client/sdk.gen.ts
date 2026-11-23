@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { contentCreateManageCategoryData, contentCreateManageCategoryErrors, contentCreateManageCategoryResponses, contentCreateManagePageData, contentCreateManagePageErrors, contentCreateManagePageResponses, contentCreateManagePostData, contentCreateManagePostErrors, contentCreateManagePostResponses, contentCreateManageTagData, contentCreateManageTagErrors, contentCreateManageTagResponses, contentDeleteManageCategoryData, contentDeleteManageCategoryErrors, contentDeleteManageCategoryResponses, contentDeleteManagePageData, contentDeleteManagePageErrors, contentDeleteManagePageResponses, contentDeleteManagePostData, contentDeleteManagePostErrors, contentDeleteManagePostResponses, contentDeleteManageTagData, contentDeleteManageTagErrors, contentDeleteManageTagResponses, contentPublishManagePageData, contentPublishManagePageErrors, contentPublishManagePageResponses, contentPublishManagePostData, contentPublishManagePostErrors, contentPublishManagePostResponses, contentReadCategoriesData, contentReadCategoriesResponses, contentReadManagePageData, contentReadManagePageErrors, contentReadManagePageResponses, contentReadManagePagesData, contentReadManagePagesErrors, contentReadManagePagesResponses, contentReadManagePostData, contentReadManagePostErrors, contentReadManagePostResponses, contentReadManagePostsData, contentReadManagePostsErrors, contentReadManagePostsResponses, contentReadPublishedPageData, contentReadPublishedPageErrors, contentReadPublishedPageResponses, contentReadPublishedPostData, contentReadPublishedPostErrors, contentReadPublishedPostResponses, contentReadPublishedPostsData, contentReadPublishedPostsErrors, contentReadPublishedPostsResponses, contentReadTagsData, contentReadTagsResponses, contentUnpublishManagePageData, contentUnpublishManagePageErrors, contentUnpublishManagePageResponses, contentUnpublishManagePostData, contentUnpublishManagePostErrors, contentUnpublishManagePostResponses, contentUpdateManageCategoryData, contentUpdateManageCategoryErrors, contentUpdateManageCategoryResponses, contentUpdateManagePageData, contentUpdateManagePageErrors, contentUpdateManagePageResponses, contentUpdateManagePostData, contentUpdateManagePostErrors, contentUpdateManagePostResponses, contentUpdateManageTagData, contentUpdateManageTagErrors, contentUpdateManageTagResponses, filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesGetPublicContentData, filesGetPublicContentErrors, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -370,6 +370,16 @@ export class FilesService {
     }
     
     /**
+     * Get Public Content
+     *
+     * Stable, non-expiring URL for public images (no auth): 302 to the public URL or a
+     * fresh signed URL. 404 unless the file is ready, public and a JPEG/PNG/WebP/GIF.
+     */
+    public static getPublicContent<ThrowOnError extends boolean = true>(options: Options<filesGetPublicContentData, ThrowOnError>) {
+        return (options.client ?? client).get<unknown, filesGetPublicContentErrors, ThrowOnError>({ url: '/api/v1/files/{file_id}/content', ...options });
+    }
+    
+    /**
      * Delete File
      *
      * Delete a file (row and object). Owner or admin.
@@ -495,6 +505,353 @@ export class ItemsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/items/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+export class ContentService {
+    /**
+     * Read Published Posts
+     *
+     * Published posts, newest first. Filter by category slug and/or tag slug.
+     */
+    public static readPublishedPosts<ThrowOnError extends boolean = true>(options?: Options<contentReadPublishedPostsData, ThrowOnError>) {
+        return (options?.client ?? client).get<contentReadPublishedPostsResponses, contentReadPublishedPostsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/content/posts',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Published Post
+     *
+     * A published post by slug (404 for drafts and unknown slugs).
+     */
+    public static readPublishedPost<ThrowOnError extends boolean = true>(options: Options<contentReadPublishedPostData, ThrowOnError>) {
+        return (options.client ?? client).get<contentReadPublishedPostResponses, contentReadPublishedPostErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/content/posts/{slug}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Published Page
+     *
+     * A published page by slug (404 for drafts and unknown slugs).
+     */
+    public static readPublishedPage<ThrowOnError extends boolean = true>(options: Options<contentReadPublishedPageData, ThrowOnError>) {
+        return (options.client ?? client).get<contentReadPublishedPageResponses, contentReadPublishedPageErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/content/pages/{slug}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Categories
+     */
+    public static readCategories<ThrowOnError extends boolean = true>(options?: Options<contentReadCategoriesData, ThrowOnError>) {
+        return (options?.client ?? client).get<contentReadCategoriesResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/content/categories',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Tags
+     */
+    public static readTags<ThrowOnError extends boolean = true>(options?: Options<contentReadTagsData, ThrowOnError>) {
+        return (options?.client ?? client).get<contentReadTagsResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/content/tags',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Manage Posts
+     *
+     * All posts including drafts, newest first (editor).
+     */
+    public static readManagePosts<ThrowOnError extends boolean = true>(options?: Options<contentReadManagePostsData, ThrowOnError>) {
+        return (options?.client ?? client).get<contentReadManagePostsResponses, contentReadManagePostsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Manage Post
+     *
+     * Create a draft post. The author is the current user.
+     */
+    public static createManagePost<ThrowOnError extends boolean = true>(options: Options<contentCreateManagePostData, ThrowOnError>) {
+        return (options.client ?? client).post<contentCreateManagePostResponses, contentCreateManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Manage Post
+     */
+    public static deleteManagePost<ThrowOnError extends boolean = true>(options: Options<contentDeleteManagePostData, ThrowOnError>) {
+        return (options.client ?? client).delete<contentDeleteManagePostResponses, contentDeleteManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts/{post_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Manage Post
+     */
+    public static readManagePost<ThrowOnError extends boolean = true>(options: Options<contentReadManagePostData, ThrowOnError>) {
+        return (options.client ?? client).get<contentReadManagePostResponses, contentReadManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts/{post_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Manage Post
+     *
+     * Partial update: only the fields you send change.
+     */
+    public static updateManagePost<ThrowOnError extends boolean = true>(options: Options<contentUpdateManagePostData, ThrowOnError>) {
+        return (options.client ?? client).put<contentUpdateManagePostResponses, contentUpdateManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts/{post_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Publish Manage Post
+     */
+    public static publishManagePost<ThrowOnError extends boolean = true>(options: Options<contentPublishManagePostData, ThrowOnError>) {
+        return (options.client ?? client).post<contentPublishManagePostResponses, contentPublishManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts/{post_id}/publish',
+            ...options
+        });
+    }
+    
+    /**
+     * Unpublish Manage Post
+     */
+    public static unpublishManagePost<ThrowOnError extends boolean = true>(options: Options<contentUnpublishManagePostData, ThrowOnError>) {
+        return (options.client ?? client).post<contentUnpublishManagePostResponses, contentUnpublishManagePostErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/posts/{post_id}/unpublish',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Manage Pages
+     *
+     * All pages including drafts, by title (editor).
+     */
+    public static readManagePages<ThrowOnError extends boolean = true>(options?: Options<contentReadManagePagesData, ThrowOnError>) {
+        return (options?.client ?? client).get<contentReadManagePagesResponses, contentReadManagePagesErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Manage Page
+     */
+    public static createManagePage<ThrowOnError extends boolean = true>(options: Options<contentCreateManagePageData, ThrowOnError>) {
+        return (options.client ?? client).post<contentCreateManagePageResponses, contentCreateManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Manage Page
+     */
+    public static deleteManagePage<ThrowOnError extends boolean = true>(options: Options<contentDeleteManagePageData, ThrowOnError>) {
+        return (options.client ?? client).delete<contentDeleteManagePageResponses, contentDeleteManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages/{page_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Manage Page
+     */
+    public static readManagePage<ThrowOnError extends boolean = true>(options: Options<contentReadManagePageData, ThrowOnError>) {
+        return (options.client ?? client).get<contentReadManagePageResponses, contentReadManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages/{page_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Manage Page
+     */
+    public static updateManagePage<ThrowOnError extends boolean = true>(options: Options<contentUpdateManagePageData, ThrowOnError>) {
+        return (options.client ?? client).put<contentUpdateManagePageResponses, contentUpdateManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages/{page_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Publish Manage Page
+     */
+    public static publishManagePage<ThrowOnError extends boolean = true>(options: Options<contentPublishManagePageData, ThrowOnError>) {
+        return (options.client ?? client).post<contentPublishManagePageResponses, contentPublishManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages/{page_id}/publish',
+            ...options
+        });
+    }
+    
+    /**
+     * Unpublish Manage Page
+     */
+    public static unpublishManagePage<ThrowOnError extends boolean = true>(options: Options<contentUnpublishManagePageData, ThrowOnError>) {
+        return (options.client ?? client).post<contentUnpublishManagePageResponses, contentUnpublishManagePageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/pages/{page_id}/unpublish',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Manage Category
+     */
+    public static createManageCategory<ThrowOnError extends boolean = true>(options: Options<contentCreateManageCategoryData, ThrowOnError>) {
+        return (options.client ?? client).post<contentCreateManageCategoryResponses, contentCreateManageCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/categories',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Manage Category
+     *
+     * Delete a category; its posts simply end up without one.
+     */
+    public static deleteManageCategory<ThrowOnError extends boolean = true>(options: Options<contentDeleteManageCategoryData, ThrowOnError>) {
+        return (options.client ?? client).delete<contentDeleteManageCategoryResponses, contentDeleteManageCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/categories/{category_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Manage Category
+     */
+    public static updateManageCategory<ThrowOnError extends boolean = true>(options: Options<contentUpdateManageCategoryData, ThrowOnError>) {
+        return (options.client ?? client).put<contentUpdateManageCategoryResponses, contentUpdateManageCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/categories/{category_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Create Manage Tag
+     */
+    public static createManageTag<ThrowOnError extends boolean = true>(options: Options<contentCreateManageTagData, ThrowOnError>) {
+        return (options.client ?? client).post<contentCreateManageTagResponses, contentCreateManageTagErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/tags',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Manage Tag
+     *
+     * Delete a tag; it is removed from all posts.
+     */
+    public static deleteManageTag<ThrowOnError extends boolean = true>(options: Options<contentDeleteManageTagData, ThrowOnError>) {
+        return (options.client ?? client).delete<contentDeleteManageTagResponses, contentDeleteManageTagErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/tags/{tag_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Manage Tag
+     */
+    public static updateManageTag<ThrowOnError extends boolean = true>(options: Options<contentUpdateManageTagData, ThrowOnError>) {
+        return (options.client ?? client).put<contentUpdateManageTagResponses, contentUpdateManageTagErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/content/manage/tags/{tag_id}',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
