@@ -1,37 +1,22 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link, Outlet } from "@tanstack/react-router"
-import { ChevronDown } from "lucide-react"
 
 import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { configQueryOptions } from "@/features/modules/api"
 import { isLoggedIn } from "@/hooks/useAuth"
-import { menuPagesOptions } from "../api"
+import { PublicSidebar } from "./PublicSidebar"
 
-/** How many pages fit in the header before the rest go into a "More" menu. */
-const HEADER_PAGE_LIMIT = 4
-
-/** Header + footer for the public site (no login needed). */
+/** Header + sidebar + footer for the public site (no login needed). */
 export function PublicLayout() {
   const { data: config } = useQuery(configQueryOptions)
   const siteName = config?.project_name ?? ""
   const loggedIn = isLoggedIn()
-  // A failed or empty menu request just hides the page links.
-  const { data: menuPages } = useQuery(menuPagesOptions)
-  const pages = menuPages?.data ?? []
-  const headerPages = pages.slice(0, HEADER_PAGE_LIMIT)
-  const morePages = pages.slice(HEADER_PAGE_LIMIT)
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="border-b">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link to="/blog" className="text-lg font-semibold">
             {siteName}
           </Link>
@@ -42,42 +27,6 @@ export function PublicLayout() {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/blog">Blog</Link>
             </Button>
-            {headerPages.map((p) => (
-              <Button
-                key={p.id}
-                variant="ghost"
-                size="sm"
-                asChild
-                className="hidden sm:inline-flex"
-              >
-                <Link to="/p/$slug" params={{ slug: p.slug }}>
-                  {p.title}
-                </Link>
-              </Button>
-            ))}
-            {morePages.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hidden sm:inline-flex"
-                  >
-                    More
-                    <ChevronDown className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {morePages.map((p) => (
-                    <DropdownMenuItem key={p.id} asChild>
-                      <Link to="/p/$slug" params={{ slug: p.slug }}>
-                        {p.title}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
             {loggedIn ? (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">Dashboard</Link>
@@ -91,27 +40,13 @@ export function PublicLayout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-12">
-        <Outlet />
-      </main>
+      <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-10 px-4 py-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-12">
+        <main className="min-w-0">
+          <Outlet />
+        </main>
+        <PublicSidebar />
+      </div>
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        {pages.length > 0 && (
-          <nav
-            aria-label="Pages"
-            className="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1 px-4"
-          >
-            {pages.map((p) => (
-              <Link
-                key={p.id}
-                to="/p/$slug"
-                params={{ slug: p.slug }}
-                className="hover:text-foreground hover:underline"
-              >
-                {p.title}
-              </Link>
-            ))}
-          </nav>
-        )}
         &copy; {new Date().getFullYear()} {siteName}
       </footer>
     </div>

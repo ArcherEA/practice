@@ -35,7 +35,7 @@ test.describe("Public blog", () => {
     await page.goto("/blog")
     await expect(page.getByRole("heading", { name: "Blog" })).toBeVisible()
     await expect(page.getByRole("link", { name: "Log in" })).toBeVisible()
-    await page.getByRole("link", { name: title }).click()
+    await page.getByRole("main").getByRole("link", { name: title }).click()
 
     // Client-side navigation: the title matches what the server injects.
     await expect(page).toHaveURL(`/blog/${post.slug}`)
@@ -49,15 +49,25 @@ test.describe("Public blog", () => {
       `Description ${id}`,
     )
 
-    await page.getByRole("link", { name: `Tag ${id}` }).click()
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: `Tag ${id}` })
+      .click()
     await expect(page).toHaveURL(`/blog/tag/${tag.slug}`)
-    await expect(page.getByRole("link", { name: title })).toBeVisible()
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toBeVisible()
     await expect.poll(() => page.title()).toBe(`Posts tagged Tag ${id}`)
 
     await page.goBack()
-    await page.getByRole("link", { name: `Cat ${id}`, exact: true }).click()
+    await page
+      .getByRole("main")
+      .getByRole("link", { name: `Cat ${id}`, exact: true })
+      .click()
     await expect(page).toHaveURL(`/blog/category/${category.slug}`)
-    await expect(page.getByRole("link", { name: title })).toBeVisible()
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toBeVisible()
     await expect.poll(() => page.title()).toBe(`Cat ${id}`)
 
     await page.goto(`/p/${staticPage.slug}`)
@@ -84,9 +94,11 @@ test.describe("Public blog", () => {
 
     await page.goto("/blog")
     await expect(
-      page.getByRole("link", { name: `Live post ${id}` }),
+      page.getByRole("main").getByRole("link", { name: `Live post ${id}` }),
     ).toBeVisible()
-    await expect(page.getByRole("link", { name: title })).toHaveCount(0)
+    await expect(
+      page.getByRole("main").getByRole("link", { name: title }),
+    ).toHaveCount(0)
 
     await page.goto(`/blog/${draft.slug}`)
     await expect(page.getByTestId("not-found")).toBeVisible()
@@ -103,62 +115,135 @@ test.describe("Public blog", () => {
     ).toBeVisible()
   })
 
-  test("Published pages are linked in the public header, drafts are not", async ({
+  test("Header and footer have no page links; the sidebar lists published pages only", async ({
     page,
   }) => {
     const id = unique()
     const api = await createEditorApi()
-    // The menu lists the first pages by title, so sort ahead of other tests' pages.
+    // The sidebar lists the first pages by title, so sort ahead of other tests' pages.
     const live = await api.page({ title: `AAA Menu ${id}` })
     const draft = await api.page({ title: `AAA Draft ${id}` }, { draft: true })
     try {
       await page.goto("/blog")
-      const header = page.getByRole("navigation", { name: "Main" })
+      const sidebar = page.getByRole("complementary", {
+        name: "Sidebar",
+        exact: true,
+      })
+      const pages = sidebar.getByRole("navigation", {
+        name: "Pages",
+        exact: true,
+      })
       await expect(
-        header.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
+        pages.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
       ).toBeVisible()
       await expect(
-        header.getByRole("link", { name: `AAA Draft ${id}`, exact: true }),
+        pages.getByRole("link", { name: `AAA Draft ${id}`, exact: true }),
       ).toHaveCount(0)
 
-      await header
+      // No page links in the header or footer, and no "More" menu.
+      await expect(
+        page.getByRole("banner").getByRole("link", { name: `AAA Menu ${id}` }),
+      ).toHaveCount(0)
+      await expect(
+        page.locator("footer", { hasText: "©" }).getByRole("link"),
+      ).toHaveCount(0)
+      await expect(
+        page.getByRole("button", { name: "More", exact: true }),
+      ).toHaveCount(0)
+      await expect(page.locator("footer", { hasText: "©" })).toBeVisible()
+
+      await pages
         .getByRole("link", { name: `AAA Menu ${id}`, exact: true })
         .click()
       await expect(page).toHaveURL(`/p/${live.slug}`)
       await expect(
         page.getByRole("heading", { name: `AAA Menu ${id}`, level: 1 }),
       ).toBeVisible()
+      // The current page is marked in the sidebar.
+      await expect(
+        sidebar.getByRole("link", { name: `AAA Menu ${id}`, exact: true }),
+      ).toHaveAttribute("aria-current", "page")
     } finally {
       await api.deletePage(live.id)
       await api.deletePage(draft.id)
     }
   })
 
-  test("On a narrow screen the pages move to the footer", async ({ page }) => {
+  test("The timeline lists a new post under its month and marks the current one", async ({
+    page,
+  }) => {
     const id = unique()
     const api = await createEditorApi()
-    const live = await api.page({ title: `AAA Narrow ${id}` })
-    try {
-      await page.setViewportSize({ width: 375, height: 800 })
-      await page.goto("/blog")
-      await expect(
-        page
-          .getByRole("navigation", { name: "Pages" })
-          .getByRole("link", { name: `AAA Narrow ${id}`, exact: true }),
-      ).toBeVisible()
-      await expect(
-        page
-          .getByRole("navigation", { name: "Main" })
-          .getByRole("link", { name: `AAA Narrow ${id}`, exact: true }),
-      ).toBeHidden()
-      const overflow = await page.evaluate(
-        () =>
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      )
-      expect(overflow).toBe(false)
-    } finally {
-      await api.deletePage(live.id)
-    }
+    const title = `Timeline post ${id}`
+    const post = await api.post({ title })
+    const month = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+
+    await page.goto("/blog")
+    const timeline = page.getByRole("navigation", {
+      name: "Timeline",
+      exact: true,
+    })
+    const toggle = timeline.getByRole("button", { name: month })
+    await expect(toggle).toHaveAttribute("aria-expanded", "true")
+    await timeline.getByRole("link", { name: title, exact: true }).click()
+    await expect(page).toHaveURL(`/blog/${post.slug}`)
+    await expect(
+      timeline.getByRole("link", { name: title, exact: true }),
+    ).toHaveAttribute("aria-current", "page")
+
+    // Months collapse and expand with the button.
+    await toggle.click()
+    await expect(toggle).toHaveAttribute("aria-expanded", "false")
+    await expect(
+      timeline.getByRole("link", { name: title, exact: true }),
+    ).toHaveCount(0)
+    await toggle.click()
+    await expect(
+      timeline.getByRole("link", { name: title, exact: true }),
+    ).toBeVisible()
+  })
+
+  test("On a narrow screen the sidebar sits below the content without overflow", async ({
+    page,
+  }) => {
+    const api = await createEditorApi()
+    await api.post({ title: `Narrow post ${unique()}` })
+    await page.setViewportSize({ width: 375, height: 800 })
+    await page.goto("/blog")
+    const sidebar = page.getByRole("complementary", {
+      name: "Sidebar",
+      exact: true,
+    })
+    await expect(sidebar).toBeVisible()
+    const main = await page.getByRole("main").boundingBox()
+    const side = await sidebar.boundingBox()
+    expect(main && side && side.y >= main.y + main.height - 1).toBe(true)
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    )
+    expect(overflow).toBe(false)
+  })
+
+  test("On a wide screen the sidebar sits beside the content", async ({
+    page,
+  }) => {
+    const api = await createEditorApi()
+    await api.post({ title: `Wide post ${unique()}` })
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto("/blog")
+    const sidebar = page.getByRole("complementary", {
+      name: "Sidebar",
+      exact: true,
+    })
+    await expect(sidebar).toBeVisible()
+    const main = await page.getByRole("main").boundingBox()
+    const side = await sidebar.boundingBox()
+    expect(main && side && side.x >= main.x + main.width - 1).toBe(true)
+    expect(main && side && Math.abs(side.y - main.y) < 8).toBe(true)
   })
 })

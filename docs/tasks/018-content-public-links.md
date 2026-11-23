@@ -18,3 +18,15 @@ After publishing, editors only see the editing URL (`/content/posts/<id>`); noth
 - Backend: endpoint returns published pages only, no auth needed; test added; client regenerated.
 - Playwright: editor publishes a post → "View on site" opens its public page; "Copy link" puts the public URL on the
   clipboard; a published page appears in the public menu and a draft page doesn't; "View blog" opens `/blog`.
+
+## Follow-up (user request): timeline sidebar, no page links in header/footer
+- Every public page (`/blog`, `/blog/$slug`, category, tag, `/p/$slug`) now has a sidebar (`PublicSidebar.tsx`):
+  a **Timeline** of all published posts (`GET /api/v1/content/posts/archive`, fetched once, 5 min cache) grouped by
+  year, then month with a post count. Months are collapsible buttons (`aria-expanded`); the month of the current post
+  (else the newest) starts open and the current post carries `aria-current="page"`.
+  Below it, a **Pages** section lists published pages (hidden when there are none; current page highlighted).
+- Desktop (`lg`+): two columns, content plus a 17rem sticky sidebar on the right. Narrow screens: sidebar below the content.
+- The header keeps only site name, Blog, Log in/Dashboard and the theme switcher (the "More" menu is gone); the footer
+  keeps only the copyright line.
+- Note: the not-found page (`PublicNotFound`) replaces the whole public layout (pre-existing), so it has no sidebar.
+- Tests: `frontend/tests/blog.spec.ts` updated (no page links in header/footer, sidebar pages, timeline, layout at 375px/1280px).
