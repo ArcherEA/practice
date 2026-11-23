@@ -53,6 +53,14 @@ declare module "@tanstack/react-router" {
   }
 }
 
+// On public content URLs the backend injects SEO tags into index.html for crawlers and
+// link previews (task 011). Route head() functions manage the description from here on,
+// so drop the server's copy to avoid two <meta name="description"> tags. Canonical and
+// Open Graph tags are only set by the server and stay.
+for (const el of document.querySelectorAll('meta[name="description"]')) {
+  el.remove()
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
