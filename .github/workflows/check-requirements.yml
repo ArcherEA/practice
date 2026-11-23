@@ -4,7 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "uv.lock"
+      - "requirements.txt"
+      - "pyproject.toml"
+      - "backend/pyproject.toml"
+      - "scripts/export-requirements.sh"
+      - ".github/workflows/check-requirements.yml"
   pull_request:
+    paths:
+      - "uv.lock"
+      - "requirements.txt"
+      - "pyproject.toml"
+      - "backend/pyproject.toml"
+      - "scripts/export-requirements.sh"
+      - ".github/workflows/check-requirements.yml"
 permissions:
   contents: read
 
