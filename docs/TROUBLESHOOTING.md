@@ -5,6 +5,13 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-23 — Two copies of the repo share the same Docker containers and database
+- **Symptom:** a second clone on the same machine "recreates" the first copy's containers instead of creating new ones.
+- **Cause:** Docker Compose names a project after its **folder** (`PRODUCT` → project `product`), so two folders with
+  the same name share containers and data volumes (`product_app-db-data`). Postgres keeps the first copy's password.
+- **Fix:** give the second copy a different folder name (e.g. `PRODUCT-2`), or set `COMPOSE_PROJECT_NAME` in its `.env`.
+  Different devices are never affected.
+
 ## 2026-11-23 — FIXED (task 008): Items page broken and account menu missing after the dev DB was reset
 - **Symptom:** the app looks logged in, but the sidebar account menu is gone and data pages (Items) never load.
 - **Cause:** the browser kept a still-valid login token (8 days) for a user that no longer exists (the admin was

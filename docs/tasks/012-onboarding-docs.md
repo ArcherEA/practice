@@ -1,6 +1,6 @@
 # 012 — A fresh clone can be set up from the README alone
 
-**Status:** approved 2026-11-23 · **Who:** lead (docs/config) · **Branch:** `feat/012-onboarding-docs` · **Size:** small
+**Status:** done — verified with a fresh clone 2026-11-23 · **Who:** lead (docs/config) · **Branch:** `feat/012-onboarding-docs` · **Size:** small
 
 ## Why
 The README was still the template's (no tool list, FastAPI Cloud), `development.md` claimed `.env` is tracked (it
