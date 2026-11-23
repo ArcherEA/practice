@@ -13,6 +13,10 @@ export type AuthorPublic = {
      */
     id: string;
     /**
+     * Username
+     */
+    username: string;
+    /**
      * Display Name
      */
     display_name: string;
@@ -20,6 +24,20 @@ export type AuthorPublic = {
      * Avatar Url
      */
     avatar_url?: string | null;
+};
+
+/**
+ * AuthorsPublic
+ */
+export type AuthorsPublic = {
+    /**
+     * Data
+     */
+    data: Array<AuthorPublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -217,6 +235,30 @@ export type CommentSort = 'newest' | 'oldest';
 export type CommentState = 'visible' | 'hidden' | 'deleted' | 'removed';
 
 /**
+ * CommentTargetPublic
+ *
+ * The post or page a comment belongs to, enough to link to it.
+ */
+export type CommentTargetPublic = {
+    /**
+     * Type
+     */
+    type: 'post' | 'page';
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     */
+    slug: string;
+};
+
+/**
  * CommentUpdate
  */
 export type CommentUpdate = {
@@ -343,6 +385,20 @@ export type FilesPublic = {
      * Count
      */
     count: number;
+};
+
+/**
+ * FollowState
+ */
+export type FollowState = {
+    /**
+     * Following
+     */
+    following: boolean;
+    /**
+     * Follower Count
+     */
+    follower_count: number;
 };
 
 /**
@@ -543,6 +599,54 @@ export type NewPassword = {
      * New Password
      */
     new_password: string;
+};
+
+/**
+ * NotificationPublic
+ */
+export type NotificationPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    type: NotificationType;
+    actor?: AuthorPublic | null;
+    /**
+     * Comment Id
+     */
+    comment_id?: string | null;
+    /**
+     * Comment Snippet
+     */
+    comment_snippet?: string | null;
+    target?: CommentTargetPublic | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Read
+     */
+    read: boolean;
+};
+
+/**
+ * NotificationType
+ */
+export type NotificationType = 'comment_replied' | 'comment_liked' | 'new_follower' | 'comment_moderated';
+
+/**
+ * NotificationsPublic
+ */
+export type NotificationsPublic = {
+    /**
+     * Data
+     */
+    data: Array<NotificationPublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -972,6 +1076,58 @@ export type PrivateUserCreate = {
 };
 
 /**
+ * ProfilePublic
+ *
+ * A member's public profile. Never contains the email address.
+ */
+export type ProfilePublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * Display Name
+     */
+    display_name: string;
+    /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
+    /**
+     * Bio
+     */
+    bio?: string | null;
+    /**
+     * Joined At
+     */
+    joined_at?: string | null;
+    /**
+     * Comment Count
+     */
+    comment_count: number;
+    /**
+     * Follower Count
+     */
+    follower_count: number;
+    /**
+     * Following Count
+     */
+    following_count: number;
+    /**
+     * Followed By Me
+     */
+    followed_by_me?: boolean | null;
+    /**
+     * Is Suspended
+     */
+    is_suspended?: boolean | null;
+};
+
+/**
  * PublicConfig
  */
 export type PublicConfig = {
@@ -1241,6 +1397,16 @@ export type Token = {
 };
 
 /**
+ * UnreadCount
+ */
+export type UnreadCount = {
+    /**
+     * Unread Count
+     */
+    unread_count: number;
+};
+
+/**
  * UpdatePassword
  */
 export type UpdatePassword = {
@@ -1282,6 +1448,48 @@ export type UploadTicket = {
 };
 
 /**
+ * UserCommentPublic
+ */
+export type UserCommentPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    author: AuthorPublic;
+    /**
+     * Body
+     */
+    body: string;
+    /**
+     * Parent Id
+     */
+    parent_id?: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Like Count
+     */
+    like_count: number;
+    target: CommentTargetPublic;
+};
+
+/**
+ * UserCommentsPublic
+ */
+export type UserCommentsPublic = {
+    /**
+     * Data
+     */
+    data: Array<UserCommentPublic>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * UserCreate
  */
 export type UserCreate = {
@@ -1306,6 +1514,10 @@ export type UserCreate = {
      * Password
      */
     password: string;
+    /**
+     * Username
+     */
+    username?: string | null;
 };
 
 /**
@@ -1334,6 +1546,18 @@ export type UserPublic = {
      */
     id: string;
     /**
+     * Username
+     */
+    username: string;
+    /**
+     * Bio
+     */
+    bio?: string | null;
+    /**
+     * Username Changed At
+     */
+    username_changed_at?: string | null;
+    /**
      * Created At
      */
     created_at?: string | null;
@@ -1359,6 +1583,10 @@ export type UserRegister = {
      * Full Name
      */
     full_name?: string | null;
+    /**
+     * Username
+     */
+    username?: string | null;
 };
 
 /**
@@ -1391,6 +1619,10 @@ export type UserUpdate = {
      * Password
      */
     password?: string | null;
+    /**
+     * Username
+     */
+    username?: string | null;
 };
 
 /**
@@ -1405,6 +1637,14 @@ export type UserUpdateMe = {
      * Email
      */
     email?: string | null;
+    /**
+     * Username
+     */
+    username?: string | null;
+    /**
+     * Bio
+     */
+    bio?: string | null;
 };
 
 /**
@@ -3452,6 +3692,343 @@ export type communityReadMySuspensionResponses = {
 };
 
 export type communityReadMySuspensionResponse = communityReadMySuspensionResponses[keyof communityReadMySuspensionResponses];
+
+export type communityReadProfileData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: never;
+    url: '/api/v1/community/users/{username}';
+};
+
+export type communityReadProfileErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadProfileError = communityReadProfileErrors[keyof communityReadProfileErrors];
+
+export type communityReadProfileResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProfilePublic;
+};
+
+export type communityReadProfileResponse = communityReadProfileResponses[keyof communityReadProfileResponses];
+
+export type communityReadUserCommentsData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/community/users/{username}/comments';
+};
+
+export type communityReadUserCommentsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadUserCommentsError = communityReadUserCommentsErrors[keyof communityReadUserCommentsErrors];
+
+export type communityReadUserCommentsResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserCommentsPublic;
+};
+
+export type communityReadUserCommentsResponse = communityReadUserCommentsResponses[keyof communityReadUserCommentsResponses];
+
+export type communityReadFollowersData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/community/users/{username}/followers';
+};
+
+export type communityReadFollowersErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadFollowersError = communityReadFollowersErrors[keyof communityReadFollowersErrors];
+
+export type communityReadFollowersResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuthorsPublic;
+};
+
+export type communityReadFollowersResponse = communityReadFollowersResponses[keyof communityReadFollowersResponses];
+
+export type communityReadFollowingData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/community/users/{username}/following';
+};
+
+export type communityReadFollowingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadFollowingError = communityReadFollowingErrors[keyof communityReadFollowingErrors];
+
+export type communityReadFollowingResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuthorsPublic;
+};
+
+export type communityReadFollowingResponse = communityReadFollowingResponses[keyof communityReadFollowingResponses];
+
+export type communityUnfollowUserData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: never;
+    url: '/api/v1/community/users/{username}/follow';
+};
+
+export type communityUnfollowUserErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityUnfollowUserError = communityUnfollowUserErrors[keyof communityUnfollowUserErrors];
+
+export type communityUnfollowUserResponses = {
+    /**
+     * Successful Response
+     */
+    200: FollowState;
+};
+
+export type communityUnfollowUserResponse = communityUnfollowUserResponses[keyof communityUnfollowUserResponses];
+
+export type communityFollowUserData = {
+    body?: never;
+    path: {
+        /**
+         * Username
+         */
+        username: string;
+    };
+    query?: never;
+    url: '/api/v1/community/users/{username}/follow';
+};
+
+export type communityFollowUserErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityFollowUserError = communityFollowUserErrors[keyof communityFollowUserErrors];
+
+export type communityFollowUserResponses = {
+    /**
+     * Successful Response
+     */
+    200: FollowState;
+};
+
+export type communityFollowUserResponse = communityFollowUserResponses[keyof communityFollowUserResponses];
+
+export type communityReadFollowingActivityData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/community/following/activity';
+};
+
+export type communityReadFollowingActivityErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadFollowingActivityError = communityReadFollowingActivityErrors[keyof communityReadFollowingActivityErrors];
+
+export type communityReadFollowingActivityResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserCommentsPublic;
+};
+
+export type communityReadFollowingActivityResponse = communityReadFollowingActivityResponses[keyof communityReadFollowingActivityResponses];
+
+export type communityReadNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/community/notifications';
+};
+
+export type communityReadNotificationsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadNotificationsError = communityReadNotificationsErrors[keyof communityReadNotificationsErrors];
+
+export type communityReadNotificationsResponses = {
+    /**
+     * Successful Response
+     */
+    200: NotificationsPublic;
+};
+
+export type communityReadNotificationsResponse = communityReadNotificationsResponses[keyof communityReadNotificationsResponses];
+
+export type communityReadUnreadCountData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/community/notifications/unread-count';
+};
+
+export type communityReadUnreadCountResponses = {
+    /**
+     * Successful Response
+     */
+    200: UnreadCount;
+};
+
+export type communityReadUnreadCountResponse = communityReadUnreadCountResponses[keyof communityReadUnreadCountResponses];
+
+export type communityReadAllNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/community/notifications/read-all';
+};
+
+export type communityReadAllNotificationsResponses = {
+    /**
+     * Successful Response
+     */
+    200: UnreadCount;
+};
+
+export type communityReadAllNotificationsResponse = communityReadAllNotificationsResponses[keyof communityReadAllNotificationsResponses];
+
+export type communityReadNotificationData = {
+    body?: never;
+    path: {
+        /**
+         * Notification Id
+         */
+        notification_id: string;
+    };
+    query?: never;
+    url: '/api/v1/community/notifications/{notification_id}/read';
+};
+
+export type communityReadNotificationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type communityReadNotificationError = communityReadNotificationErrors[keyof communityReadNotificationErrors];
+
+export type communityReadNotificationResponses = {
+    /**
+     * Successful Response
+     */
+    200: UnreadCount;
+};
+
+export type communityReadNotificationResponse = communityReadNotificationResponses[keyof communityReadNotificationResponses];
 
 export type communityReadModerationQueueData = {
     body?: never;
