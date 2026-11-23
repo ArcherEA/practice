@@ -64,6 +64,25 @@ class Settings(BaseSettings):
                 return database_url.replace(scheme, "postgresql+psycopg://", 1)
         return database_url
 
+    # --- File storage (any S3-compatible server: SeaweedFS locally, R2 on Vercel) ---
+    S3_ENDPOINT_URL: str | None = None
+    # Hostname the *browser* uses for presigned URLs. Defaults to S3_ENDPOINT_URL;
+    # set it when the backend reaches the bucket through an internal hostname.
+    S3_PUBLIC_ENDPOINT_URL: str | None = None
+    S3_REGION: str = "auto"
+    S3_ACCESS_KEY_ID: str | None = None
+    S3_SECRET_ACCESS_KEY: str | None = None
+    S3_BUCKET: str | None = None
+    # Optional permanent public URL prefix (e.g. an R2 public bucket / custom domain).
+    S3_PUBLIC_BASE_URL: str | None = None
+    UPLOAD_URL_EXPIRE_SECONDS: int = 900
+    DOWNLOAD_URL_EXPIRE_SECONDS: int = 3600
+    # Usage limits (R2 has no hard spending cap, so the app enforces its own).
+    UPLOAD_MAX_BYTES: int = 10 * 1024**2
+    STORAGE_TOTAL_LIMIT_BYTES: int = 8 * 1024**3
+    STORAGE_USER_QUOTA_BYTES: int = 100 * 1024**2
+    UPLOADS_PER_USER_PER_DAY: int = 50
+
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
     SMTP_PORT: int = 587

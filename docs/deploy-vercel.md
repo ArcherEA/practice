@@ -88,10 +88,79 @@ Do this before expecting login to work. A GitHub Action doing the same on each p
 - `https://<project>.vercel.app/api/v1/utils/health-check/` returns `true`.
 - Log in with `FIRST_SUPERUSER` / `FIRST_SUPERUSER_PASSWORD`.
 
+## File storage on Cloudflare R2 (task 006)
+
+Uploaded files (avatars first) live in an S3-compatible bucket. On Vercel that is **Cloudflare R2**; the backend only uses
+the S3 API through boto3, so the code is identical to the local/own-server storage container. The browser uploads
+**directly** to the bucket with a presigned **PUT** URL (Vercel rejects request bodies over ~4.5 MB, and R2 does not
+support presigned POST form uploads: <https://developers.cloudflare.com/r2/api/s3/presigned-urls/>), so the bucket needs CORS.
+
+### 1. Create the bucket
+Cloudflare dashboard > **R2 Object Storage** > **Create bucket** (name e.g. `product-files`, location automatic, default
+storage class **Standard** — never Infrequent Access, the free tier does not cover it). Keep it private (do not enable the
+public `r2.dev` URL unless you want public avatars, see `S3_PUBLIC_BASE_URL` below).
+
+### 2. API token (scoped to this bucket)
+R2 overview > **Manage API tokens** > **Create API token** > permission **Object Read & Write**, **Specify bucket** =
+your bucket only. Copy the **Access Key ID** and **Secret Access Key** (shown once). The S3 endpoint is on the same page:
+`https://<account_id>.r2.cloudflarestorage.com`.
+
+### 3. CORS for the browser
+Bucket > **Settings** > **CORS Policy** > **Add**, paste (replace the origin with your production URL; add a preview
+domain as a second entry if you test uploads on previews):
+```json
+[
+  {
+    "AllowedOrigins": ["https://<project>.vercel.app"],
+    "AllowedMethods": ["GET", "PUT", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+### 4. Environment variables (Vercel, Production and Preview)
+| Variable | Value |
+|---|---|
+| `S3_ENDPOINT_URL` | `https://<account_id>.r2.cloudflarestorage.com` |
+| `S3_REGION` | `auto` |
+| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | from step 2 |
+| `S3_BUCKET` | the bucket name |
+| `S3_PUBLIC_ENDPOINT_URL` | leave **unset**: on Vercel the browser and the backend use the same R2 endpoint |
+| `S3_PUBLIC_BASE_URL` | optional: the bucket's public domain (R2 custom domain or `https://pub-xxx.r2.dev`). Only public files (avatars) use it; without it avatars are served with signed URLs (1 hour) |
+| `UPLOAD_MAX_BYTES`, `STORAGE_TOTAL_LIMIT_BYTES`, `STORAGE_USER_QUOTA_BYTES`, `UPLOADS_PER_USER_PER_DAY` | optional, see the limits below |
+
+Not deployed yet? Uploads fail with HTTP 503 "File storage is not configured" until these are set; everything else works.
+
+### Stay in the R2 free tier
+Cloudflare has **no hard spending cap** for R2 (only email alerts), so the app limits usage itself.
+
+1. **Budget alert (informational only, it does not block anything):** Cloudflare dashboard > **Manage account** >
+   **Billing** > **Budget alerts** (or **Notifications** > **Billing**) > create an alert at **$1**. You get an email when
+   estimated charges pass it; then check usage and lower the limits below.
+2. **Free tier per month:** 10 GB Standard storage, 1M Class A operations (uploads, lists), 10M Class B operations
+   (downloads, HEAD); egress and deletes are free. Our app does one Class A (PUT) and one Class B (HEAD) per upload.
+3. **App limits** (env vars, change without code changes; pending uploads count toward the sums):
+
+| Variable | Default | What it protects | Error |
+|---|---|---|---|
+| `STORAGE_TOTAL_LIMIT_BYTES` | 8 GiB (8589934592) | total bytes in the bucket stays under the 10 GB free tier. Applies to superusers too | 507 "Storage is full" |
+| `STORAGE_USER_QUOTA_BYTES` | 100 MiB (104857600) | one account cannot fill the bucket. Superusers are exempt | 413 "Your storage quota is full" |
+| `UPLOADS_PER_USER_PER_DAY` | 50 | caps Class A operations per account (rows created in the last 24 h). Superusers are exempt | 429 |
+| `UPLOAD_MAX_BYTES` | 10 MiB (10485760) | size of one file; checked when declared, enforced by the bucket (signed `Content-Length`) and re-checked at confirm | 413 / 400 |
+
+   Check usage any time as an admin: `GET /api/v1/files/usage` (total bytes vs limit, file count, top users).
+4. **Housekeeping:** abandoned (never confirmed) uploads are removed by `uv run python -m app.scripts.cleanup_files`
+   (run it from `backend/` with the production env vars, e.g. weekly by hand or from any cron; see `docs/ARCHITECTURE.md`).
+   Optional R2 lifecycle rules (bucket > Settings > **Object lifecycle rules**): keep the default "abort incomplete
+   multipart uploads after 7 days", and, if you add a prefix for temporary files later, a "delete objects after N days" rule
+   on that prefix. Never add a rule that transitions objects to **Infrequent Access**.
+
 ## Known limits
 - **Function timeout:** `vercel.json` sets `maxDuration` 60 s. Vercel allows up to 300 s on Hobby and 800 s on Pro by default. Long AI streams (Phase 3) must stay below that, or move to the fallback in `ARCHITECTURE.md` (frontend on Vercel, API on own server; only an env var changes). Streaming responses are supported, but the connection is cut at the limit.
 - **Cold starts:** first request after idle can take a couple of seconds (Python + FastAPI + argon2 imports + a new DB connection). Fluid compute reuses warm instances, which reduces this. Use Neon's pooled host so many instances do not exhaust Postgres connections; Neon itself may also wake a suspended compute (~1 s) on free tier.
-- **Stateless:** no local disk writes (files go to S3/R2 later); each instance has its own memory.
+- **Stateless:** no local disk writes (files go to S3/R2, see "File storage on Cloudflare R2"); each instance has its own memory.
 - **Bundle size:** 500 MB uncompressed for the function.
 - **Static files:** served by the CDN, so FastAPI middleware/`Depends` do not apply to them. The built `backend/app/frontend` also stays in the function bundle (harmless); set `[tool.vercel.fastapi.static] exclude = true` in a `pyproject.toml` if size ever matters.
 

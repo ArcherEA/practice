@@ -44,10 +44,27 @@ services:
       # Use the Let's Encrypt resolver
       - traefik.http.routers.adminer-https.tls.certresolver=le
 
+  storage:
+    restart: always
+    labels:
+      # The browser uploads straight to the bucket, so the S3 API gets its own
+      # HTTPS subdomain (storage.<DOMAIN>). The filer UI (8888) is never exposed.
+      - traefik.enable=true
+      - traefik.http.services.storage.loadbalancer.server.port=8333
+      - traefik.http.routers.storage-https.rule=Host(`storage.${DOMAIN:?Variable not set}`)
+      - traefik.http.routers.storage-https.entrypoints=https
+      - traefik.http.routers.storage-https.tls=true
+      - traefik.http.routers.storage-https.tls.certresolver=le
+
+  storage-init:
+    environment:
+      FRONTEND_HOST: https://${DOMAIN:?Variable not set}
+
   backend:
     restart: always
     environment:
       FRONTEND_HOST: https://${DOMAIN:?Variable not set}
+      S3_PUBLIC_ENDPOINT_URL: https://storage.${DOMAIN:?Variable not set}
     labels:
       # Route HTTPS traffic for this domain
       - traefik.http.routers.backend-https.rule=Host(`${DOMAIN:?Variable not set}`)

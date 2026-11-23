@@ -5,6 +5,16 @@ export type ClientOptions = {
 };
 
 /**
+ * AvatarSet
+ */
+export type AvatarSet = {
+    /**
+     * File Id
+     */
+    file_id: string;
+};
+
+/**
  * Body_login-login_access_token
  */
 export type Body_login_login_access_token = {
@@ -32,6 +42,98 @@ export type Body_login_login_access_token = {
      * Client Secret
      */
     client_secret?: string | null;
+};
+
+/**
+ * DownloadUrl
+ */
+export type DownloadUrl = {
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Expires In
+     */
+    expires_in: number;
+};
+
+/**
+ * FileCreate
+ */
+export type FileCreate = {
+    /**
+     * Filename
+     */
+    filename: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Size
+     *
+     * Size in bytes of the file to be uploaded
+     */
+    size: number;
+    /**
+     * Public
+     */
+    public?: boolean;
+};
+
+/**
+ * FilePublic
+ */
+export type FilePublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Owner Id
+     */
+    owner_id: string;
+    /**
+     * Filename
+     */
+    filename: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Size
+     */
+    size: number;
+    /**
+     * Public
+     */
+    public: boolean;
+    status: FileStatus;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
+ * FileStatus
+ */
+export type FileStatus = 'pending' | 'ready';
+
+/**
+ * FilesPublic
+ */
+export type FilesPublic = {
+    /**
+     * Data
+     */
+    data: Array<FilePublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -173,6 +275,28 @@ export type PublicConfig = {
 };
 
 /**
+ * StorageUsage
+ */
+export type StorageUsage = {
+    /**
+     * Total Bytes
+     */
+    total_bytes: number;
+    /**
+     * Limit Bytes
+     */
+    limit_bytes: number;
+    /**
+     * File Count
+     */
+    file_count: number;
+    /**
+     * Top Users
+     */
+    top_users: Array<UserUsage>;
+};
+
+/**
  * Token
  */
 export type Token = {
@@ -198,6 +322,33 @@ export type UpdatePassword = {
      * New Password
      */
     new_password: string;
+};
+
+/**
+ * UploadTicket
+ *
+ * Result of "create upload": PUT the bytes to `upload_url` with `upload_headers`, then confirm.
+ */
+export type UploadTicket = {
+    file: FilePublic;
+    /**
+     * Upload Url
+     */
+    upload_url: string;
+    /**
+     * Upload Method
+     */
+    upload_method?: string;
+    /**
+     * Upload Headers
+     */
+    upload_headers: {
+        [key: string]: string;
+    };
+    /**
+     * Expires In
+     */
+    expires_in: number;
 };
 
 /**
@@ -256,6 +407,10 @@ export type UserPublic = {
      * Created At
      */
     created_at?: string | null;
+    /**
+     * Avatar Url
+     */
+    avatar_url?: string | null;
 };
 
 /**
@@ -320,6 +475,28 @@ export type UserUpdateMe = {
      * Email
      */
     email?: string | null;
+};
+
+/**
+ * UserUsage
+ */
+export type UserUsage = {
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Total Bytes
+     */
+    total_bytes: number;
+    /**
+     * File Count
+     */
+    file_count: number;
 };
 
 /**
@@ -606,6 +783,47 @@ export type usersUpdateUserMeResponses = {
 
 export type usersUpdateUserMeResponse = usersUpdateUserMeResponses[keyof usersUpdateUserMeResponses];
 
+export type usersDeleteAvatarMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me/avatar';
+};
+
+export type usersDeleteAvatarMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserPublic;
+};
+
+export type usersDeleteAvatarMeResponse = usersDeleteAvatarMeResponses[keyof usersDeleteAvatarMeResponses];
+
+export type usersSetAvatarMeData = {
+    body: AvatarSet;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me/avatar';
+};
+
+export type usersSetAvatarMeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type usersSetAvatarMeError = usersSetAvatarMeErrors[keyof usersSetAvatarMeErrors];
+
+export type usersSetAvatarMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserPublic;
+};
+
+export type usersSetAvatarMeResponse = usersSetAvatarMeResponses[keyof usersSetAvatarMeResponses];
+
 export type usersUpdatePasswordMeData = {
     body: UpdatePassword;
     path?: never;
@@ -745,6 +963,171 @@ export type usersUpdateUserResponses = {
 };
 
 export type usersUpdateUserResponse = usersUpdateUserResponses[keyof usersUpdateUserResponses];
+
+export type filesReadFilesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/files/';
+};
+
+export type filesReadFilesErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesReadFilesError = filesReadFilesErrors[keyof filesReadFilesErrors];
+
+export type filesReadFilesResponses = {
+    /**
+     * Successful Response
+     */
+    200: FilesPublic;
+};
+
+export type filesReadFilesResponse = filesReadFilesResponses[keyof filesReadFilesResponses];
+
+export type filesCreateUploadData = {
+    body: FileCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/files/';
+};
+
+export type filesCreateUploadErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesCreateUploadError = filesCreateUploadErrors[keyof filesCreateUploadErrors];
+
+export type filesCreateUploadResponses = {
+    /**
+     * Successful Response
+     */
+    200: UploadTicket;
+};
+
+export type filesCreateUploadResponse = filesCreateUploadResponses[keyof filesCreateUploadResponses];
+
+export type filesReadUsageData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/files/usage';
+};
+
+export type filesReadUsageResponses = {
+    /**
+     * Successful Response
+     */
+    200: StorageUsage;
+};
+
+export type filesReadUsageResponse = filesReadUsageResponses[keyof filesReadUsageResponses];
+
+export type filesConfirmUploadData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/files/{file_id}/confirm';
+};
+
+export type filesConfirmUploadErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesConfirmUploadError = filesConfirmUploadErrors[keyof filesConfirmUploadErrors];
+
+export type filesConfirmUploadResponses = {
+    /**
+     * Successful Response
+     */
+    200: FilePublic;
+};
+
+export type filesConfirmUploadResponse = filesConfirmUploadResponses[keyof filesConfirmUploadResponses];
+
+export type filesGetDownloadUrlData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/files/{file_id}/download';
+};
+
+export type filesGetDownloadUrlErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesGetDownloadUrlError = filesGetDownloadUrlErrors[keyof filesGetDownloadUrlErrors];
+
+export type filesGetDownloadUrlResponses = {
+    /**
+     * Successful Response
+     */
+    200: DownloadUrl;
+};
+
+export type filesGetDownloadUrlResponse = filesGetDownloadUrlResponses[keyof filesGetDownloadUrlResponses];
+
+export type filesDeleteFileData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/files/{file_id}';
+};
+
+export type filesDeleteFileErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type filesDeleteFileError = filesDeleteFileErrors[keyof filesDeleteFileErrors];
+
+export type filesDeleteFileResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type filesDeleteFileResponse = filesDeleteFileResponses[keyof filesDeleteFileResponses];
 
 export type utilsGetPublicConfigData = {
     body?: never;

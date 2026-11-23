@@ -9,11 +9,15 @@ from app.api.deps import (
     CurrentUser,
     RequireAdmin,
     SessionDep,
+    StorageDep,
 )
+from app.core import files as file_service
 from app.core.config import settings
 from app.core.roles import UserRole, has_role
 from app.core.security import get_password_hash, verify_password
+from app.core.storage import delete_objects_quietly
 from app.models import (
+    AvatarSet,
     Message,
     UpdatePassword,
     User,
@@ -73,7 +77,9 @@ def _check_can_update(actor: User, target: User, user_in: UserUpdate) -> None:
     dependencies=[RequireAdmin],
     response_model=UsersPublic,
 )
-def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
+def read_users(
+    session: SessionDep, storage: StorageDep, skip: int = 0, limit: int = 100
+) -> Any:
     """
     Retrieve users.
     """
@@ -86,7 +92,9 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     )
     users = session.exec(statement).all()
 
-    users_public = [UserPublic.model_validate(user) for user in users]
+    users_public = file_service.to_users_public(
+        session=session, storage=storage, users=users
+    )
     return UsersPublic(data=users_public, count=count)
 
 
@@ -121,7 +129,11 @@ def create_user(
 
 @router.patch("/me", response_model=UserPublic)
 def update_user_me(
-    *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
+    *,
+    session: SessionDep,
+    storage: StorageDep,
+    user_in: UserUpdateMe,
+    current_user: CurrentUser,
 ) -> Any:
     """
     Update own user.
@@ -138,7 +150,44 @@ def update_user_me(
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
-    return current_user
+    return file_service.to_user_public(
+        session=session, storage=storage, user=current_user
+    )
+
+
+@router.put("/me/avatar", response_model=UserPublic)
+def set_avatar_me(
+    *,
+    session: SessionDep,
+    storage: StorageDep,
+    current_user: CurrentUser,
+    body: AvatarSet,
+) -> Any:
+    """
+    Use one of my confirmed image files (JPEG, PNG, WebP, GIF) as my avatar.
+    The previous avatar file is deleted (row and object).
+    """
+    file_service.set_avatar(
+        session=session, storage=storage, user=current_user, file_id=body.file_id
+    )
+    session.refresh(current_user)
+    return file_service.to_user_public(
+        session=session, storage=storage, user=current_user
+    )
+
+
+@router.delete("/me/avatar", response_model=UserPublic)
+def delete_avatar_me(
+    session: SessionDep, storage: StorageDep, current_user: CurrentUser
+) -> Any:
+    """
+    Remove my avatar and delete its file.
+    """
+    file_service.clear_avatar(session=session, storage=storage, user=current_user)
+    session.refresh(current_user)
+    return file_service.to_user_public(
+        session=session, storage=storage, user=current_user
+    )
 
 
 @router.patch("/me/password", response_model=Message)
@@ -163,15 +212,21 @@ def update_password_me(
 
 
 @router.get("/me", response_model=UserPublic)
-def read_user_me(current_user: CurrentUser) -> Any:
+def read_user_me(
+    session: SessionDep, storage: StorageDep, current_user: CurrentUser
+) -> Any:
     """
     Get current user.
     """
-    return current_user
+    return file_service.to_user_public(
+        session=session, storage=storage, user=current_user
+    )
 
 
 @router.delete("/me", response_model=Message)
-def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
+def delete_user_me(
+    session: SessionDep, storage: StorageDep, current_user: CurrentUser
+) -> Any:
     """
     Delete own user.
     """
@@ -179,8 +234,10 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
+    keys = file_service.user_object_keys(session=session, user_id=current_user.id)
     session.delete(current_user)
     session.commit()
+    delete_objects_quietly(storage, keys)
     return Message(message="User deleted successfully")
 
 
@@ -202,14 +259,17 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
 
 @router.get("/{user_id}", response_model=UserPublic)
 def read_user_by_id(
-    user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
+    user_id: uuid.UUID,
+    session: SessionDep,
+    storage: StorageDep,
+    current_user: CurrentUser,
 ) -> Any:
     """
     Get a specific user by id.
     """
     user = session.get(User, user_id)
     if user == current_user:
-        return user
+        return file_service.to_user_public(session=session, storage=storage, user=user)
     if not has_role(current_user, UserRole.admin):
         raise HTTPException(
             status_code=403,
@@ -217,7 +277,7 @@ def read_user_by_id(
         )
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return file_service.to_user_public(session=session, storage=storage, user=user)
 
 
 @router.patch(
@@ -228,6 +288,7 @@ def read_user_by_id(
 def update_user(
     *,
     session: SessionDep,
+    storage: StorageDep,
     current_user: CurrentUser,
     user_id: uuid.UUID,
     user_in: UserUpdate,
@@ -252,12 +313,15 @@ def update_user(
             )
 
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
-    return db_user
+    return file_service.to_user_public(session=session, storage=storage, user=db_user)
 
 
 @router.delete("/{user_id}", dependencies=[RequireAdmin])
 def delete_user(
-    session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
+    session: SessionDep,
+    storage: StorageDep,
+    current_user: CurrentUser,
+    user_id: uuid.UUID,
 ) -> Message:
     """
     Delete a user.
@@ -274,6 +338,8 @@ def delete_user(
     if user.role == UserRole.admin and not current_user.is_superuser:
         raise _forbidden("Only superusers can delete admins")
     # Module-owned rows (e.g. items) go via the ORM cascade / FK ON DELETE CASCADE.
+    keys = file_service.user_object_keys(session=session, user_id=user.id)
     session.delete(user)
     session.commit()
+    delete_objects_quietly(storage, keys)
     return Message(message="User deleted successfully")
