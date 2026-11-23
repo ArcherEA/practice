@@ -99,8 +99,33 @@ Both are safe to re-run: Alembic skips applied migrations; initial data only cre
 
 ## 5. Backups
 
-**We have no automatic backups yet** (planned: scheduled GitHub Action). Until then, take a manual backup before risky
-changes (big migrations, deleting data) and every so often. Backups go to `backups/` (gitignored — they contain user
+### Automatic daily backups (GitHub Actions)
+Workflow `.github/workflows/backup-neon.yml` runs **every day at 03:17 UTC** (and on demand: Actions → "Backup Neon
+database" → Run workflow). It dumps Neon with `pg_dump`, checks the dump contains the `user` and `alembic_version`
+tables, **encrypts it** (gpg, AES256) and stores it as a workflow artifact for **30 days**.
+
+- **Why encrypted:** this repo is public, and anyone signed in to GitHub can download artifacts of a public repo.
+  Without the passphrase the file is useless.
+- **Secrets it needs** (repo → Settings → Secrets and variables → Actions): `NEON_DATABASE_URL_DIRECT` (direct Neon
+  string) and `BACKUP_PASSPHRASE`. Both values are also in `.env.neon`. **Keep `BACKUP_PASSPHRASE` in your password
+  manager** — if it's lost, every backup is unreadable. If you rotate the Neon password or move projects, update the secret.
+- **If a run fails** GitHub emails you. Check the run log; the first step says if secrets are missing.
+- **Heads-up:** GitHub disables scheduled workflows in public repos after 60 days without commits. If that happens,
+  re-enable it on the Actions page.
+- Tested 2026-11-23: the first run's artifact was downloaded, decrypted and restored into a scratch DB; it matched
+  Neon (users, roles, Alembic version).
+
+Get the latest backup and decrypt it (PowerShell, repo root; `gpg` ships with Git for Windows):
+```powershell
+$id = gh run list -R ArcherEA/practice --workflow backup-neon.yml --status success --limit 1 --json databaseId -q '.[0].databaseId'; gh run download $id -R ArcherEA/practice -D backups
+```
+```powershell
+$gpg = Join-Path (Split-Path (Get-Command git).Source -Parent) '..\usr\bin\gpg.exe'; $f = Get-ChildItem backups -Recurse -Filter *.dump.gpg | Sort-Object LastWriteTime | Select-Object -Last 1; & $gpg --pinentry-mode loopback --output ($f.FullName -replace '\.gpg$','') --decrypt $f.FullName
+```
+It asks for the passphrase (`BACKUP_PASSPHRASE`), and writes `backups\neon-backup-<run>\neon-<date>.dump` — restore it as in §6.
+
+### Manual backups
+Take one before risky changes (big migrations, deleting data). Backups go to `backups/` (gitignored — they contain user
 data incl. password hashes; keep copies somewhere private, not in git).
 
 Neon also keeps its own short **history** for point-in-time restore (window depends on your plan — check the Neon
@@ -128,6 +153,7 @@ docker compose exec db psql -U postgres -c "CREATE DATABASE restore_check"
 ```powershell
 $pw = (Select-String '^POSTGRES_PASSWORD=(.*)' .env).Matches[0].Groups[1].Value; docker run --rm -v "${PWD}\backups:/backups" postgres:18 pg_restore --no-owner --no-privileges -d "postgresql://postgres:$pw@host.docker.internal:5432/restore_check" /backups/<file>.dump
 ```
+`<file>` is the path inside `backups\`, e.g. `neon-backup-45097572731/neon-20261123-0159.dump` for a downloaded daily backup.
 Check it (`docker compose exec db psql -U postgres -d restore_check -c "select count(*) from public.user"`), then
 `docker compose exec db psql -U postgres -c "DROP DATABASE restore_check"`.
 (Tested 2026-11-23 in PowerShell and Git Bash: restored copy matched the source — same row counts and Alembic version.)
@@ -148,8 +174,11 @@ mistake, or create a branch at that time to inspect first). If the history windo
 1. Create a new Neon project; copy the **pooled** and **direct** connection strings into `.env.neon`
    (`DATABASE_URL` and `DATABASE_URL_DIRECT`).
 2. Vercel → Project → Settings → Environment Variables: set `DATABASE_URL` to the new **pooled** string.
+   GitHub → repo → Settings → Secrets → Actions: update `NEON_DATABASE_URL_DIRECT` to the new **direct** string
+   (otherwise the daily backup keeps failing).
 3. Open a fresh PowerShell window and do **"Point the tools at Neon"** (§4) — it now targets the new project.
-4. **With a backup:** restore it (it brings schema + data + Alembic version):
+4. **With a backup** (latest daily one: see §5 "Get the latest backup and decrypt it"), restore it — it brings
+   schema + data + Alembic version:
    ```powershell
    docker run --rm -v "${PWD}\backups:/backups" postgres:18 pg_restore --no-owner --no-privileges -d "$env:DATABASE_URL_DIRECT" /backups/<neon-file>.dump
    ```
@@ -162,3 +191,4 @@ mistake, or create a branch at that time to inspect first). If the history windo
 - A migration "succeeded" against the wrong database because env vars weren't loaded — always print the target host first.
 - Code was deployed before the Neon migration ran — logins fail until `alembic upgrade head` runs on Neon.
 - Old tests wiped local users — fixed (tests now use `app_test`).
+- Database dumps of a public repo's workflow are public — the daily backup is encrypted for that reason.
