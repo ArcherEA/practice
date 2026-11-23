@@ -58,6 +58,7 @@ cd backend && uv run python -m app.scripts.cleanup_files
 ```
 Run it by hand or from any cron/scheduled job with the production env vars. Deleting a user also deletes their objects
 (best effort; failures are logged and the orphan object can be removed by hand).
+Community notifications older than 90 days are removed the same way: `uv run python -m app.scripts.cleanup_notifications`.
 
 ## Roles and permissions
 `User.role` (`member` default, `editor`, `moderator`, `admin`; VARCHAR(20), enum in `app/core/roles.py`) plus the
@@ -209,9 +210,52 @@ commenting"** on comment, edit, like and report, while login and every other mod
 parallel requests from overshooting): `COMMENTS_PER_USER_PER_HOUR` (30, rows created in the last hour) and
 `REPORTS_PER_USER_PER_DAY` (20, reports in the last 24 hours). Both are in `.env.example` and `compose.yml`.
 
-**Events for notifications (task 015):** `events.emit(CommunityEvent)` is a no-op hook called after the commit for
-`comment_replied` (to the parent's author), `comment_liked`, `comment_hidden` and `comment_deleted_by_moderator`; nothing
-is sent to the actor themselves.
+**Events -> notifications:** `events.emit(CommunityEvent)` is called by the service after the commit for `comment_replied`
+(to the parent's author), `comment_liked`, `comment_hidden`, `comment_deleted_by_moderator` and, from the follow code,
+`user_followed`. `emit` opens its own session and calls `notifications.handle_event`; a failure there is logged and never
+breaks the request that already succeeded.
+
+### Usernames, profiles, follows and notifications (task 015)
+Code: `app/core/usernames.py` (rules, pure), `modules/community/profiles.py`, `modules/community/notifications.py`;
+tables `user_follow` and `notification` (community) plus `user.username`, `user.username_changed_at`, `user.bio` (core).
+
+**Username rules:** stored lowercase and unique (so the unique index is case-insensitive); 3-30 characters of `[a-z0-9_]`
+with at least one letter or digit; input is lowercased and trimmed. Reserved (422): admin, administrator, api, blog, content,
+community, settings, login, signup, logout, p, u, moderation, notifications, root, support, help, me, null, undefined.
+When none is given (signup, admin create, `crud.create_user`, `init_db`, `/private/users`) one is generated from the full
+name, else the email local part: lowercase, other characters become `_`, collapsed and trimmed, padded with `0` to 3
+characters, cut to 30; clashes and reserved names get `_2`, `_3`, ... The migration backfills existing users with the same
+rules (oldest first). A member changes it with `PATCH /users/me` at most once per 30 days (400 with the date it works
+again; the first change is always allowed; a refused change does not use up the period); admin edits
+(`PATCH /users/{id}`) are not limited. A taken name is 400 on signup/create and 409 on update. `bio`: plain text, max 500,
+trimmed (empty clears it). `UserPublic` carries `username`, `bio`, `username_changed_at` (only ever returned to the user
+themself and to admins).
+
+**Public profile** (`GET /community/users/{username}`, anyone, case-insensitive): id, username, display name, avatar URL,
+bio, joined date, comment / follower / following counts, `followed_by_me` (logged-in viewers), and `is_suspended`
+(moderators and above only, else null). Never the email. Inactive users are 404 (also their lists and follow). The comment
+count and `GET .../comments` only include visible comments on published posts/pages of active users, newest first, each
+with its target (type, id, title, slug). `AuthorPublic` now has `username`, so comment authors can link to `/u/<username>`.
+
+**Follows** (`user_follow`, PK `follower_id`+`followee_id`, both CASCADE, check: not yourself): `PUT`/`DELETE
+/community/users/{username}/follow` are idempotent, any logged-in user (suspended members too); following yourself is 400.
+`GET .../followers` and `.../following` list active users (newest first, paginated). `GET /community/following/activity`
+lists the visible comments of the people I follow, newest first.
+
+**Notifications** (`notification`: recipient CASCADE; actor, comment, post, page SET NULL; `read_at`):
+| Type | Created when | Recipient |
+|---|---|---|
+| `comment_replied` | someone replies to a comment | the parent's author |
+| `comment_liked` | someone likes a comment | the comment's author |
+| `new_follower` | someone follows a member | the followed member |
+| `comment_moderated` | a moderator hides or deletes a comment | the comment's author |
+Never for your own actions. A like (or follow) by the same person while an unread notification of that kind for the same
+comment (or person) exists creates no second one; unliking does not delete it; restoring a comment sends nothing.
+Endpoints (own notifications only; someone else's id is 404): `GET /community/notifications` (paginated, newest first:
+type, actor, `comment_snippet` of at most 140 characters, target post/page with title and slug, `created_at`, `read`),
+`GET .../unread-count`, `POST .../{id}/read`, `POST .../read-all` (the last two return the new unread count). The snippet
+is left out for comments that are not public (except for their own author) and the target for unpublished content.
+Retention is 90 days via `cleanup_notifications` (see above); there is no push, the UI polls (D18).
 
 ## Deployment
 | | Own server | Vercel |
