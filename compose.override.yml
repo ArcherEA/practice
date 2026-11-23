@@ -31,6 +31,13 @@ services:
     ports:
       - "8080:8080"
 
+  storage:
+    ports:
+      # S3 API: the browser uploads here (S3_PUBLIC_ENDPOINT_URL=http://localhost:9000)
+      - "9000:8333"
+      # Filer web UI to browse the stored objects (local only; no authentication)
+      - "127.0.0.1:8888:8888"
+
   backend:
     ports:
       - "8000:8000"
