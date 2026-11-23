@@ -13,7 +13,11 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 007 Backend tests use their own `<db>_test` database (dev data no longer wiped by `pytest`)
   - [x] 005 Roles: member / editor / moderator / admin (+ superuser as owner)
   - [x] 006 File uploads: presigned URLs to S3-compatible storage (SeaweedFS local/own server, R2 on Vercel); avatar as first use
-- [ ] **Phase 2 — Content:** models + API, Tiptap editor, public pages + SEO
+- [ ] **Phase 2 — Content** (task files drafted 2026-11-23, awaiting approval; build in this order)
+  - [ ] 009 Content backend: posts + pages, categories + tags, Tiptap JSON body (validated), stable public image URLs
+  - [ ] 010 Editor UI: Tiptap editor (open-source packages), posts/pages/taxonomy screens for editors+
+  - [ ] 011 Public pages + SEO: /blog, /p/<slug>, meta-tag injection in FastAPI, sitemap.xml, robots.txt
+  - Later: scheduled publishing, revision history, RSS, search
 - [ ] **Phase 3 — AI:** provider layer (Pydantic AI), streaming chat UI, AI writing help, rate limits
 - [ ] **Phase 4 — Community**
 - [ ] **Phase 5 — Commerce** (Stripe Checkout)
