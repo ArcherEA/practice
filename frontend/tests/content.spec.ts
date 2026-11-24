@@ -44,6 +44,36 @@ function editorSelectionText(page: Page): Promise<string> {
   })
 }
 
+/** Where the Tiptap editor's own cursor is: collapsed or not, and the text before it in its block. */
+function editorCursor(
+  page: Page,
+): Promise<{ collapsed: boolean; textBefore: string }> {
+  return page.evaluate(() => {
+    const dom = document.querySelector(".ProseMirror") as
+      | (HTMLElement & {
+          editor?: {
+            state: {
+              selection: {
+                empty: boolean
+                $from: {
+                  parentOffset: number
+                  parent: { textContent: string }
+                }
+              }
+            }
+          }
+        })
+      | null
+    const selection = dom?.editor?.state.selection
+    if (!selection) return { collapsed: false, textBefore: "" }
+    const { $from } = selection
+    return {
+      collapsed: selection.empty,
+      textBefore: $from.parent.textContent.slice(0, $from.parentOffset),
+    }
+  })
+}
+
 const ALLOWED_MARKS = new Set(["bold", "italic", "strike", "code", "link"])
 
 interface DocNode {
@@ -67,6 +97,30 @@ const titleInput = (page: Page) => page.getByRole("textbox", { name: /^Title/ })
 const bodyEditor = (page: Page) => page.getByRole("textbox", { name: "Body" })
 const tool = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true })
+
+/**
+ * Links `text` (just typed, alone on its line) to `url`, then starts a new empty line after it.
+ * Waits on the editor's own state at every step, because the editor lags the keyboard twice:
+ * ProseMirror picks up keyboard selections from an async selectionchange event, and Tiptap's
+ * `focus()` after "Apply link" hands focus back to the editor only on the next animation frame.
+ * Keys pressed before that frame never reach the editor, the link text stays selected, and the
+ * next inserted node (the image) replaces it (CI on main: link mark missing, see TROUBLESHOOTING).
+ */
+async function linkLineAndContinue(page: Page, text: string, url: string) {
+  await page.keyboard.press("Shift+Home")
+  await expect.poll(() => editorSelectionText(page)).toBe(text)
+  await tool(page, "Link").click()
+  await page.getByLabel("Link URL").fill(url)
+  await page.getByRole("button", { name: "Apply link" }).click()
+  const editor = bodyEditor(page)
+  await expect(editor.locator(`a[href='${url}']`)).toHaveText(text)
+  await expect(editor).toBeFocused()
+  await page.keyboard.press("End")
+  await expect
+    .poll(() => editorCursor(page))
+    .toEqual({ collapsed: true, textBefore: text })
+  await page.keyboard.press("Enter")
+}
 
 /** Reads the saved post through the API, as the logged-in browser user. */
 async function fetchSavedPost(page: Page) {
@@ -121,15 +175,7 @@ test.describe("Content editor", () => {
     await page.keyboard.press("Enter")
     await page.keyboard.press("Enter")
     await page.keyboard.type("a link")
-    await page.keyboard.press("Shift+Home")
-    // Wait until the *editor* has the selection, not just the browser: ProseMirror picks
-    // up keyboard selections from an async selectionchange event (slow CI raced it).
-    await expect.poll(() => editorSelectionText(page)).toBe("a link")
-    await tool(page, "Link").click()
-    await page.getByLabel("Link URL").fill("https://example.com")
-    await page.getByRole("button", { name: "Apply link" }).click()
-    await page.keyboard.press("End")
-    await page.keyboard.press("Enter")
+    await linkLineAndContinue(page, "a link", "https://example.com")
     await page.getByTestId("editor-image-input").setInputFiles({
       name: "pic.png",
       mimeType: "image/png",
@@ -245,15 +291,7 @@ test.describe("Content editor", () => {
     await enter()
     await tool(page, "Horizontal rule").click()
     await type("linked")
-    await page.keyboard.press("Shift+Home")
-    // Wait until the *editor* has the selection, not just the browser: ProseMirror picks
-    // up keyboard selections from an async selectionchange event (slow CI raced it).
-    await expect.poll(() => editorSelectionText(page)).toBe("linked")
-    await tool(page, "Link").click()
-    await page.getByLabel("Link URL").fill("/about")
-    await page.getByRole("button", { name: "Apply link" }).click()
-    await page.keyboard.press("End")
-    await enter()
+    await linkLineAndContinue(page, "linked", "/about")
     await page.getByTestId("editor-image-input").setInputFiles({
       name: "all.png",
       mimeType: "image/png",

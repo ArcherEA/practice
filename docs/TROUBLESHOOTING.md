@@ -5,6 +5,21 @@ Add new entries at the top. Format: date · symptom · cause · fix · preventio
 
 ---
 
+## 2026-11-23 — FIXED (task 020): content editor link tests failed on `main` CI (link mark missing)
+- **Symptom:** `content.spec.ts` "Every toolbar action round-trips…" failed with `expect(marks).toContain("link")`, and
+  "Editor writes a post…" could not find the link in the preview. This happened on `main` pushes, every retry,
+  while the same tests passed on the PR runs.
+- **Cause:** after "Apply link" the link text stays selected, and Tiptap's `focus()` gives focus back to the editor
+  only on the next `requestAnimationFrame`. The test pressed `End`/`Enter` before that frame, so the keys went to the page.
+  The selection never collapsed, and the image upload's `insertContent` **replaced** the link text. The error
+  snapshot shows no link text and the image in its place.
+- **Fix:** the test helper `linkLineAndContinue()` waits for the link in the editor, for editor focus, and for the
+  editor's own cursor to be collapsed at the end of the text (`editorCursor()` reads `.ProseMirror`'s
+  `editor.state`). Only then does it press `Enter`. To reproduce, slow `requestAnimationFrame` with `page.addInitScript`
+  in a throwaway spec copy: the old test fails every time.
+- **Prevention:** in editor tests, after any toolbar action that moves focus out of the editor (link bar, dialogs),
+  wait for `toBeFocused()` and check the editor's state before you press more keys.
+
 ## 2026-11-23 — FIXED: modules set in `.env` were ignored in Docker (CI Playwright failed for content)
 - **Symptom:** after merging task 010, the new content Playwright specs failed only in CI: editor screens never loaded
   (timeouts) and `/content/posts` showed a 404 instead of redirecting.
