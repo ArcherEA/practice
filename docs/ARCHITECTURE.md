@@ -50,6 +50,14 @@ sets CORS for `FRONTEND_HOST`.
 
 Only JPEG, PNG, WebP and GIF are served inline; every other type gets `Content-Disposition: attachment` in the signed GET.
 Only those image types may be `public` (served from `S3_PUBLIC_BASE_URL` when set) or used as an avatar.
+**Caching (task 021):** objects never change (unique keys), so every signed GET carries a signed query parameter
+`response-cache-control` (no request header, so bucket CORS and `presign_upload` are untouched): `private, max-age=<DOWNLOAD_URL_EXPIRE_SECONDS>, immutable`
+for private files and downloads, `public, ...` for public images. `GET /files/{id}/content` answers `Cache-Control: public, max-age=N`:
+N = lifetime minus a margin (a quarter, 1 s to 10 min; default 3600 -> 3000 s) when it redirects to a signed URL, so a cached
+redirect never points at an expired URL; 86400 when `S3_PUBLIC_BASE_URL` is set (unsigned, permanent URL). 404/503 send `max-age=0`.
+Stale window: after a public image is deleted or made private, browsers that already hold the redirect keep showing it for up to N
+(about 50 min, worst case about 2x the lifetime with the image copy itself; a day with `S3_PUBLIC_BASE_URL`, which is public anyway).
+URLs inside API responses (`avatar_url`, file lists) are freshly signed per request, so only the stable `/content` URL is reused.
 Limits and R2 free-tier guidance: `docs/deploy-vercel.md`. Usage report: `GET /api/v1/files/usage` (admin or superuser).
 
 **Cleanup command** (no scheduler): pending uploads older than 24 hours (object and row) are removed with

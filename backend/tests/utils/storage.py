@@ -2,6 +2,7 @@ from app.core.storage import (
     ObjectInfo,
     PresignedUpload,
     content_disposition,
+    download_cache_control,
     is_inline_content_type,
 )
 
@@ -27,12 +28,22 @@ class FakeStorage:
         )
 
     def presign_download(
-        self, key: str, *, filename: str, content_type: str, expires_in: int
+        self,
+        key: str,
+        *,
+        filename: str,
+        content_type: str,
+        expires_in: int,
+        public: bool = False,
     ) -> str:
         disposition = content_disposition(
             filename, inline=is_inline_content_type(content_type)
         )
-        return f"https://bucket.test/{key}?disposition={disposition}"
+        cache = download_cache_control(expires_in=expires_in, public=public)
+        return (
+            f"https://bucket.test/{key}?disposition={disposition}"
+            f"&exp={expires_in}&cache={cache}"
+        )
 
     def public_url(self, key: str) -> str | None:
         if not self.public_base_url:

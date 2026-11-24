@@ -797,6 +797,15 @@ def test_s3_storage_presigns_locally_with_public_endpoint() -> None:
         "u/1", filename="a.png", content_type="IMAGE/PNG", expires_in=60
     )
     assert "response-content-disposition=inline" in inline
+    # signed query parameter (no header the browser must send, so CORS is untouched)
+    assert (
+        "response-cache-control=private%2C+max-age%3D60%2C+immutable"
+        in down.replace("%2C%20", "%2C+")
+    )
+    pub = storage.presign_download(
+        "u/1", filename="a.png", content_type="image/png", expires_in=60, public=True
+    )
+    assert "response-cache-control=public%2C" in pub.replace("%2C%20", "%2C+")
     assert storage.public_url("u/a b") == "https://cdn.test/u/a%20b"
     assert (
         S3Storage(settings.model_copy(update={"S3_PUBLIC_BASE_URL": None})).public_url(
@@ -820,6 +829,8 @@ def test_content_redirects_public_image_to_public_url(
     r = client.get(f"{API}/files/{file['id']}/content", follow_redirects=False)
     assert r.status_code == 302
     assert r.headers["location"] == f"https://cdn.test/{key_of(file)}"
+    # stable unsigned target: may be cached for a day
+    assert r.headers["cache-control"] == "public, max-age=86400"
 
 
 def test_content_redirects_to_fresh_signed_url_without_public_base(
@@ -833,6 +844,30 @@ def test_content_redirects_to_fresh_signed_url_without_public_base(
     assert r.status_code == 302
     assert r.headers["location"].startswith(f"https://bucket.test/{key_of(file)}?")
     assert "disposition=inline" in r.headers["location"]
+    # public images may be cached by anyone, and the signed GET says so too
+    assert "cache=public,%20max-age=3600,%20immutable" in r.headers["location"]
+    # redirect is reused for less than the signed URL lives (3600 - 600 margin)
+    assert r.headers["cache-control"] == "public, max-age=3000"
+
+
+def test_signed_redirect_max_age_stays_below_the_url_lifetime() -> None:
+    from app.core.files import signed_redirect_max_age
+
+    assert signed_redirect_max_age(3600) == 3000
+    assert signed_redirect_max_age(100) == 75
+    assert signed_redirect_max_age(0) == 0
+    for lifetime in (1, 60, 900, 3600, 86400):
+        assert signed_redirect_max_age(lifetime) < lifetime
+
+
+def test_download_url_is_private_cacheable(
+    client: TestClient, make_user: MakeUser, fake_storage: FakeStorage
+) -> None:
+    _, headers = make_user()
+    file = upload_ready(client, fake_storage, headers, content_type="image/png")
+    r = client.get(f"{API}/files/{file['id']}/download", headers=headers)
+    assert r.status_code == 200
+    assert "cache=private, max-age=3600, immutable" in r.json()["url"]
 
 
 def test_content_needs_no_auth_but_hides_private_pending_and_unknown(
@@ -840,7 +875,9 @@ def test_content_needs_no_auth_but_hides_private_pending_and_unknown(
 ) -> None:
     _, headers = make_user()
     private = upload_ready(client, fake_storage, headers, content_type="image/png")
-    assert client.get(f"{API}/files/{private['id']}/content").status_code == 404
+    gone = client.get(f"{API}/files/{private['id']}/content")
+    assert gone.status_code == 404
+    assert gone.headers["cache-control"] == "max-age=0"  # errors are not cached
     # even the owner gets 404 here: the endpoint only serves public files
     assert (
         client.get(f"{API}/files/{private['id']}/content", headers=headers).status_code
@@ -878,3 +915,4 @@ def test_content_503_when_storage_not_configured(
     monkeypatch.setattr(fake_storage, "presign_download", unconfigured)
     r = client.get(f"{API}/files/{file['id']}/content", follow_redirects=False)
     assert r.status_code == 503
+    assert r.headers["cache-control"] == "max-age=0"
