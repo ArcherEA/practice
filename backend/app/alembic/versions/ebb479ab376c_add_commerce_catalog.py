@@ -123,4 +123,3 @@ def downgrade():
     op.drop_table('product')
     op.drop_index(op.f('ix_product_category_slug'), table_name='product_category')
     op.drop_table('product_category')
-
