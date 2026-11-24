@@ -271,6 +271,7 @@ def delete_user_me(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
+    file_service.ensure_user_deletable(session, current_user.id)
     keys = file_service.user_object_keys(session=session, user_id=current_user.id)
     session.delete(current_user)
     session.commit()
@@ -381,6 +382,7 @@ def delete_user(
     if user.role == UserRole.admin and not current_user.is_superuser:
         raise _forbidden("Only superusers can delete admins")
     # Module-owned rows (e.g. items) go via the ORM cascade / FK ON DELETE CASCADE.
+    file_service.ensure_user_deletable(session, user.id)
     keys = file_service.user_object_keys(session=session, user_id=user.id)
     session.delete(user)
     session.commit()

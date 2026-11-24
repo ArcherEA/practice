@@ -152,6 +152,7 @@ Cloudflare has **no hard spending cap** for R2 (only email alerts), so the app l
 | `UPLOAD_MAX_BYTES` | 10 MiB (10485760) | size of one file; checked when declared, enforced by the bucket (signed `Content-Length`) and re-checked at confirm | 413 / 400 |
 | `COMMENTS_PER_USER_PER_HOUR` | 30 | comments and replies a member can post per hour (community module). Superusers are exempt | 429 |
 | `REPORTS_PER_USER_PER_DAY` | 20 | reports a member can file per 24 hours (community module). Superusers are exempt | 429 |
+| `PRODUCT_FILE_MAX_BYTES` | 100 MiB (104857600) | size of one digital product file (commerce module, admin upload through `/commerce/admin/files`, always private, not counted against the per-user quota). The bytes go straight to the bucket (presigned upload), not through the function | 413 / 400 |
 
    Check usage any time as an admin: `GET /api/v1/files/usage` (total bytes vs limit, file count, top users).
 4. **Housekeeping:** abandoned (never confirmed) uploads are removed by `uv run python -m app.scripts.cleanup_files`

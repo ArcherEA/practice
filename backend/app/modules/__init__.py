@@ -14,7 +14,7 @@ from fastapi import APIRouter
 
 # Every module that exists in the codebase. Keep in sync with registry.MODULES
 # (a test enforces it).
-MODULE_NAMES: tuple[str, ...] = ("items", "content", "community")
+MODULE_NAMES: tuple[str, ...] = ("items", "content", "community", "commerce")
 
 # Modules that need other modules to be enabled too (checked when settings load).
 MODULE_DEPENDENCIES: dict[str, tuple[str, ...]] = {"community": ("content",)}

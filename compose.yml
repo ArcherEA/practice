@@ -112,7 +112,7 @@ services:
       EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@db:5432/app
       SENTRY_DSN: ${SENTRY_DSN:-}
-      # Optional modules (e.g. items,content,community). Empty -> the app default (items).
+      # Optional modules (e.g. items,content,community,commerce). Empty -> the app default (items).
       MODULES: ${MODULES:-}
       # Public base URL for canonical/og:url/sitemap (the Traefik/own-domain URL in production).
       SITE_URL: ${SITE_URL:-http://localhost:5173}
@@ -131,6 +131,10 @@ services:
       UPLOADS_PER_USER_PER_DAY: ${UPLOADS_PER_USER_PER_DAY:-}
       COMMENTS_PER_USER_PER_HOUR: ${COMMENTS_PER_USER_PER_HOUR:-}
       REPORTS_PER_USER_PER_DAY: ${REPORTS_PER_USER_PER_DAY:-}
+      STORE_CURRENCIES: ${STORE_CURRENCIES:-}
+      STORE_DEFAULT_CURRENCY: ${STORE_DEFAULT_CURRENCY:-}
+      STORE_TIMEZONE: ${STORE_TIMEZONE:-}
+      PRODUCT_FILE_MAX_BYTES: ${PRODUCT_FILE_MAX_BYTES:-}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]

@@ -161,5 +161,6 @@ def delete_file(
 ) -> Any:
     """Delete a file (row and object). Owner or admin."""
     file = _get_own_file(session, current_user, file_id, admin_ok=True)
+    file_service.ensure_file_deletable(session, file.id)
     file_service.delete_file(session=session, storage=storage, file=file)
     return Message(message="File deleted successfully")

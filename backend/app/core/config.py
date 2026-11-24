@@ -1,5 +1,7 @@
+import re
 import warnings
 from typing import Annotated, Literal, Self
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import (
     EmailStr,
@@ -17,6 +19,8 @@ from app.modules import (
     MODULE_NAMES,
     NO_MODULES,
 )
+
+_CURRENCY_CODE = re.compile(r"[a-z]{3}")
 
 
 class Settings(BaseSettings):
@@ -110,6 +114,65 @@ class Settings(BaseSettings):
     # Community limits (database counts, superusers are exempt) -> HTTP 429.
     COMMENTS_PER_USER_PER_HOUR: int = 30
     REPORTS_PER_USER_PER_DAY: int = 20
+
+    # Commerce (module `commerce`). Money is stored in minor units per currency.
+    # Comma-separated lower-case ISO 4217 codes; the default one must be in the list.
+    STORE_CURRENCIES: Annotated[list[str], NoDecode] = ["usd"]
+    # Empty -> the first of STORE_CURRENCIES.
+    STORE_DEFAULT_CURRENCY: str | None = None
+    # IANA timezone used to show booking slots (slots themselves are stored in UTC).
+    STORE_TIMEZONE: str = "UTC"
+    # Digital product files (admin uploads) may be bigger than UPLOAD_MAX_BYTES.
+    PRODUCT_FILE_MAX_BYTES: int = 100 * 1024**2
+
+    @field_validator("STORE_CURRENCIES", mode="before")
+    @classmethod
+    def _parse_currencies(cls, value: str | list[str]) -> list[str]:
+        items = value.split(",") if isinstance(value, str) else value
+        codes = [item.strip() for item in items if item.strip()]
+        if not codes:
+            raise ValueError("STORE_CURRENCIES needs at least one currency code")
+        bad = [c for c in codes if not _CURRENCY_CODE.fullmatch(c)]
+        if bad:
+            raise ValueError(
+                f"Invalid currency code(s) in STORE_CURRENCIES: {', '.join(bad)}. "
+                "Use lower-case ISO 4217 codes such as usd,eur,jpy."
+            )
+        return list(dict.fromkeys(codes))
+
+    @field_validator("STORE_DEFAULT_CURRENCY", mode="before")
+    @classmethod
+    def _clean_default_currency(cls, value: str | None) -> str | None:
+        return value.strip() if isinstance(value, str) and value.strip() else None
+
+    @field_validator("STORE_TIMEZONE")
+    @classmethod
+    def _check_timezone(cls, value: str) -> str:
+        try:
+            ZoneInfo(value)
+        except ZoneInfoNotFoundError, ValueError, OSError:
+            raise ValueError(
+                f"STORE_TIMEZONE '{value}' is not a valid IANA timezone (e.g. Europe/Berlin)"
+            ) from None
+        return value
+
+    @field_validator("PRODUCT_FILE_MAX_BYTES")
+    @classmethod
+    def _positive_file_cap(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("PRODUCT_FILE_MAX_BYTES must be positive")
+        return value
+
+    @model_validator(mode="after")
+    def _check_default_currency(self) -> Self:
+        if self.STORE_DEFAULT_CURRENCY is None:
+            self.STORE_DEFAULT_CURRENCY = self.STORE_CURRENCIES[0]
+        elif self.STORE_DEFAULT_CURRENCY not in self.STORE_CURRENCIES:
+            raise ValueError(
+                f"STORE_DEFAULT_CURRENCY '{self.STORE_DEFAULT_CURRENCY}' must be one "
+                f"of STORE_CURRENCIES ({', '.join(self.STORE_CURRENCIES)})"
+            )
+        return self
 
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
