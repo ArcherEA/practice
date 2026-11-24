@@ -269,6 +269,21 @@ plain text (`whitespace-pre-wrap`, never HTML). Anonymous visitors get "Log in t
 is a rule such as "You are suspended from commenting"); it is shown as a toast. `ModerationComment` carries `target`
 (type, id, title, slug) so the queue can link to the post or page.
 
+**Profiles, follows and notifications UI (task 017):** public profile `/u/$username` (under the public layout, guarded by
+the `community` module): avatar, name, @username, bio, joined month, counts, Follow/Unfollow (a login link for visitors,
+nothing on your own profile) and Comments / Followers / Following tabs. Comment authors (`CommentItem`) and people lists
+link to profiles with typed links. `/following` (activity of people I follow) and `/notifications` (full list, "Load more")
+are app-layout routes with sidebar entries. `NotificationBell` (app header and `PublicLayout`) renders only for logged-in
+users with `community` enabled: the unread count is polled every 60 s and on window focus (`refetchInterval` /
+`refetchOnWindowFocus: "always"`, D18); the dropdown lists the latest 8 with "Mark all read"; each item links to its target
+(post/page at `#comment-<id>`, or the follower's profile) and marks itself read. Settings (My profile) has Username (with
+the once-per-30-days rule, enforced by the API) and Bio when `community` is enabled. Code: `features/community/{profile,notifications}/`,
+`profileApi.ts`.
+**Profile meta tags:** `GET /u/{username}` is a `public_router` of the community module (`modules/community/public_routes.py`,
+`seo.py`), mounted only when `community` is enabled. Title "Name (@username)", description = bio (or "Name on <site>"),
+canonical + Open Graph via the content `PageMeta`/`render_html`. Unknown or inactive users get the plain SPA index (no
+profile data leaks; the SPA shows its own not-found page). Profiles are **not** in `sitemap.xml` (privacy).
+
 ## Deployment
 | | Own server | Vercel |
 |---|---|---|

@@ -3,6 +3,7 @@ import { Link, Outlet } from "@tanstack/react-router"
 
 import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
+import { NotificationBell } from "@/features/community/notifications/NotificationBell"
 import { configQueryOptions } from "@/features/modules/api"
 import { isLoggedIn } from "@/hooks/useAuth"
 
@@ -26,6 +27,7 @@ export function PublicLayout() {
             <Button variant="ghost" size="sm" asChild>
               <Link to="/blog">Blog</Link>
             </Button>
+            <NotificationBell />
             {loggedIn ? (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">Dashboard</Link>

@@ -1,6 +1,6 @@
 # 017 — Community: profiles, follows and notifications UI
 
-**Status:** draft (needs user approval) · **Agent:** frontend-engineer · **Branch:** `feat/017-community-profiles-ui` ·
+**Status:** in progress · **Agent:** frontend-engineer · **Branch:** `feat/017-community-profiles-ui` ·
 **Needs:** 015 and 016 merged
 
 ## Scope
