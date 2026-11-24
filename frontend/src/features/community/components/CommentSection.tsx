@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { Link, useRouterState } from "@tanstack/react-router"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import type { CommentSort } from "@/client"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -34,6 +34,67 @@ const SORTS: { value: CommentSort; label: string }[] = [
   { value: "oldest", label: "Oldest" },
 ]
 
+/** Most pages "Load more" is chased through to find a linked comment (20 per page). */
+const MAX_PAGES_TO_FIND_COMMENT = 10
+const HIGHLIGHT_MS = 3000
+
+/**
+ * Comments load after the page, so the browser can't scroll to `#comment-<id>`
+ * by itself. Once the list is there, scroll to the comment and highlight it
+ * briefly. Replies come inside their parent thread, so they are found on the
+ * same page as the parent. If the comment is not on the pages loaded so far,
+ * keep loading pages (up to a cap) until it shows up; after that give up
+ * quietly (it may be deleted, or deeper than we are willing to fetch).
+ */
+function useScrollToLinkedComment(comments: {
+  isSuccess: boolean
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  fetchNextPage: () => unknown
+  pageCount: number
+  itemCount: number
+}) {
+  const hash = useRouterState({ select: (s) => s.location.hash })
+  const handled = useRef<string | null>(null)
+  const timer = useRef<number | undefined>(undefined)
+  const { isSuccess, hasNextPage, isFetchingNextPage, fetchNextPage } = comments
+  const { pageCount, itemCount } = comments
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: itemCount re-runs the search when a page arrives
+  useEffect(() => {
+    if (!hash.startsWith("comment-") || !isSuccess) return
+    if (handled.current === hash) return
+    const el = document.getElementById(hash)
+    if (el) {
+      handled.current = hash
+      const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      el.scrollIntoView({
+        block: "center",
+        behavior: calm ? "auto" : "smooth",
+      })
+      el.dataset.highlight = "true"
+      window.clearTimeout(timer.current)
+      timer.current = window.setTimeout(() => {
+        delete el.dataset.highlight
+      }, HIGHLIGHT_MS)
+    } else if (hasNextPage && pageCount < MAX_PAGES_TO_FIND_COMMENT) {
+      if (!isFetchingNextPage) fetchNextPage()
+    } else if (!isFetchingNextPage) {
+      handled.current = hash // not found: stop trying
+    }
+  }, [
+    hash,
+    isSuccess,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    pageCount,
+    itemCount,
+  ])
+
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+}
+
 function Comments({ target }: { target: CommentTarget }) {
   const [sort, setSort] = useState<CommentSort>("newest")
   const loggedIn = isLoggedIn()
@@ -48,6 +109,14 @@ function Comments({ target }: { target: CommentTarget }) {
 
   const first = comments.data?.pages[0]
   const items = comments.data?.pages.flatMap((p) => p.data) ?? []
+  useScrollToLinkedComment({
+    isSuccess: comments.isSuccess,
+    hasNextPage: comments.hasNextPage,
+    isFetchingNextPage: comments.isFetchingNextPage,
+    fetchNextPage: comments.fetchNextPage,
+    pageCount: comments.data?.pages.length ?? 0,
+    itemCount: items.length,
+  })
 
   return (
     <section

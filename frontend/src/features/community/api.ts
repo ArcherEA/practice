@@ -49,23 +49,42 @@ export const mySuspensionOptions = (enabled: boolean) =>
     queryFn: async () => (await CommunityService.readMySuspension()).data,
   })
 
+export const MODERATION_PAGE_SIZE = 20
+
+/** Next `skip` for an offset-paged list answering `{ data, count }`, or undefined at the end. */
+const nextSkip = (
+  last: { data: unknown[]; count: number },
+  all: { data: unknown[] }[],
+) => {
+  const loaded = all.reduce((n, p) => n + p.data.length, 0)
+  return loaded < last.count && last.data.length > 0 ? loaded : undefined
+}
+
 export const queueOptions = (filter: QueueFilter) =>
-  queryOptions({
+  infiniteQueryOptions({
     queryKey: communityKeys.queue(filter),
-    queryFn: async () =>
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) =>
       (
         await CommunityService.readModerationQueue({
-          query: { filter, limit: 100 },
+          query: { filter, skip: pageParam, limit: MODERATION_PAGE_SIZE },
         })
       ).data,
+    getNextPageParam: nextSkip,
   })
 
-export const suspensionsOptions = queryOptions({
+export const suspensionsOptions = infiniteQueryOptions({
   queryKey: communityKeys.suspensions,
-  queryFn: async () =>
+  initialPageParam: 0,
+  queryFn: async ({ pageParam }) =>
     (
       await CommunityService.readSuspensions({
-        query: { active_only: true, limit: 100 },
+        query: {
+          active_only: true,
+          skip: pageParam,
+          limit: MODERATION_PAGE_SIZE,
+        },
       })
     ).data,
+  getNextPageParam: nextSkip,
 })

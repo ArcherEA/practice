@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 
@@ -56,16 +60,18 @@ export default function ModerationPage() {
 }
 
 function Queue({ filter }: { filter: QueueFilter }) {
-  const { data, isLoading, isError } = useQuery(queueOptions(filter))
+  const query = useInfiniteQuery(queueOptions(filter))
+  const { isLoading, isError } = query
+  const items = query.data?.pages.flatMap((p) => p.data) ?? []
   const [suspending, setSuspending] = useState<AuthorPublic | null>(null)
 
   if (isLoading) return <p className="text-muted-foreground">Loading...</p>
-  if (isError || !data) {
+  if (isError || !query.data) {
     return (
       <p className="text-muted-foreground">The queue could not be loaded.</p>
     )
   }
-  if (data.data.length === 0) {
+  if (items.length === 0) {
     return (
       <p className="py-8 text-center text-muted-foreground">
         {filter === "reported"
@@ -77,7 +83,7 @@ function Queue({ filter }: { filter: QueueFilter }) {
   return (
     <>
       <ul className="flex flex-col gap-4" data-testid={`queue-${filter}`}>
-        {data.data.map((comment) => (
+        {items.map((comment) => (
           <QueueItem
             key={comment.id}
             comment={comment}
@@ -85,6 +91,7 @@ function Queue({ filter }: { filter: QueueFilter }) {
           />
         ))}
       </ul>
+      <LoadMore query={query} label="Load more comments" />
       <SuspendDialog member={suspending} onClose={() => setSuspending(null)} />
     </>
   )
@@ -280,7 +287,9 @@ function QueueItem({
 function Suspensions() {
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
-  const { data, isLoading, isError } = useQuery(suspensionsOptions)
+  const query = useInfiniteQuery(suspensionsOptions)
+  const { isLoading, isError } = query
+  const items = query.data?.pages.flatMap((p) => p.data) ?? []
 
   const end = useMutation({
     mutationFn: (id: string) =>
@@ -292,12 +301,12 @@ function Suspensions() {
   })
 
   if (isLoading) return <p className="text-muted-foreground">Loading...</p>
-  if (isError || !data) {
+  if (isError || !query.data) {
     return (
       <p className="text-muted-foreground">Suspensions could not be loaded.</p>
     )
   }
-  if (data.data.length === 0) {
+  if (items.length === 0) {
     return (
       <p className="py-8 text-center text-muted-foreground">
         Nobody is suspended. To suspend a member, use "Suspend member" on one of
@@ -306,42 +315,69 @@ function Suspensions() {
     )
   }
   return (
-    <ul className="flex flex-col gap-3" data-testid="suspension-list">
-      {data.data.map((s) => (
-        <li
-          key={s.id}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm"
-          data-testid="suspension"
-        >
-          <div className="flex flex-col gap-1">
-            <span className="font-medium">
-              {s.user?.display_name ?? "Deleted user"}
-              {s.user && (
-                <span className="font-normal text-muted-foreground">
-                  {" "}
-                  @{s.user.username}
-                </span>
-              )}
-            </span>
-            <span>
-              {s.until ? `Until ${formatDateTime(s.until)}` : "Indefinite"}
-              {s.reason ? ` - ${s.reason}` : ""}
-            </span>
-            <span className="text-muted-foreground">
-              By {s.created_by?.display_name ?? "a deleted user"},{" "}
-              {relativeTime(s.created_at)}
-            </span>
-          </div>
-          <LoadingButton
-            size="sm"
-            variant="outline"
-            loading={end.isPending && end.variables === s.id}
-            onClick={() => end.mutate(s.id)}
+    <>
+      <ul className="flex flex-col gap-3" data-testid="suspension-list">
+        {items.map((s) => (
+          <li
+            key={s.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm"
+            data-testid="suspension"
           >
-            End suspension
-          </LoadingButton>
-        </li>
-      ))}
-    </ul>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">
+                {s.user?.display_name ?? "Deleted user"}
+                {s.user && (
+                  <span className="font-normal text-muted-foreground">
+                    {" "}
+                    @{s.user.username}
+                  </span>
+                )}
+              </span>
+              <span>
+                {s.until ? `Until ${formatDateTime(s.until)}` : "Indefinite"}
+                {s.reason ? ` - ${s.reason}` : ""}
+              </span>
+              <span className="text-muted-foreground">
+                By {s.created_by?.display_name ?? "a deleted user"},{" "}
+                {relativeTime(s.created_at)}
+              </span>
+            </div>
+            <LoadingButton
+              size="sm"
+              variant="outline"
+              loading={end.isPending && end.variables === s.id}
+              onClick={() => end.mutate(s.id)}
+            >
+              End suspension
+            </LoadingButton>
+          </li>
+        ))}
+      </ul>
+      <LoadMore query={query} label="Load more suspensions" />
+    </>
+  )
+}
+
+function LoadMore({
+  query,
+  label,
+}: {
+  query: {
+    hasNextPage: boolean
+    isFetchingNextPage: boolean
+    fetchNextPage: () => unknown
+  }
+  label: string
+}) {
+  if (!query.hasNextPage) return null
+  return (
+    <Button
+      variant="outline"
+      className="mt-4"
+      disabled={query.isFetchingNextPage}
+      onClick={() => query.fetchNextPage()}
+    >
+      {query.isFetchingNextPage ? "Loading..." : label}
+    </Button>
   )
 }
