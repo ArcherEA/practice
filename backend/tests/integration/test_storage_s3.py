@@ -118,6 +118,23 @@ def test_presigned_get_serves_images_inline(storage: S3Storage, key: str) -> Non
     assert r.headers["content-type"] == "image/png"
 
 
+def test_presigned_get_returns_cache_control(storage: S3Storage, key: str) -> None:
+    up = storage.presign_upload(key, content_type="image/png", size=4, expires_in=60)
+    httpx.put(up.url, content=b"\x89PNG", headers=up.headers).raise_for_status()
+    private = httpx.get(
+        storage.presign_download(
+            key, filename="a.png", content_type="image/png", expires_in=60
+        )
+    )
+    assert private.headers["cache-control"] == "private, max-age=60, immutable"
+    public = httpx.get(
+        storage.presign_download(
+            key, filename="a.png", content_type="image/png", expires_in=60, public=True
+        )
+    )
+    assert public.headers["cache-control"] == "public, max-age=60, immutable"
+
+
 def test_bucket_cors_allows_the_frontend_origin(storage: S3Storage, key: str) -> None:
     up = storage.presign_upload(key, content_type="image/png", size=4, expires_in=60)
     r = httpx.options(

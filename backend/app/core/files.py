@@ -274,13 +274,31 @@ def file_url(storage: Storage, file: File) -> str | None:
             filename=file.filename,
             content_type=file.content_type,
             expires_in=settings.DOWNLOAD_URL_EXPIRE_SECONDS,
+            public=file.public,
         )
     except StorageNotConfiguredError:
         return None
 
 
-def public_image_url(*, storage: Storage, file: File) -> str:
-    """Target of the stable `GET /files/{id}/content` redirect.
+# Browser cache lifetime of the stable-URL redirect when `S3_PUBLIC_BASE_URL` is set
+# (the target is a permanent unsigned URL).
+STABLE_REDIRECT_MAX_AGE = 24 * 3600
+# Cache lifetime for errors (404/503): long enough to absorb a burst, short enough that
+# a file that becomes public or a fixed config shows up almost at once.
+ERROR_MAX_AGE = 0
+
+
+def signed_redirect_max_age(expires_in: int) -> int:
+    """How long a browser may reuse a redirect to a signed URL.
+
+    Always shorter than the signed URL's lifetime (minus a margin of a quarter, 1 s to
+    10 min), so a cached redirect never points at an expired URL.
+    """
+    return max(expires_in - max(1, min(600, expires_in // 4)), 0)
+
+
+def public_image_redirect(*, storage: Storage, file: File) -> tuple[str, int]:
+    """Target of the stable `GET /files/{id}/content` redirect and its `max-age`.
 
     Only ready, public JPEG/PNG/WebP/GIF files qualify (404 otherwise, so private
     files are indistinguishable from missing ones). Raises
@@ -295,7 +313,9 @@ def public_image_url(*, storage: Storage, file: File) -> str:
     url = file_url(storage, file)
     if url is None:
         raise StorageNotConfiguredError("File storage is not configured")
-    return url
+    if storage.public_url(file.key) == url:
+        return url, STABLE_REDIRECT_MAX_AGE
+    return url, signed_redirect_max_age(settings.DOWNLOAD_URL_EXPIRE_SECONDS)
 
 
 # --- cleanup and user deletion ---
