@@ -33,7 +33,13 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 016 Comments, likes, reporting and moderation UI  — implemented 2026-11-23
   - [x] 017 Profiles (/u/<username>), follows and notifications bell UI  — implemented 2026-11-23
   - Later: forum/discussions, social feed, email notifications, blocking/muting
-- [ ] **Phase 4 — Commerce** (Stripe Checkout)
+- [ ] **Phase 4 — Commerce** (planned and approved 2026-11-23; D20/D21; build in this order)
+  - [ ] 024 Catalog backend: products (digital / physical / service), variants, prices per currency, stock, booking slots
+  - [ ] 025 Store admin screens
+  - [ ] 026 Storefront, currency switcher and cart (+ product SEO and sitemap)
+  - [ ] 027 Stripe Checkout, webhooks and orders (backend) — needs a Stripe account (test mode)
+  - [ ] 028 Checkout UI, orders, downloads, bookings, admin fulfilment and order emails
+  - Later: tax (Stripe Tax), coupons, refunds from our admin, reviews, product search, weekly-availability bookings
 - [ ] **Phase 5 — SaaS:** teams + billing (Stripe Billing)
 - [ ] **Phase 6 — AI (last, decided 2026-11-23):** planned once the other modules show where AI helps most.
   Ideas to evaluate then: provider layer (Pydantic AI, D2), AI writing help in the content editor, chat assistant,
