@@ -374,6 +374,8 @@ export class FilesService {
      *
      * Stable, non-expiring URL for public images (no auth): 302 to the public URL or a
      * fresh signed URL. 404 unless the file is ready, public and a JPEG/PNG/WebP/GIF.
+     * The redirect is cacheable (`public, max-age`): a day for the unsigned public URL,
+     * a bit less than the signed URL's lifetime otherwise. Errors are not cached.
      */
     public static getPublicContent<ThrowOnError extends boolean = true>(options: Options<filesGetPublicContentData, ThrowOnError>) {
         return (options.client ?? client).get<unknown, filesGetPublicContentErrors, ThrowOnError>({ url: '/api/v1/files/{file_id}/content', ...options });
