@@ -1,21 +1,31 @@
-# FastAPI Project - Development
+# PRODUCT - Development
 
 ## Local Development
 
-For local development, run PostgreSQL and Mailpit with Docker Compose, and run the FastAPI and Vite development servers locally.
+For local development, run PostgreSQL, Mailpit and the file storage (SeaweedFS) with Docker Compose, and run the FastAPI and Vite development servers locally. The short version is the **Quick start** in [README.md](./README.md).
+
+First time only, create your local settings from the examples (they are not in git):
+
+```bash
+cp .env.example .env
+cp frontend/.env.example frontend/.env
+```
 
 Start the supporting services:
 
 ```bash
-docker compose up -d db mailpit
+docker compose up -d --wait db mailpit storage storage-init
 ```
 
-Then, from the `backend` directory, install the dependencies and prepare the database:
+Then, from the `backend` directory, install the dependencies and prepare the database (create/upgrade tables, create the first admin):
 
 ```bash
 uv sync
-uv run bash scripts/prestart.sh
+uv run alembic upgrade head
+uv run python app/initial_data.py
 ```
+
+(`uv run bash scripts/prestart.sh` does the same two steps where `bash` is available.) On Windows with a non-UTF-8 console, set `PYTHONUTF8=1` before `uv run fastapi dev` (PowerShell: `$env:PYTHONUTF8 = "1"`), see [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md).
 
 Start the FastAPI development server:
 
@@ -99,9 +109,9 @@ docker compose watch
 
 ## The `.env` File
 
-The tracked `.env` file contains local development defaults, passwords, and other configuration. Its hostnames use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database and SMTP server with their Compose service names.
+`.env` is **not** in git (it holds secrets). Create it with `cp .env.example .env`; `.env.example` has every setting with safe local defaults and comments. Its hostnames use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database, SMTP server and storage with their Compose service names. `frontend/.env` (from `frontend/.env.example`) tells the Vite dev server where the API is.
 
-Do not store deployment secrets in `.env`. Configure them as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
+The local defaults (`changethis` passwords) are fine on your own machine; change them for anything reachable by others. Do not store deployment secrets in `.env`; see [docs/deploy-vercel.md](./docs/deploy-vercel.md) and the [Docker Compose deployment guide](./deployment-docker-compose.md). Database details: [docs/DATABASE.md](./docs/DATABASE.md).
 
 ## Pre-commit Hooks and Code Linting
 

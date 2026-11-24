@@ -1,4 +1,5 @@
 import re
+import unicodedata
 import uuid
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -9,6 +10,7 @@ from sqlalchemy import BigInteger, Column, ForeignKey, String, Uuid
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.core.roles import UserRole, UserRoleType
+from app.core.usernames import normalize_username
 
 if TYPE_CHECKING:
     from app.modules.items.models import Item
@@ -32,15 +34,39 @@ class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
 
 
+BIO_MAX_LENGTH = 500
+
+
+def _check_username(value: str | None) -> str | None:
+    return None if value is None else normalize_username(value)
+
+
+def _check_bio(value: str | None) -> str | None:
+    """Plain text; trimmed, empty becomes None, control characters are refused."""
+    if value is None:
+        return None
+    text = value.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if any(c not in "\n\t" and unicodedata.category(c) == "Cc" for c in text):
+        raise ValueError("Bio contains control characters")
+    return text or None
+
+
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
+    # Optional: generated from the name / email when missing.
+    username: str | None = Field(default=None, max_length=30)
+
+    _username = field_validator("username")(_check_username)
 
 
 class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=128)
     full_name: str | None = Field(default=None, max_length=255)
+    username: str | None = Field(default=None, max_length=30)
+
+    _username = field_validator("username")(_check_username)
 
 
 # Properties to receive via API on update, all are optional
@@ -51,11 +77,21 @@ class UserUpdate(SQLModel):
     role: UserRole | None = None
     full_name: str | None = Field(default=None, max_length=255)
     password: str | None = Field(default=None, min_length=8, max_length=128)
+    # Admins may change it at any time (no 30 day limit).
+    username: str | None = Field(default=None, max_length=30)
+
+    _username = field_validator("username")(_check_username)
 
 
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
+    # At most once per 30 days.
+    username: str | None = Field(default=None, max_length=30)
+    bio: str | None = Field(default=None, max_length=BIO_MAX_LENGTH)
+
+    _username = field_validator("username")(_check_username)
+    _bio = field_validator("bio")(_check_bio)
 
 
 class UpdatePassword(SQLModel):
@@ -68,6 +104,10 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     created_at: datetime | None = Field(default_factory=get_datetime_utc)
+    # Lowercase, unique (case-insensitively because it is always stored lowercase).
+    username: str = Field(unique=True, index=True, max_length=30)
+    username_changed_at: datetime | None = Field(default=None)
+    bio: str | None = Field(default=None, max_length=BIO_MAX_LENGTH)
     # use_alter: user and file reference each other; this FK is created after both tables.
     avatar_file_id: uuid.UUID | None = Field(
         default=None,
@@ -90,6 +130,10 @@ class User(UserBase, table=True):
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
+    username: str
+    bio: str | None = None
+    # When the username was last changed by its owner (None: never).
+    username_changed_at: datetime | None = None
     created_at: datetime | None = None
     # Public URL, or a short-lived presigned URL; None when there is no avatar.
     avatar_url: str | None = None
@@ -223,4 +267,6 @@ class NewPassword(SQLModel):
 # Import every module's models so SQLModel/Alembic see all tables (and the
 # User relationships resolve) whether or not the module is enabled.
 # Must stay at the bottom: module models import helpers from this file.
+import app.modules.community.models  # noqa: E402, F401
+import app.modules.content.models  # noqa: E402, F401
 import app.modules.items.models  # noqa: E402, F401

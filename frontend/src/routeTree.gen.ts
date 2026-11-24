@@ -10,17 +10,38 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutContentRouteImport } from './routes/_layout/content'
+import { Route as LayoutFollowingRouteImport } from './routes/_layout/following'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
+import { Route as LayoutModerationRouteImport } from './routes/_layout/moderation'
+import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutContentIndexRouteImport } from './routes/_layout/content.index'
+import { Route as LayoutContentTaxonomyRouteImport } from './routes/_layout/content.taxonomy'
+import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
+import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
+import { Route as PublicPSlugRouteImport } from './routes/_public.p.$slug'
+import { Route as PublicUUsernameRouteImport } from './routes/_public.u.$username'
+import { Route as LayoutContentPagesIndexRouteImport } from './routes/_layout/content.pages.index'
+import { Route as LayoutContentPagesIdRouteImport } from './routes/_layout/content.pages.$id'
+import { Route as LayoutContentPostsIndexRouteImport } from './routes/_layout/content.posts.index'
+import { Route as LayoutContentPostsIdRouteImport } from './routes/_layout/content.posts.$id'
+import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public.blog.category.$slug'
+import { Route as PublicBlogTagSlugRouteImport } from './routes/_public.blog.tag.$slug'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -53,15 +74,95 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutContentRoute = LayoutContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutFollowingRoute = LayoutFollowingRouteImport.update({
+  id: '/following',
+  path: '/following',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutModerationRoute = LayoutModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutNotificationsRoute = LayoutNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutContentIndexRoute = LayoutContentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentTaxonomyRoute = LayoutContentTaxonomyRouteImport.update({
+  id: '/taxonomy',
+  path: '/taxonomy',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPSlugRoute = PublicPSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicUUsernameRoute = PublicUUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => PublicRoute,
+} as any)
+const LayoutContentPagesIndexRoute = LayoutContentPagesIndexRouteImport.update({
+  id: '/pages/',
+  path: '/pages/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPagesIdRoute = LayoutContentPagesIdRouteImport.update({
+  id: '/pages/$id',
+  path: '/pages/$id',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPostsIndexRoute = LayoutContentPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutContentPostsIdRoute = LayoutContentPostsIdRouteImport.update({
+  id: '/posts/$id',
+  path: '/posts/$id',
+  getParentRoute: () => LayoutContentRoute,
+} as any)
+const PublicBlogCategorySlugRoute = PublicBlogCategorySlugRouteImport.update({
+  id: '/blog/category/$slug',
+  path: '/blog/category/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogTagSlugRoute = PublicBlogTagSlugRouteImport.update({
+  id: '/blog/tag/$slug',
+  path: '/blog/tag/$slug',
+  getParentRoute: () => PublicRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -71,30 +172,78 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/content': typeof LayoutContentRouteWithChildren
+  '/following': typeof LayoutFollowingRoute
   '/items': typeof LayoutItemsRoute
+  '/moderation': typeof LayoutModerationRoute
+  '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
+  '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/p/$slug': typeof PublicPSlugRoute
+  '/u/$username': typeof PublicUUsernameRoute
+  '/content/': typeof LayoutContentIndexRoute
+  '/blog/': typeof PublicBlogIndexRoute
+  '/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/content/pages/': typeof LayoutContentPagesIndexRoute
+  '/content/posts/': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof LayoutIndexRoute
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/following': typeof LayoutFollowingRoute
   '/items': typeof LayoutItemsRoute
+  '/moderation': typeof LayoutModerationRoute
+  '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
-  '/': typeof LayoutIndexRoute
+  '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/blog/$slug': typeof PublicBlogSlugRoute
+  '/p/$slug': typeof PublicPSlugRoute
+  '/u/$username': typeof PublicUUsernameRoute
+  '/content': typeof LayoutContentIndexRoute
+  '/blog': typeof PublicBlogIndexRoute
+  '/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/content/pages': typeof LayoutContentPagesIndexRoute
+  '/content/posts': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
   '/login': typeof LoginRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/content': typeof LayoutContentRouteWithChildren
+  '/_layout/following': typeof LayoutFollowingRoute
   '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/moderation': typeof LayoutModerationRoute
+  '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/_public/blog/$slug': typeof PublicBlogSlugRoute
+  '/_public/p/$slug': typeof PublicPSlugRoute
+  '/_public/u/$username': typeof PublicUUsernameRoute
+  '/_layout/content/': typeof LayoutContentIndexRoute
+  '/_public/blog/': typeof PublicBlogIndexRoute
+  '/_layout/content/pages/$id': typeof LayoutContentPagesIdRoute
+  '/_layout/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/_public/blog/category/$slug': typeof PublicBlogCategorySlugRoute
+  '/_public/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/_layout/content/pages/': typeof LayoutContentPagesIndexRoute
+  '/_layout/content/posts/': typeof LayoutContentPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,33 +254,82 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/content'
+    | '/following'
     | '/items'
+    | '/moderation'
+    | '/notifications'
     | '/settings'
+    | '/content/taxonomy'
+    | '/blog/$slug'
+    | '/p/$slug'
+    | '/u/$username'
+    | '/content/'
+    | '/blog/'
+    | '/content/pages/$id'
+    | '/content/posts/$id'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
+    | '/content/pages/'
+    | '/content/posts/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/login'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/following'
     | '/items'
+    | '/moderation'
+    | '/notifications'
     | '/settings'
-    | '/'
+    | '/content/taxonomy'
+    | '/blog/$slug'
+    | '/p/$slug'
+    | '/u/$username'
+    | '/content'
+    | '/blog'
+    | '/content/pages/$id'
+    | '/content/posts/$id'
+    | '/blog/category/$slug'
+    | '/blog/tag/$slug'
+    | '/content/pages'
+    | '/content/posts'
   id:
     | '__root__'
     | '/_layout'
+    | '/_public'
     | '/login'
     | '/recover-password'
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/content'
+    | '/_layout/following'
     | '/_layout/items'
+    | '/_layout/moderation'
+    | '/_layout/notifications'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/content/taxonomy'
+    | '/_public/blog/$slug'
+    | '/_public/p/$slug'
+    | '/_public/u/$username'
+    | '/_layout/content/'
+    | '/_public/blog/'
+    | '/_layout/content/pages/$id'
+    | '/_layout/content/posts/$id'
+    | '/_public/blog/category/$slug'
+    | '/_public/blog/tag/$slug'
+    | '/_layout/content/pages/'
+    | '/_layout/content/posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
   LoginRoute: typeof LoginRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -145,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof LayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -189,11 +394,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/content': {
+      id: '/_layout/content'
+      path: '/content'
+      fullPath: '/content'
+      preLoaderRoute: typeof LayoutContentRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/following': {
+      id: '/_layout/following'
+      path: '/following'
+      fullPath: '/following'
+      preLoaderRoute: typeof LayoutFollowingRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/items': {
       id: '/_layout/items'
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof LayoutItemsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/moderation': {
+      id: '/_layout/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof LayoutModerationRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/notifications': {
+      id: '/_layout/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof LayoutNotificationsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/settings': {
@@ -203,19 +436,133 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/content/': {
+      id: '/_layout/content/'
+      path: '/'
+      fullPath: '/content/'
+      preLoaderRoute: typeof LayoutContentIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/taxonomy': {
+      id: '/_layout/content/taxonomy'
+      path: '/taxonomy'
+      fullPath: '/content/taxonomy'
+      preLoaderRoute: typeof LayoutContentTaxonomyRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_public/blog/': {
+      id: '/_public/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof PublicBlogIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/$slug': {
+      id: '/_public/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof PublicBlogSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/p/$slug': {
+      id: '/_public/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PublicPSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/u/$username': {
+      id: '/_public/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof PublicUUsernameRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_layout/content/pages/': {
+      id: '/_layout/content/pages/'
+      path: '/pages'
+      fullPath: '/content/pages/'
+      preLoaderRoute: typeof LayoutContentPagesIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/pages/$id': {
+      id: '/_layout/content/pages/$id'
+      path: '/pages/$id'
+      fullPath: '/content/pages/$id'
+      preLoaderRoute: typeof LayoutContentPagesIdRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/posts/': {
+      id: '/_layout/content/posts/'
+      path: '/posts'
+      fullPath: '/content/posts/'
+      preLoaderRoute: typeof LayoutContentPostsIndexRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/content/posts/$id': {
+      id: '/_layout/content/posts/$id'
+      path: '/posts/$id'
+      fullPath: '/content/posts/$id'
+      preLoaderRoute: typeof LayoutContentPostsIdRouteImport
+      parentRoute: typeof LayoutContentRoute
+    }
+    '/_public/blog/category/$slug': {
+      id: '/_public/blog/category/$slug'
+      path: '/blog/category/$slug'
+      fullPath: '/blog/category/$slug'
+      preLoaderRoute: typeof PublicBlogCategorySlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog/tag/$slug': {
+      id: '/_public/blog/tag/$slug'
+      path: '/blog/tag/$slug'
+      fullPath: '/blog/tag/$slug'
+      preLoaderRoute: typeof PublicBlogTagSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
+interface LayoutContentRouteChildren {
+  LayoutContentTaxonomyRoute: typeof LayoutContentTaxonomyRoute
+  LayoutContentIndexRoute: typeof LayoutContentIndexRoute
+  LayoutContentPagesIdRoute: typeof LayoutContentPagesIdRoute
+  LayoutContentPostsIdRoute: typeof LayoutContentPostsIdRoute
+  LayoutContentPagesIndexRoute: typeof LayoutContentPagesIndexRoute
+  LayoutContentPostsIndexRoute: typeof LayoutContentPostsIndexRoute
+}
+
+const LayoutContentRouteChildren: LayoutContentRouteChildren = {
+  LayoutContentTaxonomyRoute: LayoutContentTaxonomyRoute,
+  LayoutContentIndexRoute: LayoutContentIndexRoute,
+  LayoutContentPagesIdRoute: LayoutContentPagesIdRoute,
+  LayoutContentPostsIdRoute: LayoutContentPostsIdRoute,
+  LayoutContentPagesIndexRoute: LayoutContentPagesIndexRoute,
+  LayoutContentPostsIndexRoute: LayoutContentPostsIndexRoute,
+}
+
+const LayoutContentRouteWithChildren = LayoutContentRoute._addFileChildren(
+  LayoutContentRouteChildren,
+)
+
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutContentRoute: typeof LayoutContentRouteWithChildren
+  LayoutFollowingRoute: typeof LayoutFollowingRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutModerationRoute: typeof LayoutModerationRoute
+  LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutContentRoute: LayoutContentRouteWithChildren,
+  LayoutFollowingRoute: LayoutFollowingRoute,
   LayoutItemsRoute: LayoutItemsRoute,
+  LayoutModerationRoute: LayoutModerationRoute,
+  LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
@@ -223,8 +570,30 @@ const LayoutRouteChildren: LayoutRouteChildren = {
 const LayoutRouteWithChildren =
   LayoutRoute._addFileChildren(LayoutRouteChildren)
 
+interface PublicRouteChildren {
+  PublicBlogSlugRoute: typeof PublicBlogSlugRoute
+  PublicPSlugRoute: typeof PublicPSlugRoute
+  PublicUUsernameRoute: typeof PublicUUsernameRoute
+  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+  PublicBlogCategorySlugRoute: typeof PublicBlogCategorySlugRoute
+  PublicBlogTagSlugRoute: typeof PublicBlogTagSlugRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicBlogSlugRoute: PublicBlogSlugRoute,
+  PublicPSlugRoute: PublicPSlugRoute,
+  PublicUUsernameRoute: PublicUUsernameRoute,
+  PublicBlogIndexRoute: PublicBlogIndexRoute,
+  PublicBlogCategorySlugRoute: PublicBlogCategorySlugRoute,
+  PublicBlogTagSlugRoute: PublicBlogTagSlugRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
   LoginRoute: LoginRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,

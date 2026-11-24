@@ -1,0 +1,84 @@
+/* Typography for Tiptap content (editor and read-only renderer). */
+.content-prose {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.content-prose .ProseMirror {
+  outline: none;
+}
+.content-prose .ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+.content-prose h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.content-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.content-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.content-prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+.content-prose ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+.content-prose li > p {
+  margin: 0;
+}
+.content-prose blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+}
+.content-prose pre {
+  background: var(--muted);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+}
+.content-prose code {
+  background: var(--muted);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+  font-size: 0.875em;
+}
+.content-prose pre code {
+  background: transparent;
+  padding: 0;
+}
+.content-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.content-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+.content-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+.content-prose img.ProseMirror-selectednode {
+  outline: 2px solid var(--ring);
+}
+.content-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

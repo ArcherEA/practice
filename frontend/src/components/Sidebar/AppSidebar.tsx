@@ -8,7 +8,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar"
-import { moduleNavItems } from "@/features/modules/nav"
+import { isNavItemVisible, moduleNavItems } from "@/features/modules/nav"
 import { useModules } from "@/features/modules/useModules"
 import useAuth from "@/hooks/useAuth"
 import { type Item, Main } from "./Main"
@@ -23,7 +23,9 @@ export function AppSidebar() {
 
   const baseItems: Item[] = [
     homeItem,
-    ...moduleNavItems.filter((item) => isEnabled(item.module)),
+    ...moduleNavItems.filter(
+      (item) => isEnabled(item.module) && isNavItemVisible(item, currentUser),
+    ),
   ]
   const items = canManageUsers
     ? [...baseItems, { icon: Users, title: "Admin", path: "/admin" }]

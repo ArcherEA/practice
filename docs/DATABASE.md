@@ -69,6 +69,17 @@ Rules: never edit a migration that has already run anywhere shared (Neon); write
 Useful commands (from `backend/`): `uv run alembic current` (where the DB is), `uv run alembic history` (all
 migrations), `uv run alembic check` (do models and DB match?).
 
+### Housekeeping commands
+There is no scheduler; run these by hand or from any cron / scheduled job with the right `DATABASE_URL` (from `backend/`):
+```powershell
+uv run python -m app.scripts.cleanup_files          # pending uploads older than 24 hours (object and row)
+uv run python -m app.scripts.cleanup_notifications  # community notifications older than 90 days
+```
+
+**Migrations with data (task 015):** `bddc69df7d01` adds `user.username` as nullable, fills it for every existing user in
+the migration (a frozen copy of the naming rules, no app imports), then makes it `NOT NULL` with a unique index. Its
+downgrade drops the columns and tables (usernames are lost; they are regenerated on the next upgrade).
+
 ## 4. Production (Neon)
 
 ### Point the tools at Neon (PowerShell session)

@@ -18,8 +18,12 @@ You are the frontend engineer for the PRODUCT platform. You implement exactly on
 - No new dependency unless the task lists it. Add it with `bun add <pkg>` in `frontend/`.
 - Keep it responsive and accessible (labels, keyboard focus, dark mode works).
 
+## Testing (in tiers — see CLAUDE.md)
+- While coding: run only the Playwright spec you're working on (`bunx playwright test tests/<file>.spec.ts`, from `frontend/`).
+- Don't run the full Playwright suite — CI runs it in 4 parallel shards. A backend `pytest` run is not needed unless you changed backend code.
+
 ## Before reporting
-Run `bun run lint` and `bun run build` from the repo root, plus the Playwright tests for any flow you touched.
+Run `bun run lint` and `bun run build` from the repo root, plus the Playwright specs for the flows you touched (from `frontend/`).
 Commit on the task branch with conventional commits.
 
 ## Report format

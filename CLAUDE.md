@@ -13,8 +13,15 @@ Read `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/DECISIONS.md` before chang
 ## Workflow
 - Every change starts from a task file `docs/tasks/NNN-<slug>.md`. Do only what its scope says; list anything else under "Follow-ups" in your report.
 - Work on branch `feat/NNN-<slug>`. Conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
-- Before reporting done: backend `uv run ruff check . && uv run mypy app && uv run pytest`; frontend `bun run lint && bun run build`; Playwright for touched user flows.
-- The lead reviews; the user approves every merge to `main`.
+- **Testing in tiers** — run what the moment needs, not everything every time:
+  1. *While coding:* only the affected tests — e.g. `uv run pytest tests/api/routes/test_files.py -x`, or one Playwright spec.
+  2. *Before reporting done:* backend `uv run ruff check . && uv run ruff format --check . && uv run mypy app && uv run pytest`
+     (full backend suite — it's fast); frontend `bun run lint && bun run build`; Playwright **only for the specs of the
+     flows you touched** (run from `frontend/`, see `docs/TROUBLESHOOTING.md`). Don't run the full Playwright suite.
+  3. *CI* runs everything (full Playwright in 4 shards, coverage ≥ 90%). Docs-only changes (`docs/**`, `*.md`) skip the test workflows.
+- The lead re-runs checks only where risk is high (migrations, permissions/auth, storage, deploy config) and otherwise reviews the diff and the reported results.
+- The lead reviews; the user approves every merge to `main`. Changes reach `main` through a **pull request**
+  (CI + Vercel preview on the PR), never by pushing to `main` directly — see `docs/BRANCH-PROTECTION.md`.
 
 ## Code rules
 - Follow the template's existing patterns first (look at `users`/`items` routes, models, crud, tests, frontend routes).

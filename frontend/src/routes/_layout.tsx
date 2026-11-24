@@ -7,14 +7,19 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { safeRedirect } from "@/features/auth/redirect"
+import { NotificationBell } from "@/features/community/notifications/NotificationBell"
 import { isLoggedIn } from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     if (!isLoggedIn()) {
+      // Come back to this page after logging in (same-site paths only).
+      const back = safeRedirect(location.href)
       throw redirect({
         to: "/login",
+        search: back && back !== "/" ? { redirect: back } : undefined,
       })
     }
   },
@@ -27,6 +32,9 @@ function Layout() {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1 text-muted-foreground" />
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">

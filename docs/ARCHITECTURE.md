@@ -58,6 +58,7 @@ cd backend && uv run python -m app.scripts.cleanup_files
 ```
 Run it by hand or from any cron/scheduled job with the production env vars. Deleting a user also deletes their objects
 (best effort; failures are logged and the orphan object can be removed by hand).
+Community notifications older than 90 days are removed the same way: `uv run python -m app.scripts.cleanup_notifications`.
 
 ## Roles and permissions
 `User.role` (`member` default, `editor`, `moderator`, `admin`; VARCHAR(20), enum in `app/core/roles.py`) plus the
@@ -92,6 +93,196 @@ this prevents locking out the last superuser. Signup always creates a `member`; 
 To add a role later: extend `UserRole` and `ROLE_INCLUDES` (no DB migration needed).
 
 Database operations (migrations, Neon, backups, recovery): see `docs/DATABASE.md`.
+
+## Content module (task 009)
+Enable with `MODULES=items,content`. Code: `app/modules/content/` (`models.py` tables, `schemas.py` API models,
+`body.py` + `slugs.py` pure functions, `service.py`, `routes.py`). Routes live under `/api/v1/content`.
+
+**Data model** (tables always exist; one migration):
+`post` (title, unique `slug`, excerpt, `body` JSONB, `cover_file_id` -> file SET NULL, `category_id` -> category SET NULL,
+`status` draft|published, `published_at`, `author_id` -> user SET NULL, `seo_title`, `seo_description`, timestamps),
+`page` (the same minus excerpt/cover/category/tags), `category` (name, unique slug, description; a post has one optional),
+`tag` (name, unique slug), `post_tag` (post_id, tag_id, both ON DELETE CASCADE). Publishing sets `published_at` on the
+first publish only; unpublishing returns to draft and keeps the date. Deleting posts/pages never deletes image files.
+
+**Body format:** Tiptap/ProseMirror JSON (`{"type":"doc","content":[...]}`), never HTML (D15). `body.sanitize_body` runs
+on every save and rejects anything not on the allow-list: nodes `paragraph`, `heading` (level 1-3), `bulletList`,
+`orderedList`, `listItem`, `blockquote`, `codeBlock`, `horizontalRule`, `hardBreak`, `image`, `text`; marks `bold`, `italic`,
+`strike`, `code`, `link`. Unknown node/mark types, unknown fields or attributes, misplaced children, nesting deeper than 24
+levels and bodies over 1 MB (UTF-8 bytes) are rejected with 422 (the message names the JSON path). Link `href` must be
+`http:`, `https:`, `mailto:` or start with a single `/` (trimmed, case-insensitive; `javascript:`, `data:`, `//host`
+and control characters are refused). The saved body is the cleaned copy.
+
+**Images:** an `image` node carries `attrs.fileId` only. On save the service checks the file exists, is `ready`, `public`
+and a JPEG/PNG/WebP/GIF; the owner may be any user, so editors can reuse each other's images. A `src` sent by the client is
+dropped; responses add `attrs.src` = `/api/v1/files/{id}/content`, and posts get `cover_url` the same way.
+`GET /api/v1/files/{id}/content` (no auth, part of the files routes) 302-redirects to `S3_PUBLIC_BASE_URL` or a fresh
+signed URL for public, ready, inline-image files and returns 404 otherwise, so the URL stored in pages never expires.
+
+**Permissions:** reading published content is public. Everything under `/content/manage` needs `require_role(UserRole.editor)`:
+editor, admin and superuser pass; moderator and member get 403. Drafts are only returned by `/manage` routes.
+
+**Slugs:** `slugs.py` lowercases to ASCII (accents folded), turns other characters into single hyphens, trims, max 80
+characters; nothing left (e.g. a Chinese title) -> 8 random hex characters; clashes get `-2`, `-3`... per table. A slug
+sent by the client goes through the same function. Renaming a title does not change the slug.
+
+**Editor UI (task 010):** `frontend/src/features/content/`, routes `/content/posts[/$id]`, `/content/pages[/$id]`,
+`/content/taxonomy` (guarded by `requireModule("content")` + `hasRole(user, "editor")`; the sidebar entry uses
+`requiredRole` in `moduleNavItems`). `extensions.ts` is the single Tiptap schema (StarterKit with headings 1-3, underline
+and the bundled link disabled, own Link with http/https/mailto//path rule, Image with a `fileId` attribute); the editor
+cannot produce anything outside the backend allow-list. `ContentRenderer` is the read-only renderer reused by public pages.
+
+## Public pages and SEO (task 011, content module)
+The SPA stays a single-page app (D16). Routes **outside `/api`** return the built `index.html` with real tags:
+`/blog`, `/blog/{slug}`, `/blog/category/{slug}`, `/blog/tag/{slug}`, `/p/{slug}` (`modules/content/public_routes.py`,
+logic in `seo.py`). Per request the backend replaces/injects `<title>`, `description`, `canonical`, Open Graph
+(`og:title/description/type/url/site_name`, `og:image` = `SITE_URL` + `/api/v1/files/{id}/content` when there is a cover)
+and Twitter card tags; every value goes through `html.escape`. Unknown or draft slugs return the same shell with
+**404** and `<meta name="robots" content="noindex">`, so the SPA can render its own not-found page. Responses are
+`Cache-Control: public, max-age=60, s-maxage=60` (404: `no-cache`).
+- The template is `backend/app/frontend/index.html` (path in `app.state.frontend_dir`). If it is missing (local dev
+  without a build) a minimal HTML page with the tags and a link to `FRONTEND_HOST` is returned and a warning is logged.
+- `GET /sitemap.xml` (content module only): `/blog`, published posts and pages, categories/tags that have published
+  posts; absolute URLs from `SITE_URL`, `lastmod` = last update date. `GET /robots.txt` is a core route, always on
+  (disallows `/content/`, `/admin`, `/settings`, `/api/`); the `Sitemap:` line is present only when `content` is enabled.
+- Modules declare such routes with `Module.public_router`; `create_app` includes them **before** `application.frontend(...)`
+  so they win over the SPA mount. They use `include_in_schema=False`, so the generated client is unaffected.
+- `SITE_URL` (public base URL, no trailing slash) is the one setting; see `docs/deploy-vercel.md` for how Vercel serves this.
+- Frontend: the public site lives in its own pathless layout route `src/routes/_public.tsx` (header with site name, Blog link,
+  "Log in" or "Dashboard", footer), **not** under `_layout`, so no login is required. Children: `/blog`, `/blog/$slug`,
+  `/blog/category/$slug`, `/blog/tag/$slug`, `/p/$slug`; code in `src/features/content/public/`. The layout guards with
+  `requireModule(..., "content")`; an API 404 in a loader becomes the layout's own not-found page. Each route's `head()` builds
+  title and description with the same rules as `seo.py` (`public/api.ts`), so SPA navigation and a direct hit agree. Bodies render
+  through the read-only `ContentRenderer`; image and cover URLs are prefixed with `VITE_API_URL`.
+- Local dev: Vite on :5173 does not run this. Test with `bun run build` then `fastapi dev` (backend on :8000 serves the
+  build), or `docker compose watch`.
+
+## Community module (task 014)
+Enable with `MODULES=items,content,community`. **`community` needs `content`**: settings validation fails at startup with
+"Module 'community' requires module(s) content ..." otherwise (`MODULE_DEPENDENCIES` in `app/modules/__init__.py`).
+Code: `app/modules/community/` (`models.py`, `schemas.py`, `service.py`, `routes.py`, `deps.py`, `events.py`); routes under
+`/api/v1/community`. Product decisions: D17 (comments on blog content, one reply level, publish-then-moderate, plain text).
+
+**Data model** (tables always exist; one migration; no core table changed):
+| Table | Columns / notes |
+|---|---|
+| `comment` | `post_id` / `page_id` (exactly one, check constraint; both FK ON DELETE CASCADE), `author_id` -> user SET NULL (shown as a deleted user), `parent_id` -> comment CASCADE (null or a top-level comment), `body` text, `status` visible\|hidden, `deleted_at`, `removed_by_moderator`, `like_count`, `created_at`, `edited_at` |
+| `comment_like` | (`comment_id`, `user_id`) primary key, both CASCADE; `comment.like_count` is the stored counter |
+| `post_like`, `post_like_count` | likes of posts and their counter, keyed by post id, so the content module is unchanged |
+| `comment_report` | `comment_id`, `reporter_id`, `reason` spam\|abuse\|other, `note`, `status` open\|resolved, `resolved_by/at`; unique (`comment_id`, `reporter_id`), so a user reports a comment once, even after it was resolved |
+| `community_suspension` | `user_id`, `until` (null = indefinite), `reason`, `created_by`, `created_at`, `ended_at`. Active while `ended_at` is null and `until` is null or in the future. Ending a suspension sets `ended_at` (history is kept) |
+
+**Comments:** plain text, 1-5000 characters after trimming; line breaks are normalised to `
+`; NUL and other control
+characters (except newline and tab) are rejected (422). The API never escapes or renders anything, the frontend shows it
+as text. Only **published** posts/pages accept comments (404 otherwise). Replies go one level deep: `parent_id` must be a
+visible top-level comment of the same post/page (replying to a reply is 400). Authors edit within **15 minutes** (sets
+`edited_at`; moderators cannot edit others). The module clock is `service.now()`, which tests replace instead of sleeping.
+- *Delete:* an author deleting a comment that has replies leaves a placeholder (`[deleted]`); without replies the row is
+  removed. A moderator delete is the same with `[removed by a moderator]`; placeholders carry no author and no like count.
+- *Hidden* (moderator): not listed, unless it has visible replies, then it is shown as a placeholder. Restore brings it back.
+  A top-level placeholder (hidden/deleted/removed) is only listed while it has at least one visible reply.
+- *Post unpublished:* its comments are not listed (the list answers 404, like for a draft) and cannot be liked, edited,
+  reported or replied to; they come back when the post is published again. *Post or page deleted:* the comments, likes and
+  reports are deleted by the database (ON DELETE CASCADE), so the content module needs no code for it.
+- *Responses:* authors are `{id, display_name, avatar_url}`; `display_name` is `full_name` or `Member <first 8 id chars>`,
+  **never the email**. Avatars and likes are batch-loaded, so a list costs a constant number of queries.
+
+**Permissions:**
+| Action | Who |
+|---|---|
+| list comments, read post like state | anyone (a valid token adds `liked_by_me` / `can_edit`) |
+| comment, reply, edit own, like, report | any logged-in user who is not suspended (editors and moderators too) |
+| delete own comment, remove own like | any logged-in user, also while suspended |
+| `/moderation/*` | `require_role(UserRole.moderator)`: moderator, admin, superuser. Editor and member get 403 (editor and moderator are siblings) |
+Same rule as user management (task 005): only **superusers** may moderate comments written by, or suspend, an **admin or
+superuser**; moderators and admins get 403. A moderator can act on members, editors and other moderators (not on themselves
+for suspensions).
+
+**Moderation flow:** members report (`POST /comments/{id}/report`) -> the comment shows up in `GET /moderation/comments`
+(open reports + hidden ones; filter `reported` / `hidden`) with its real body, author and the open reports -> a moderator
+hides, restores or deletes it, or resolves the reports (deleting with replies also closes its reports). A moderator can
+suspend the member (`POST /moderation/suspensions`, optional `until`): the member gets **403 "You are suspended from
+commenting"** on comment, edit, like and report, while login and every other module keep working
+(`GET /community/me/suspension` tells the UI). `DELETE /moderation/suspensions/{id}` ends it.
+
+**Rate limits** (database counts like the uploads, per user, superusers exempt, HTTP 429; a per-user advisory lock stops
+parallel requests from overshooting): `COMMENTS_PER_USER_PER_HOUR` (30, rows created in the last hour) and
+`REPORTS_PER_USER_PER_DAY` (20, reports in the last 24 hours). Both are in `.env.example` and `compose.yml`.
+
+**Events -> notifications:** `events.emit(CommunityEvent)` is called by the service after the commit for `comment_replied`
+(to the parent's author), `comment_liked`, `comment_hidden`, `comment_deleted_by_moderator` and, from the follow code,
+`user_followed`. `emit` opens its own session and calls `notifications.handle_event`; a failure there is logged and never
+breaks the request that already succeeded.
+
+### Usernames, profiles, follows and notifications (task 015)
+Code: `app/core/usernames.py` (rules, pure), `modules/community/profiles.py`, `modules/community/notifications.py`;
+tables `user_follow` and `notification` (community) plus `user.username`, `user.username_changed_at`, `user.bio` (core).
+
+**Username rules:** stored lowercase and unique (so the unique index is case-insensitive); 3-30 characters of `[a-z0-9_]`
+with at least one letter or digit; input is lowercased and trimmed. Reserved (422): admin, administrator, api, blog, content,
+community, settings, login, signup, logout, p, u, moderation, notifications, root, support, help, me, null, undefined.
+When none is given (signup, admin create, `crud.create_user`, `init_db`, `/private/users`) one is generated from the full
+name, else `member_<first 8 hex of the user id>` — **never from the email**, because usernames are public (profiles,
+comment authors). Name rules: lowercase, other characters become `_`, collapsed and trimmed, padded with `0` to 3
+characters, cut to 30; clashes and reserved names get `_2`, `_3`, ... The migration backfills existing users with the same
+rules (oldest first). A member changes it with `PATCH /users/me` at most once per 30 days (400 with the date it works
+again; the first change is always allowed; a refused change does not use up the period); admin edits
+(`PATCH /users/{id}`) are not limited. A taken name is 400 on signup/create and 409 on update. `bio`: plain text, max 500,
+trimmed (empty clears it). `UserPublic` carries `username`, `bio`, `username_changed_at` (only ever returned to the user
+themself and to admins).
+
+**Public profile** (`GET /community/users/{username}`, anyone, case-insensitive): id, username, display name, avatar URL,
+bio, joined date, comment / follower / following counts, `followed_by_me` (logged-in viewers), and `is_suspended`
+(moderators and above only, else null). Never the email. Inactive users are 404 (also their lists and follow). The comment
+count and `GET .../comments` only include visible comments on published posts/pages of active users, newest first, each
+with its target (type, id, title, slug). `AuthorPublic` now has `username`, so comment authors can link to `/u/<username>`.
+
+**Follows** (`user_follow`, PK `follower_id`+`followee_id`, both CASCADE, check: not yourself): `PUT`/`DELETE
+/community/users/{username}/follow` are idempotent, any logged-in user (suspended members too); following yourself is 400.
+`GET .../followers` and `.../following` list active users (newest first, paginated). `GET /community/following/activity`
+lists the visible comments of the people I follow, newest first.
+
+**Notifications** (`notification`: recipient CASCADE; actor, comment, post, page SET NULL; `read_at`):
+| Type | Created when | Recipient |
+|---|---|---|
+| `comment_replied` | someone replies to a comment | the parent's author |
+| `comment_liked` | someone likes a comment | the comment's author |
+| `new_follower` | someone follows a member | the followed member |
+| `comment_moderated` | a moderator hides or deletes a comment | the comment's author |
+Never for your own actions. A like (or follow) by the same person while an unread notification of that kind for the same
+comment (or person) exists creates no second one; unliking does not delete it; restoring a comment sends nothing.
+Endpoints (own notifications only; someone else's id is 404): `GET /community/notifications` (paginated, newest first:
+type, actor, `comment_snippet` of at most 140 characters, target post/page with title and slug, `created_at`, `read`),
+`GET .../unread-count`, `POST .../{id}/read`, `POST .../read-all` (the last two return the new unread count). The snippet
+is left out for comments that are not public (except for their own author) and the target for unpublished content.
+Retention is 90 days via `cleanup_notifications` (see above); there is no push, the UI polls (D18).
+
+**Comments and moderation UI (task 016, `frontend/src/features/community/`):** `CommentSection` is rendered under
+`/blog/$slug` and `/p/$slug` only when the `community` module is enabled (nothing is rendered or requested otherwise).
+It holds the post like button, newest/oldest sort, comment form (5000-character counter), one reply level, the actions
+menu (Edit when `can_edit`, Delete for own comments, Report for others'), placeholders and a suspension notice. Bodies are
+plain text (`whitespace-pre-wrap`, never HTML). Anonymous visitors get "Log in to comment" -> `/login?redirect=<path>`;
+`features/auth/redirect.ts` accepts only same-site relative paths. `/moderation` (sidebar entry via `moduleNavItems`,
+`requiredRole: moderator`) has Reported, Hidden and Suspensions tabs; route guards = module + `canModerate`
+(`hasRole(user, "moderator")`, so editors are excluded). A 403 from `/api/v1/community/*` does not log the user out (it
+is a rule such as "You are suspended from commenting"); it is shown as a toast. `ModerationComment` carries `target`
+(type, id, title, slug) so the queue can link to the post or page.
+
+**Profiles, follows and notifications UI (task 017):** public profile `/u/$username` (under the public layout, guarded by
+the `community` module): avatar, name, @username, bio, joined month, counts, Follow/Unfollow (a login link for visitors,
+nothing on your own profile) and Comments / Followers / Following tabs. Comment authors (`CommentItem`) and people lists
+link to profiles with typed links. `/following` (activity of people I follow) and `/notifications` (full list, "Load more")
+are app-layout routes with sidebar entries. `NotificationBell` (app header and `PublicLayout`) renders only for logged-in
+users with `community` enabled: the unread count is polled every 60 s and on window focus (`refetchInterval` /
+`refetchOnWindowFocus: "always"`, D18); the dropdown lists the latest 8 with "Mark all read"; each item links to its target
+(post/page at `#comment-<id>`, or the follower's profile) and marks itself read. Settings (My profile) has Username (with
+the once-per-30-days rule, enforced by the API) and Bio when `community` is enabled. Code: `features/community/{profile,notifications}/`,
+`profileApi.ts`.
+**Profile meta tags:** `GET /u/{username}` is a `public_router` of the community module (`modules/community/public_routes.py`,
+`seo.py`), mounted only when `community` is enabled. Title "Name (@username)", description = bio (or "Name on <site>"),
+canonical + Open Graph via the content `PageMeta`/`render_html`. Unknown or inactive users get the plain SPA index (no
+profile data leaks; the SPA shows its own not-found page). Profiles are **not** in `sitemap.xml` (privacy).
 
 ## Deployment
 | | Own server | Vercel |

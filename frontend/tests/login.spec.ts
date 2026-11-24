@@ -102,8 +102,23 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Log out" }).click()
   await page.waitForURL("/login")
 
-  await page.goto("/settings")
-  await page.waitForURL("/login")
+  // The app redirects while /settings is still loading, so only wait for the
+  // navigation to start ("commit"); waiting for "load" can be aborted (ERR_ABORTED).
+  await page.goto("/settings", { waitUntil: "commit" })
+  await page.waitForURL("/login?redirect=%2Fsettings")
+})
+
+test("A protected page opened logged out is shown after logging in", async ({
+  page,
+}) => {
+  await page.goto("/settings", { waitUntil: "commit" })
+  await page.waitForURL("/login?redirect=%2Fsettings")
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await page.getByRole("button", { name: "Log In" }).click()
+
+  await page.waitForURL("/settings")
+  await expect(page.getByRole("tab", { name: "My profile" })).toBeVisible()
 })
 
 test("Redirects to /login when token is wrong", async ({ page }) => {
@@ -111,7 +126,8 @@ test("Redirects to /login when token is wrong", async ({ page }) => {
   await page.evaluate(() => {
     localStorage.setItem("access_token", "invalid_token")
   })
-  await page.goto("/settings")
-  await page.waitForURL("/login")
-  await expect(page).toHaveURL("/login")
+  // Auth errors now log out immediately (no retries, task 008), which can abort a
+  // full page load of /settings; wait for the redirect instead.
+  await page.goto("/settings", { waitUntil: "commit" })
+  await page.waitForURL("/login?redirect=%2Fsettings")
 })

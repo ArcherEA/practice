@@ -63,7 +63,11 @@ def create_upload(
             status_code=400, detail="Only JPEG, PNG, WebP and GIF images can be public"
         )
 
-    session.execute(text("SELECT pg_advisory_xact_lock(:id)"), {"id": _UPLOAD_LOCK_ID})
+    # Serialize upload reservations (released at commit). Uses the connection, since
+    # SQLModel deprecates Session.execute in favour of exec().
+    session.connection().execute(
+        text("SELECT pg_advisory_xact_lock(:id)"), {"id": _UPLOAD_LOCK_ID}
+    )
     if not user.is_superuser:
         since = get_datetime_utc() - DAILY_WINDOW
         recent = session.exec(
@@ -247,7 +251,7 @@ def to_users_public(
         public = UserPublic.model_validate(user)
         avatar = files.get(user.avatar_file_id) if user.avatar_file_id else None
         if avatar is not None and avatar.status == FileStatus.ready:
-            public.avatar_url = _avatar_url(storage, avatar)
+            public.avatar_url = file_url(storage, avatar)
         result.append(public)
     return result
 
@@ -256,7 +260,11 @@ def to_user_public(*, session: Session, storage: Storage, user: User) -> UserPub
     return to_users_public(session=session, storage=storage, users=[user])[0]
 
 
-def _avatar_url(storage: Storage, file: File) -> str | None:
+def file_url(storage: Storage, file: File) -> str | None:
+    """Public URL for public files (when configured), else a short-lived signed GET URL.
+
+    None when storage is not configured. No network call: signing is local.
+    """
     try:
         if file.public and (url := storage.public_url(file.key)):
             return url
@@ -269,6 +277,25 @@ def _avatar_url(storage: Storage, file: File) -> str | None:
         )
     except StorageNotConfiguredError:
         return None
+
+
+def public_image_url(*, storage: Storage, file: File) -> str:
+    """Target of the stable `GET /files/{id}/content` redirect.
+
+    Only ready, public JPEG/PNG/WebP/GIF files qualify (404 otherwise, so private
+    files are indistinguishable from missing ones). Raises
+    `StorageNotConfiguredError` when storage is not configured.
+    """
+    if (
+        file.status != FileStatus.ready
+        or not file.public
+        or not is_inline_content_type(file.content_type)
+    ):
+        raise HTTPException(status_code=404, detail="File not found")
+    url = file_url(storage, file)
+    if url is None:
+        raise StorageNotConfiguredError("File storage is not configured")
+    return url
 
 
 # --- cleanup and user deletion ---

@@ -5,7 +5,7 @@ from sqlmodel import Session
 from app import crud
 from app.core.security import verify_password
 from app.models import User, UserCreate, UserUpdate
-from tests.utils.utils import random_email, random_lower_string
+from tests.utils.utils import random_email, random_lower_string, random_username
 
 
 def test_create_user(db: Session) -> None:
@@ -104,7 +104,7 @@ def test_authenticate_user_with_bcrypt_upgrades_to_argon2(db: Session) -> None:
     assert bcrypt_hash.startswith("$2")  # bcrypt hashes start with $2
 
     # Create user with bcrypt hash directly in the database
-    user = User(email=email, hashed_password=bcrypt_hash)
+    user = User(email=email, username=random_username(), hashed_password=bcrypt_hash)
     db.add(user)
     db.commit()
     db.refresh(user)

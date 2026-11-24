@@ -81,7 +81,9 @@ services:
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Variable not set}
       AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
       BUCKET: ${S3_BUCKET:-product}
-      FRONTEND_HOST: ${FRONTEND_HOST:-http://localhost:5173}
+      # Origin allowed to PUT/GET in the browser. STORAGE_CORS_ORIGIN overrides it when the
+      # app is opened from somewhere else (CI Playwright opens it at http://backend:8000).
+      FRONTEND_HOST: ${STORAGE_CORS_ORIGIN:-${FRONTEND_HOST:-http://localhost:5173}}
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -110,6 +112,10 @@ services:
       EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@db:5432/app
       SENTRY_DSN: ${SENTRY_DSN:-}
+      # Optional modules (e.g. items,content,community). Empty -> the app default (items).
+      MODULES: ${MODULES:-}
+      # Public base URL for canonical/og:url/sitemap (the Traefik/own-domain URL in production).
+      SITE_URL: ${SITE_URL:-http://localhost:5173}
       # Backend -> bucket uses the internal hostname; presigned URLs use the public
       # one, because the browser must be able to reach the host in the URL.
       S3_ENDPOINT_URL: http://storage:8333
@@ -123,6 +129,8 @@ services:
       STORAGE_TOTAL_LIMIT_BYTES: ${STORAGE_TOTAL_LIMIT_BYTES:-}
       STORAGE_USER_QUOTA_BYTES: ${STORAGE_USER_QUOTA_BYTES:-}
       UPLOADS_PER_USER_PER_DAY: ${UPLOADS_PER_USER_PER_DAY:-}
+      COMMENTS_PER_USER_PER_HOUR: ${COMMENTS_PER_USER_PER_HOUR:-}
+      REPORTS_PER_USER_PER_DAY: ${REPORTS_PER_USER_PER_DAY:-}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]

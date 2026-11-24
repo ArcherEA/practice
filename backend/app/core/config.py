@@ -11,7 +11,12 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
-from app.modules import DEFAULT_MODULES, MODULE_NAMES, NO_MODULES
+from app.modules import (
+    DEFAULT_MODULES,
+    MODULE_DEPENDENCIES,
+    MODULE_NAMES,
+    NO_MODULES,
+)
 
 
 class Settings(BaseSettings):
@@ -26,6 +31,9 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"
+    # Public base URL of the site (no trailing slash): canonical links, og:url,
+    # sitemap.xml and robots.txt. Production URL on Vercel / own server.
+    SITE_URL: str = "http://localhost:5173"
     FASTAPI_ENV: Literal["development"] | None = None
 
     PROJECT_NAME: str
@@ -53,7 +61,23 @@ class Settings(BaseSettings):
                 f"Valid names: {', '.join(MODULE_NAMES)} "
                 f"(or '{NO_MODULES}' to disable all optional modules)."
             )
-        return list(dict.fromkeys(names))
+        names = list(dict.fromkeys(names))
+        for name in names:
+            missing = [
+                dep for dep in MODULE_DEPENDENCIES.get(name, ()) if dep not in names
+            ]
+            if missing:
+                raise ValueError(
+                    f"Module '{name}' requires module(s) {', '.join(missing)} "
+                    f"to be enabled too. Add them to MODULES "
+                    f"(e.g. MODULES=items,{','.join(missing)},{name})."
+                )
+        return names
+
+    @field_validator("SITE_URL")
+    @classmethod
+    def _strip_trailing_slash(cls, value: str) -> str:
+        return value.rstrip("/")
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
@@ -82,6 +106,10 @@ class Settings(BaseSettings):
     STORAGE_TOTAL_LIMIT_BYTES: int = 8 * 1024**3
     STORAGE_USER_QUOTA_BYTES: int = 100 * 1024**2
     UPLOADS_PER_USER_PER_DAY: int = 50
+
+    # Community limits (database counts, superusers are exempt) -> HTTP 429.
+    COMMENTS_PER_USER_PER_HOUR: int = 30
+    REPORTS_PER_USER_PER_DAY: int = 20
 
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
