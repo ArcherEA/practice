@@ -24,3 +24,6 @@ backend/app/frontend/
 
 # Database backups (contain user data)
 backups/
+
+# react-email preview build (created by `email build`/`email dev`)
+packages/react-email/.react-email/

@@ -26,7 +26,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 020 Fix content editor toolbar flake on CI  — done 2026-11-23
   - [x] 021 File caching  — done 2026-11-23
   - [x] 022 UI follow-ups: scroll to linked comment, moderation paging, return to page after login  — done 2026-11-23
-  - [ ] 023 Dependency updates  — in progress
+  - [x] 023 Dependency updates  — done 2026-11-23
 - [x] **Phase 3 — Community** (complete 2026-11-23)
   - [x] 014 Comments on posts/pages (1 level of replies), likes, reports, moderation queue + suspensions (backend)  — implemented 2026-11-23
   - [x] 015 Usernames, public profiles, follows, in-app notifications (backend)  — implemented 2026-11-23
