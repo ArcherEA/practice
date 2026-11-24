@@ -171,4 +171,32 @@ test.describe("Notifications", () => {
     await page.reload()
     await expect(page.getByTestId("unread-badge")).toHaveCount(0)
   })
+
+  test("A notification link scrolls to the reply, beyond the first page, and highlights it", async ({
+    page,
+  }) => {
+    const { post, id } = await newPost()
+    const owner = await createUserApi()
+    const comment = await owner.comment(post.id, `Owner comment ${id}`)
+    const other = await createUserApi()
+    const reply = await other.comment(post.id, `Linked reply ${id}`, comment.id)
+    // 21 newer comments push the owner's thread onto the second page ("Newest" first).
+    for (let n = 0; n < 21; n++) {
+      await other.comment(post.id, `Filler ${n} ${id}`)
+    }
+
+    await logInUser(page, owner.email, owner.password)
+    await page.goto("/notifications")
+    await page
+      .getByTestId("notification-row")
+      .filter({ hasText: "replied to your comment" })
+      .getByRole("link")
+      .click()
+    await expect(page).toHaveURL(`/blog/${post.slug}#comment-${reply.id}`)
+
+    const target = page.locator(`#comment-${reply.id}`)
+    await expect(target).toContainText(`Linked reply ${id}`)
+    await expect(target).toHaveAttribute("data-highlight", "true")
+    await expect(target).toBeInViewport()
+  })
 })
