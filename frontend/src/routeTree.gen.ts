@@ -23,8 +23,11 @@ import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutModerationRouteImport } from './routes/_layout/moderation'
 import { Route as LayoutNotificationsRouteImport } from './routes/_layout/notifications'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutStoreRouteImport } from './routes/_layout/store'
 import { Route as LayoutContentIndexRouteImport } from './routes/_layout/content.index'
 import { Route as LayoutContentTaxonomyRouteImport } from './routes/_layout/content.taxonomy'
+import { Route as LayoutStoreIndexRouteImport } from './routes/_layout/store.index'
+import { Route as LayoutStoreCategoriesRouteImport } from './routes/_layout/store.categories'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 import { Route as PublicPSlugRouteImport } from './routes/_public.p.$slug'
@@ -33,6 +36,8 @@ import { Route as LayoutContentPagesIndexRouteImport } from './routes/_layout/co
 import { Route as LayoutContentPagesIdRouteImport } from './routes/_layout/content.pages.$id'
 import { Route as LayoutContentPostsIndexRouteImport } from './routes/_layout/content.posts.index'
 import { Route as LayoutContentPostsIdRouteImport } from './routes/_layout/content.posts.$id'
+import { Route as LayoutStoreProductsIndexRouteImport } from './routes/_layout/store.products.index'
+import { Route as LayoutStoreProductsIdRouteImport } from './routes/_layout/store.products.$id'
 import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public.blog.category.$slug'
 import { Route as PublicBlogTagSlugRouteImport } from './routes/_public.blog.tag.$slug'
 
@@ -104,6 +109,11 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutStoreRoute = LayoutStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutContentIndexRoute = LayoutContentIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -113,6 +123,16 @@ const LayoutContentTaxonomyRoute = LayoutContentTaxonomyRouteImport.update({
   id: '/taxonomy',
   path: '/taxonomy',
   getParentRoute: () => LayoutContentRoute,
+} as any)
+const LayoutStoreIndexRoute = LayoutStoreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LayoutStoreRoute,
+} as any)
+const LayoutStoreCategoriesRoute = LayoutStoreCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => LayoutStoreRoute,
 } as any)
 const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   id: '/blog/',
@@ -154,6 +174,17 @@ const LayoutContentPostsIdRoute = LayoutContentPostsIdRouteImport.update({
   path: '/posts/$id',
   getParentRoute: () => LayoutContentRoute,
 } as any)
+const LayoutStoreProductsIndexRoute =
+  LayoutStoreProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => LayoutStoreRoute,
+  } as any)
+const LayoutStoreProductsIdRoute = LayoutStoreProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
+  getParentRoute: () => LayoutStoreRoute,
+} as any)
 const PublicBlogCategorySlugRoute = PublicBlogCategorySlugRouteImport.update({
   id: '/blog/category/$slug',
   path: '/blog/category/$slug',
@@ -178,18 +209,23 @@ export interface FileRoutesByFullPath {
   '/moderation': typeof LayoutModerationRoute
   '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
+  '/store': typeof LayoutStoreRouteWithChildren
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/store/categories': typeof LayoutStoreCategoriesRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
   '/u/$username': typeof PublicUUsernameRoute
   '/content/': typeof LayoutContentIndexRoute
+  '/store/': typeof LayoutStoreIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/content/pages/': typeof LayoutContentPagesIndexRoute
   '/content/posts/': typeof LayoutContentPostsIndexRoute
+  '/store/products/': typeof LayoutStoreProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
@@ -204,17 +240,21 @@ export interface FileRoutesByTo {
   '/notifications': typeof LayoutNotificationsRoute
   '/settings': typeof LayoutSettingsRoute
   '/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/store/categories': typeof LayoutStoreCategoriesRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
   '/u/$username': typeof PublicUUsernameRoute
   '/content': typeof LayoutContentIndexRoute
+  '/store': typeof LayoutStoreIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/content/pages': typeof LayoutContentPagesIndexRoute
   '/content/posts': typeof LayoutContentPostsIndexRoute
+  '/store/products': typeof LayoutStoreProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -231,19 +271,24 @@ export interface FileRoutesById {
   '/_layout/moderation': typeof LayoutModerationRoute
   '/_layout/notifications': typeof LayoutNotificationsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
+  '/_layout/store': typeof LayoutStoreRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/content/taxonomy': typeof LayoutContentTaxonomyRoute
+  '/_layout/store/categories': typeof LayoutStoreCategoriesRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/p/$slug': typeof PublicPSlugRoute
   '/_public/u/$username': typeof PublicUUsernameRoute
   '/_layout/content/': typeof LayoutContentIndexRoute
+  '/_layout/store/': typeof LayoutStoreIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_layout/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/_layout/content/posts/$id': typeof LayoutContentPostsIdRoute
+  '/_layout/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/_public/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/_public/blog/tag/$slug': typeof PublicBlogTagSlugRoute
   '/_layout/content/pages/': typeof LayoutContentPagesIndexRoute
   '/_layout/content/posts/': typeof LayoutContentPostsIndexRoute
+  '/_layout/store/products/': typeof LayoutStoreProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -260,18 +305,23 @@ export interface FileRouteTypes {
     | '/moderation'
     | '/notifications'
     | '/settings'
+    | '/store'
     | '/content/taxonomy'
+    | '/store/categories'
     | '/blog/$slug'
     | '/p/$slug'
     | '/u/$username'
     | '/content/'
+    | '/store/'
     | '/blog/'
     | '/content/pages/$id'
     | '/content/posts/$id'
+    | '/store/products/$id'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
     | '/content/pages/'
     | '/content/posts/'
+    | '/store/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -286,17 +336,21 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/settings'
     | '/content/taxonomy'
+    | '/store/categories'
     | '/blog/$slug'
     | '/p/$slug'
     | '/u/$username'
     | '/content'
+    | '/store'
     | '/blog'
     | '/content/pages/$id'
     | '/content/posts/$id'
+    | '/store/products/$id'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
     | '/content/pages'
     | '/content/posts'
+    | '/store/products'
   id:
     | '__root__'
     | '/_layout'
@@ -312,19 +366,24 @@ export interface FileRouteTypes {
     | '/_layout/moderation'
     | '/_layout/notifications'
     | '/_layout/settings'
+    | '/_layout/store'
     | '/_layout/'
     | '/_layout/content/taxonomy'
+    | '/_layout/store/categories'
     | '/_public/blog/$slug'
     | '/_public/p/$slug'
     | '/_public/u/$username'
     | '/_layout/content/'
+    | '/_layout/store/'
     | '/_public/blog/'
     | '/_layout/content/pages/$id'
     | '/_layout/content/posts/$id'
+    | '/_layout/store/products/$id'
     | '/_public/blog/category/$slug'
     | '/_public/blog/tag/$slug'
     | '/_layout/content/pages/'
     | '/_layout/content/posts/'
+    | '/_layout/store/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -436,6 +495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/store': {
+      id: '/_layout/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof LayoutStoreRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/content/': {
       id: '/_layout/content/'
       path: '/'
@@ -449,6 +515,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/content/taxonomy'
       preLoaderRoute: typeof LayoutContentTaxonomyRouteImport
       parentRoute: typeof LayoutContentRoute
+    }
+    '/_layout/store/': {
+      id: '/_layout/store/'
+      path: '/'
+      fullPath: '/store/'
+      preLoaderRoute: typeof LayoutStoreIndexRouteImport
+      parentRoute: typeof LayoutStoreRoute
+    }
+    '/_layout/store/categories': {
+      id: '/_layout/store/categories'
+      path: '/categories'
+      fullPath: '/store/categories'
+      preLoaderRoute: typeof LayoutStoreCategoriesRouteImport
+      parentRoute: typeof LayoutStoreRoute
     }
     '/_public/blog/': {
       id: '/_public/blog/'
@@ -506,6 +586,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutContentPostsIdRouteImport
       parentRoute: typeof LayoutContentRoute
     }
+    '/_layout/store/products/': {
+      id: '/_layout/store/products/'
+      path: '/products'
+      fullPath: '/store/products/'
+      preLoaderRoute: typeof LayoutStoreProductsIndexRouteImport
+      parentRoute: typeof LayoutStoreRoute
+    }
+    '/_layout/store/products/$id': {
+      id: '/_layout/store/products/$id'
+      path: '/products/$id'
+      fullPath: '/store/products/$id'
+      preLoaderRoute: typeof LayoutStoreProductsIdRouteImport
+      parentRoute: typeof LayoutStoreRoute
+    }
     '/_public/blog/category/$slug': {
       id: '/_public/blog/category/$slug'
       path: '/blog/category/$slug'
@@ -545,6 +639,24 @@ const LayoutContentRouteWithChildren = LayoutContentRoute._addFileChildren(
   LayoutContentRouteChildren,
 )
 
+interface LayoutStoreRouteChildren {
+  LayoutStoreCategoriesRoute: typeof LayoutStoreCategoriesRoute
+  LayoutStoreIndexRoute: typeof LayoutStoreIndexRoute
+  LayoutStoreProductsIdRoute: typeof LayoutStoreProductsIdRoute
+  LayoutStoreProductsIndexRoute: typeof LayoutStoreProductsIndexRoute
+}
+
+const LayoutStoreRouteChildren: LayoutStoreRouteChildren = {
+  LayoutStoreCategoriesRoute: LayoutStoreCategoriesRoute,
+  LayoutStoreIndexRoute: LayoutStoreIndexRoute,
+  LayoutStoreProductsIdRoute: LayoutStoreProductsIdRoute,
+  LayoutStoreProductsIndexRoute: LayoutStoreProductsIndexRoute,
+}
+
+const LayoutStoreRouteWithChildren = LayoutStoreRoute._addFileChildren(
+  LayoutStoreRouteChildren,
+)
+
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutContentRoute: typeof LayoutContentRouteWithChildren
@@ -553,6 +665,7 @@ interface LayoutRouteChildren {
   LayoutModerationRoute: typeof LayoutModerationRoute
   LayoutNotificationsRoute: typeof LayoutNotificationsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
+  LayoutStoreRoute: typeof LayoutStoreRouteWithChildren
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
@@ -564,6 +677,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutModerationRoute: LayoutModerationRoute,
   LayoutNotificationsRoute: LayoutNotificationsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
+  LayoutStoreRoute: LayoutStoreRouteWithChildren,
   LayoutIndexRoute: LayoutIndexRoute,
 }
 

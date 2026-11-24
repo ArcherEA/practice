@@ -53,6 +53,8 @@ jobs:
       # bucket must allow that origin (locally they are localhost:9000 / localhost:5173).
       S3_PUBLIC_ENDPOINT_URL: http://storage:8333
       STORAGE_CORS_ORIGIN: http://backend:8000
+      # commerce-admin.spec.ts needs two currencies (.env.example has only usd).
+      STORE_CURRENCIES: usd,eur
     strategy:
       matrix:
         shardIndex: [1, 2, 3, 4]

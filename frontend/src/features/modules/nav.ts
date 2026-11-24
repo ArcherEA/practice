@@ -5,6 +5,7 @@ import {
   FileText,
   type LucideIcon,
   ShieldCheck,
+  Store,
   UserCheck,
 } from "lucide-react"
 
@@ -30,6 +31,13 @@ export const moduleNavItems: ModuleNavItem[] = [
     icon: FileText,
     path: "/content",
     requiredRole: "editor",
+  },
+  {
+    module: "commerce",
+    title: "Store",
+    icon: Store,
+    path: "/store",
+    requiredRole: "admin",
   },
   {
     module: "community",
