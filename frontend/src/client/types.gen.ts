@@ -296,6 +296,22 @@ export type CommentsPublic = {
 export type ContentStatus = 'draft' | 'published';
 
 /**
+ * CurrencyInfo
+ */
+export type CurrencyInfo = {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Exponent
+     *
+     * Digits after the decimal point (jpy 0, usd 2)
+     */
+    exponent: number;
+};
+
+/**
  * DownloadUrl
  */
 export type DownloadUrl = {
@@ -648,6 +664,74 @@ export type NotificationsPublic = {
      * Count
      */
     count: number;
+};
+
+/**
+ * OptionCreate
+ */
+export type OptionCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Values
+     */
+    values: Array<string>;
+};
+
+/**
+ * OptionOffer
+ */
+export type OptionOffer = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Values
+     */
+    values: Array<string>;
+};
+
+/**
+ * OptionPublic
+ */
+export type OptionPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Position
+     */
+    position: number;
+    /**
+     * Values
+     */
+    values: Array<string>;
+};
+
+/**
+ * OptionUpdate
+ */
+export type OptionUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Values
+     */
+    values?: Array<string> | null;
+    /**
+     * Position
+     */
+    position?: number | null;
 };
 
 /**
@@ -1055,6 +1139,36 @@ export type PostsPublic = {
 };
 
 /**
+ * PriceAdmin
+ */
+export type PriceAdmin = {
+    /**
+     * Currency
+     */
+    currency: string;
+    /**
+     * Amount
+     */
+    amount: number;
+    /**
+     * Formatted
+     */
+    formatted: string;
+};
+
+/**
+ * PriceSet
+ */
+export type PriceSet = {
+    /**
+     * Amount
+     *
+     * Integer minor units (cents; yen for jpy)
+     */
+    amount: number;
+};
+
+/**
  * PrivateUserCreate
  */
 export type PrivateUserCreate = {
@@ -1074,6 +1188,405 @@ export type PrivateUserCreate = {
      * Is Verified
      */
     is_verified?: boolean;
+};
+
+/**
+ * ProductAdmin
+ */
+export type ProductAdmin = {
+    /**
+     * Id
+     */
+    id: string;
+    type: ProductType;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Title
+     */
+    title: string;
+    status: ProductStatus;
+    /**
+     * Description
+     */
+    description: {
+        [key: string]: unknown;
+    };
+    /**
+     * Category Id
+     */
+    category_id: string | null;
+    /**
+     * Image File Ids
+     */
+    image_file_ids: Array<string>;
+    /**
+     * Image Urls
+     */
+    image_urls: Array<string>;
+    /**
+     * Seo Title
+     */
+    seo_title: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Published At
+     */
+    published_at: string | null;
+    /**
+     * Options
+     */
+    options: Array<OptionPublic>;
+    /**
+     * Variants
+     */
+    variants: Array<VariantAdmin>;
+};
+
+/**
+ * ProductAdminSummary
+ */
+export type ProductAdminSummary = {
+    /**
+     * Id
+     */
+    id: string;
+    type: ProductType;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Title
+     */
+    title: string;
+    status: ProductStatus;
+    /**
+     * Category Id
+     */
+    category_id: string | null;
+    /**
+     * Image Url
+     */
+    image_url: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Published At
+     */
+    published_at: string | null;
+};
+
+/**
+ * ProductCategoriesPublic
+ */
+export type ProductCategoriesPublic = {
+    /**
+     * Data
+     */
+    data: Array<ProductCategoryPublic>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
+ * ProductCategoryCreate
+ */
+export type ProductCategoryCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     *
+     * Optional; generated from the name when omitted
+     */
+    slug?: string | null;
+    /**
+     * Position
+     */
+    position?: number;
+};
+
+/**
+ * ProductCategoryPublic
+ */
+export type ProductCategoryPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Position
+     */
+    position: number;
+};
+
+/**
+ * ProductCategoryUpdate
+ */
+export type ProductCategoryUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Position
+     */
+    position?: number | null;
+};
+
+/**
+ * ProductCreate
+ */
+export type ProductCreate = {
+    type: ProductType;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Slug
+     *
+     * Optional; generated from the title when omitted
+     */
+    slug?: string | null;
+    /**
+     * Description
+     *
+     * Tiptap JSON document (same allow-list as posts)
+     */
+    description?: {
+        [key: string]: unknown;
+    };
+    /**
+     * Category Id
+     */
+    category_id?: string | null;
+    /**
+     * Image File Ids
+     *
+     * Ordered ready, public image files; the first is the main image
+     */
+    image_file_ids?: Array<string>;
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * ProductDetail
+ */
+export type ProductDetail = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Title
+     */
+    title: string;
+    type: ProductType;
+    /**
+     * Description
+     */
+    description: {
+        [key: string]: unknown;
+    };
+    category: ProductCategoryPublic | null;
+    /**
+     * Image Urls
+     */
+    image_urls: Array<string>;
+    /**
+     * Seo Title
+     */
+    seo_title: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description: string | null;
+    /**
+     * Published At
+     */
+    published_at: string | null;
+    /**
+     * Currency
+     */
+    currency: string;
+    /**
+     * Options
+     */
+    options: Array<OptionOffer>;
+    /**
+     * Variants
+     */
+    variants: Array<VariantOffer>;
+    /**
+     * Slots
+     */
+    slots: Array<SlotPublic>;
+    /**
+     * Store Timezone
+     */
+    store_timezone: string;
+};
+
+/**
+ * ProductListItem
+ */
+export type ProductListItem = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Title
+     */
+    title: string;
+    type: ProductType;
+    category: ProductCategoryPublic | null;
+    /**
+     * Image Url
+     */
+    image_url: string | null;
+    /**
+     * Currency
+     */
+    currency: string;
+    /**
+     * From Price
+     *
+     * Lowest price of the sellable variants in `currency` (minor units)
+     */
+    from_price: number | null;
+    /**
+     * Available
+     */
+    available: boolean;
+};
+
+/**
+ * ProductStatus
+ */
+export type ProductStatus = 'draft' | 'published' | 'archived';
+
+/**
+ * ProductType
+ */
+export type ProductType = 'digital' | 'physical' | 'service';
+
+/**
+ * ProductUpdate
+ *
+ * Send only what changes; send `null` to clear category / SEO fields. The type is fixed.
+ */
+export type ProductUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
+     * Description
+     */
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Category Id
+     */
+    category_id?: string | null;
+    /**
+     * Image File Ids
+     */
+    image_file_ids?: Array<string> | null;
+    /**
+     * Seo Title
+     */
+    seo_title?: string | null;
+    /**
+     * Seo Description
+     */
+    seo_description?: string | null;
+};
+
+/**
+ * ProductsAdminSummary
+ */
+export type ProductsAdminSummary = {
+    /**
+     * Data
+     */
+    data: Array<ProductAdminSummary>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
+ * ProductsPublic
+ */
+export type ProductsPublic = {
+    /**
+     * Data
+     */
+    data: Array<ProductListItem>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -1232,6 +1745,120 @@ export type ReportPublic = {
 export type ReportReason = 'spam' | 'abuse' | 'other';
 
 /**
+ * SlotAdmin
+ */
+export type SlotAdmin = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Product Id
+     */
+    product_id: string;
+    /**
+     * Starts At
+     */
+    starts_at: string;
+    /**
+     * Ends At
+     */
+    ends_at: string;
+    /**
+     * Capacity
+     */
+    capacity: number;
+    /**
+     * Is Active
+     */
+    is_active: boolean;
+};
+
+/**
+ * SlotCreate
+ */
+export type SlotCreate = {
+    /**
+     * Starts At
+     */
+    starts_at: string;
+    /**
+     * Ends At
+     */
+    ends_at: string;
+    /**
+     * Capacity
+     */
+    capacity: number;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+};
+
+/**
+ * SlotPublic
+ */
+export type SlotPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Starts At
+     */
+    starts_at: string;
+    /**
+     * Ends At
+     */
+    ends_at: string;
+    /**
+     * Capacity
+     */
+    capacity: number;
+    /**
+     * Remaining
+     */
+    remaining: number;
+};
+
+/**
+ * SlotUpdate
+ */
+export type SlotUpdate = {
+    /**
+     * Starts At
+     */
+    starts_at?: string | null;
+    /**
+     * Ends At
+     */
+    ends_at?: string | null;
+    /**
+     * Capacity
+     */
+    capacity?: number | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+};
+
+/**
+ * SlotsAdmin
+ */
+export type SlotsAdmin = {
+    /**
+     * Data
+     */
+    data: Array<SlotAdmin>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * StorageUsage
  */
 export type StorageUsage = {
@@ -1251,6 +1878,24 @@ export type StorageUsage = {
      * Top Users
      */
     top_users: Array<UserUsage>;
+};
+
+/**
+ * StoreConfig
+ */
+export type StoreConfig = {
+    /**
+     * Currencies
+     */
+    currencies: Array<CurrencyInfo>;
+    /**
+     * Default Currency
+     */
+    default_currency: string;
+    /**
+     * Timezone
+     */
+    timezone: string;
 };
 
 /**
@@ -1710,6 +2355,193 @@ export type ValidationError = {
     ctx?: {
         [key: string]: unknown;
     };
+};
+
+/**
+ * VariantAdmin
+ */
+export type VariantAdmin = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Product Id
+     */
+    product_id: string;
+    /**
+     * Sku
+     */
+    sku: string;
+    /**
+     * Option Values
+     */
+    option_values: {
+        [key: string]: string;
+    };
+    /**
+     * Stock
+     */
+    stock: number | null;
+    file: VariantFile | null;
+    /**
+     * Is Active
+     */
+    is_active: boolean;
+    /**
+     * Position
+     */
+    position: number;
+    /**
+     * Prices
+     */
+    prices: Array<PriceAdmin>;
+};
+
+/**
+ * VariantCreate
+ */
+export type VariantCreate = {
+    /**
+     * Sku
+     */
+    sku: string;
+    /**
+     * Option Values
+     *
+     * One value per product option, e.g. {"Size": "M"}
+     */
+    option_values?: {
+        [key: string]: string;
+    };
+    /**
+     * Stock
+     *
+     * Physical: units in stock (required to publish). Empty = unlimited
+     */
+    stock?: number | null;
+    /**
+     * File Id
+     *
+     * Digital products: the private file to deliver
+     */
+    file_id?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Position
+     */
+    position?: number | null;
+    /**
+     * Prices
+     *
+     * Optional prices by currency code, in minor units
+     */
+    prices?: {
+        [key: string]: number;
+    };
+};
+
+/**
+ * VariantFile
+ */
+export type VariantFile = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Filename
+     */
+    filename: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Size
+     */
+    size: number;
+};
+
+/**
+ * VariantOffer
+ */
+export type VariantOffer = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sku
+     */
+    sku: string;
+    /**
+     * Option Values
+     */
+    option_values: {
+        [key: string]: string;
+    };
+    /**
+     * Currency
+     */
+    currency: string;
+    /**
+     * Price
+     *
+     * None when there is no price in `currency`
+     */
+    price: number | null;
+    /**
+     * Available
+     *
+     * Has a price in `currency` and is in stock
+     */
+    available: boolean;
+    /**
+     * In Stock
+     */
+    in_stock: boolean;
+    /**
+     * Stock
+     *
+     * Units left (physical products only)
+     */
+    stock: number | null;
+};
+
+/**
+ * VariantUpdate
+ */
+export type VariantUpdate = {
+    /**
+     * Sku
+     */
+    sku?: string | null;
+    /**
+     * Option Values
+     */
+    option_values?: {
+        [key: string]: string;
+    } | null;
+    /**
+     * Stock
+     */
+    stock?: number | null;
+    /**
+     * File Id
+     */
+    file_id?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+    /**
+     * Position
+     */
+    position?: number | null;
 };
 
 export type loginLoginAccessTokenData = {
@@ -4283,6 +5115,906 @@ export type communityEndSuspensionResponses = {
 };
 
 export type communityEndSuspensionResponse = communityEndSuspensionResponses[keyof communityEndSuspensionResponses];
+
+export type commerceAdminCreateProductFileUploadData = {
+    body: FileCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/admin/files';
+};
+
+export type commerceAdminCreateProductFileUploadErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateProductFileUploadError = commerceAdminCreateProductFileUploadErrors[keyof commerceAdminCreateProductFileUploadErrors];
+
+export type commerceAdminCreateProductFileUploadResponses = {
+    /**
+     * Successful Response
+     */
+    200: UploadTicket;
+};
+
+export type commerceAdminCreateProductFileUploadResponse = commerceAdminCreateProductFileUploadResponses[keyof commerceAdminCreateProductFileUploadResponses];
+
+export type commerceAdminConfirmProductFileUploadData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/files/{file_id}/confirm';
+};
+
+export type commerceAdminConfirmProductFileUploadErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminConfirmProductFileUploadError = commerceAdminConfirmProductFileUploadErrors[keyof commerceAdminConfirmProductFileUploadErrors];
+
+export type commerceAdminConfirmProductFileUploadResponses = {
+    /**
+     * Successful Response
+     */
+    200: FilePublic;
+};
+
+export type commerceAdminConfirmProductFileUploadResponse = commerceAdminConfirmProductFileUploadResponses[keyof commerceAdminConfirmProductFileUploadResponses];
+
+export type commerceAdminReadCategoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/admin/categories';
+};
+
+export type commerceAdminReadCategoriesResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductCategoriesPublic;
+};
+
+export type commerceAdminReadCategoriesResponse = commerceAdminReadCategoriesResponses[keyof commerceAdminReadCategoriesResponses];
+
+export type commerceAdminCreateCategoryData = {
+    body: ProductCategoryCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/admin/categories';
+};
+
+export type commerceAdminCreateCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateCategoryError = commerceAdminCreateCategoryErrors[keyof commerceAdminCreateCategoryErrors];
+
+export type commerceAdminCreateCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductCategoryPublic;
+};
+
+export type commerceAdminCreateCategoryResponse = commerceAdminCreateCategoryResponses[keyof commerceAdminCreateCategoryResponses];
+
+export type commerceAdminDeleteCategoryData = {
+    body?: never;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/categories/{category_id}';
+};
+
+export type commerceAdminDeleteCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeleteCategoryError = commerceAdminDeleteCategoryErrors[keyof commerceAdminDeleteCategoryErrors];
+
+export type commerceAdminDeleteCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeleteCategoryResponse = commerceAdminDeleteCategoryResponses[keyof commerceAdminDeleteCategoryResponses];
+
+export type commerceAdminUpdateCategoryData = {
+    body: ProductCategoryUpdate;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/categories/{category_id}';
+};
+
+export type commerceAdminUpdateCategoryErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUpdateCategoryError = commerceAdminUpdateCategoryErrors[keyof commerceAdminUpdateCategoryErrors];
+
+export type commerceAdminUpdateCategoryResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductCategoryPublic;
+};
+
+export type commerceAdminUpdateCategoryResponse = commerceAdminUpdateCategoryResponses[keyof commerceAdminUpdateCategoryResponses];
+
+export type commerceAdminReadProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Status
+         */
+        status?: ProductStatus | null;
+        /**
+         * Type
+         */
+        type?: ProductType | null;
+        /**
+         * Category Id
+         */
+        category_id?: string | null;
+        /**
+         * Q
+         *
+         * Title contains
+         */
+        q?: string | null;
+    };
+    url: '/api/v1/commerce/admin/products';
+};
+
+export type commerceAdminReadProductsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminReadProductsError = commerceAdminReadProductsErrors[keyof commerceAdminReadProductsErrors];
+
+export type commerceAdminReadProductsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductsAdminSummary;
+};
+
+export type commerceAdminReadProductsResponse = commerceAdminReadProductsResponses[keyof commerceAdminReadProductsResponses];
+
+export type commerceAdminCreateProductData = {
+    body: ProductCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/admin/products';
+};
+
+export type commerceAdminCreateProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateProductError = commerceAdminCreateProductErrors[keyof commerceAdminCreateProductErrors];
+
+export type commerceAdminCreateProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminCreateProductResponse = commerceAdminCreateProductResponses[keyof commerceAdminCreateProductResponses];
+
+export type commerceAdminDeleteProductData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}';
+};
+
+export type commerceAdminDeleteProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeleteProductError = commerceAdminDeleteProductErrors[keyof commerceAdminDeleteProductErrors];
+
+export type commerceAdminDeleteProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeleteProductResponse = commerceAdminDeleteProductResponses[keyof commerceAdminDeleteProductResponses];
+
+export type commerceAdminReadProductData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}';
+};
+
+export type commerceAdminReadProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminReadProductError = commerceAdminReadProductErrors[keyof commerceAdminReadProductErrors];
+
+export type commerceAdminReadProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminReadProductResponse = commerceAdminReadProductResponses[keyof commerceAdminReadProductResponses];
+
+export type commerceAdminUpdateProductData = {
+    body: ProductUpdate;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}';
+};
+
+export type commerceAdminUpdateProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUpdateProductError = commerceAdminUpdateProductErrors[keyof commerceAdminUpdateProductErrors];
+
+export type commerceAdminUpdateProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminUpdateProductResponse = commerceAdminUpdateProductResponses[keyof commerceAdminUpdateProductResponses];
+
+export type commerceAdminPublishProductData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/publish';
+};
+
+export type commerceAdminPublishProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminPublishProductError = commerceAdminPublishProductErrors[keyof commerceAdminPublishProductErrors];
+
+export type commerceAdminPublishProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminPublishProductResponse = commerceAdminPublishProductResponses[keyof commerceAdminPublishProductResponses];
+
+export type commerceAdminUnpublishProductData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/unpublish';
+};
+
+export type commerceAdminUnpublishProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUnpublishProductError = commerceAdminUnpublishProductErrors[keyof commerceAdminUnpublishProductErrors];
+
+export type commerceAdminUnpublishProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminUnpublishProductResponse = commerceAdminUnpublishProductResponses[keyof commerceAdminUnpublishProductResponses];
+
+export type commerceAdminArchiveProductData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/archive';
+};
+
+export type commerceAdminArchiveProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminArchiveProductError = commerceAdminArchiveProductErrors[keyof commerceAdminArchiveProductErrors];
+
+export type commerceAdminArchiveProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductAdmin;
+};
+
+export type commerceAdminArchiveProductResponse = commerceAdminArchiveProductResponses[keyof commerceAdminArchiveProductResponses];
+
+export type commerceAdminCreateOptionData = {
+    body: OptionCreate;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/options';
+};
+
+export type commerceAdminCreateOptionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateOptionError = commerceAdminCreateOptionErrors[keyof commerceAdminCreateOptionErrors];
+
+export type commerceAdminCreateOptionResponses = {
+    /**
+     * Successful Response
+     */
+    200: OptionPublic;
+};
+
+export type commerceAdminCreateOptionResponse = commerceAdminCreateOptionResponses[keyof commerceAdminCreateOptionResponses];
+
+export type commerceAdminDeleteOptionData = {
+    body?: never;
+    path: {
+        /**
+         * Option Id
+         */
+        option_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/options/{option_id}';
+};
+
+export type commerceAdminDeleteOptionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeleteOptionError = commerceAdminDeleteOptionErrors[keyof commerceAdminDeleteOptionErrors];
+
+export type commerceAdminDeleteOptionResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeleteOptionResponse = commerceAdminDeleteOptionResponses[keyof commerceAdminDeleteOptionResponses];
+
+export type commerceAdminUpdateOptionData = {
+    body: OptionUpdate;
+    path: {
+        /**
+         * Option Id
+         */
+        option_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/options/{option_id}';
+};
+
+export type commerceAdminUpdateOptionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUpdateOptionError = commerceAdminUpdateOptionErrors[keyof commerceAdminUpdateOptionErrors];
+
+export type commerceAdminUpdateOptionResponses = {
+    /**
+     * Successful Response
+     */
+    200: OptionPublic;
+};
+
+export type commerceAdminUpdateOptionResponse = commerceAdminUpdateOptionResponses[keyof commerceAdminUpdateOptionResponses];
+
+export type commerceAdminCreateVariantData = {
+    body: VariantCreate;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/variants';
+};
+
+export type commerceAdminCreateVariantErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateVariantError = commerceAdminCreateVariantErrors[keyof commerceAdminCreateVariantErrors];
+
+export type commerceAdminCreateVariantResponses = {
+    /**
+     * Successful Response
+     */
+    200: VariantAdmin;
+};
+
+export type commerceAdminCreateVariantResponse = commerceAdminCreateVariantResponses[keyof commerceAdminCreateVariantResponses];
+
+export type commerceAdminDeleteVariantData = {
+    body?: never;
+    path: {
+        /**
+         * Variant Id
+         */
+        variant_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/variants/{variant_id}';
+};
+
+export type commerceAdminDeleteVariantErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeleteVariantError = commerceAdminDeleteVariantErrors[keyof commerceAdminDeleteVariantErrors];
+
+export type commerceAdminDeleteVariantResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeleteVariantResponse = commerceAdminDeleteVariantResponses[keyof commerceAdminDeleteVariantResponses];
+
+export type commerceAdminUpdateVariantData = {
+    body: VariantUpdate;
+    path: {
+        /**
+         * Variant Id
+         */
+        variant_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/variants/{variant_id}';
+};
+
+export type commerceAdminUpdateVariantErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUpdateVariantError = commerceAdminUpdateVariantErrors[keyof commerceAdminUpdateVariantErrors];
+
+export type commerceAdminUpdateVariantResponses = {
+    /**
+     * Successful Response
+     */
+    200: VariantAdmin;
+};
+
+export type commerceAdminUpdateVariantResponse = commerceAdminUpdateVariantResponses[keyof commerceAdminUpdateVariantResponses];
+
+export type commerceAdminDeletePriceData = {
+    body?: never;
+    path: {
+        /**
+         * Variant Id
+         */
+        variant_id: string;
+        /**
+         * Currency
+         */
+        currency: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/variants/{variant_id}/prices/{currency}';
+};
+
+export type commerceAdminDeletePriceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeletePriceError = commerceAdminDeletePriceErrors[keyof commerceAdminDeletePriceErrors];
+
+export type commerceAdminDeletePriceResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeletePriceResponse = commerceAdminDeletePriceResponses[keyof commerceAdminDeletePriceResponses];
+
+export type commerceAdminSetPriceData = {
+    body: PriceSet;
+    path: {
+        /**
+         * Variant Id
+         */
+        variant_id: string;
+        /**
+         * Currency
+         */
+        currency: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/variants/{variant_id}/prices/{currency}';
+};
+
+export type commerceAdminSetPriceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminSetPriceError = commerceAdminSetPriceErrors[keyof commerceAdminSetPriceErrors];
+
+export type commerceAdminSetPriceResponses = {
+    /**
+     * Successful Response
+     */
+    200: PriceAdmin;
+};
+
+export type commerceAdminSetPriceResponse = commerceAdminSetPriceResponses[keyof commerceAdminSetPriceResponses];
+
+export type commerceAdminReadSlotsData = {
+    body?: never;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/slots';
+};
+
+export type commerceAdminReadSlotsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminReadSlotsError = commerceAdminReadSlotsErrors[keyof commerceAdminReadSlotsErrors];
+
+export type commerceAdminReadSlotsResponses = {
+    /**
+     * Successful Response
+     */
+    200: SlotsAdmin;
+};
+
+export type commerceAdminReadSlotsResponse = commerceAdminReadSlotsResponses[keyof commerceAdminReadSlotsResponses];
+
+export type commerceAdminCreateSlotData = {
+    body: SlotCreate;
+    path: {
+        /**
+         * Product Id
+         */
+        product_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/products/{product_id}/slots';
+};
+
+export type commerceAdminCreateSlotErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminCreateSlotError = commerceAdminCreateSlotErrors[keyof commerceAdminCreateSlotErrors];
+
+export type commerceAdminCreateSlotResponses = {
+    /**
+     * Successful Response
+     */
+    200: SlotAdmin;
+};
+
+export type commerceAdminCreateSlotResponse = commerceAdminCreateSlotResponses[keyof commerceAdminCreateSlotResponses];
+
+export type commerceAdminDeleteSlotData = {
+    body?: never;
+    path: {
+        /**
+         * Slot Id
+         */
+        slot_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/slots/{slot_id}';
+};
+
+export type commerceAdminDeleteSlotErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminDeleteSlotError = commerceAdminDeleteSlotErrors[keyof commerceAdminDeleteSlotErrors];
+
+export type commerceAdminDeleteSlotResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type commerceAdminDeleteSlotResponse = commerceAdminDeleteSlotResponses[keyof commerceAdminDeleteSlotResponses];
+
+export type commerceAdminUpdateSlotData = {
+    body: SlotUpdate;
+    path: {
+        /**
+         * Slot Id
+         */
+        slot_id: string;
+    };
+    query?: never;
+    url: '/api/v1/commerce/admin/slots/{slot_id}';
+};
+
+export type commerceAdminUpdateSlotErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceAdminUpdateSlotError = commerceAdminUpdateSlotErrors[keyof commerceAdminUpdateSlotErrors];
+
+export type commerceAdminUpdateSlotResponses = {
+    /**
+     * Successful Response
+     */
+    200: SlotAdmin;
+};
+
+export type commerceAdminUpdateSlotResponse = commerceAdminUpdateSlotResponses[keyof commerceAdminUpdateSlotResponses];
+
+export type commerceReadStoreConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/config';
+};
+
+export type commerceReadStoreConfigResponses = {
+    /**
+     * Successful Response
+     */
+    200: StoreConfig;
+};
+
+export type commerceReadStoreConfigResponse = commerceReadStoreConfigResponses[keyof commerceReadStoreConfigResponses];
+
+export type commerceReadCategoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/commerce/categories';
+};
+
+export type commerceReadCategoriesResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductCategoriesPublic;
+};
+
+export type commerceReadCategoriesResponse = commerceReadCategoriesResponses[keyof commerceReadCategoriesResponses];
+
+export type commerceReadPublishedProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+        /**
+         * Category
+         *
+         * Category slug
+         */
+        category?: string | null;
+        /**
+         * Type
+         */
+        type?: ProductType | null;
+        /**
+         * Currency
+         *
+         * Currency code from the store's list; default: store default
+         */
+        currency?: string | null;
+    };
+    url: '/api/v1/commerce/products';
+};
+
+export type commerceReadPublishedProductsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceReadPublishedProductsError = commerceReadPublishedProductsErrors[keyof commerceReadPublishedProductsErrors];
+
+export type commerceReadPublishedProductsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductsPublic;
+};
+
+export type commerceReadPublishedProductsResponse = commerceReadPublishedProductsResponses[keyof commerceReadPublishedProductsResponses];
+
+export type commerceReadPublishedProductData = {
+    body?: never;
+    path: {
+        /**
+         * Slug
+         */
+        slug: string;
+    };
+    query?: {
+        /**
+         * Currency
+         *
+         * Currency code from the store's list; default: store default
+         */
+        currency?: string | null;
+    };
+    url: '/api/v1/commerce/products/{slug}';
+};
+
+export type commerceReadPublishedProductErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type commerceReadPublishedProductError = commerceReadPublishedProductErrors[keyof commerceReadPublishedProductErrors];
+
+export type commerceReadPublishedProductResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProductDetail;
+};
+
+export type commerceReadPublishedProductResponse = commerceReadPublishedProductResponses[keyof commerceReadPublishedProductResponses];
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

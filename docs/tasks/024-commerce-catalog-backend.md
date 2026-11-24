@@ -1,6 +1,6 @@
 # 024 — Commerce: catalog backend (products, variants, prices, stock, slots)
 
-**Status:** approved 2026-11-23 · **Agent:** backend-engineer · **Branch:** `feat/024-commerce-catalog` · **Needs:** —
+**Status:** implemented 2026-11-23 (approved 2026-11-23) · **Agent:** backend-engineer · **Branch:** `feat/024-commerce-catalog` · **Needs:** —
 
 ## Decisions (agreed with the user, 2026-11-23 — see DECISIONS D20/D21)
 | Topic | Decision |
@@ -57,3 +57,21 @@ UI (025/026), cart/checkout/orders (027), fulfilment and emails (028), tax, disc
 
 ## New dependencies
 None.
+
+## Implementation notes (2026-11-23)
+Full description: `docs/ARCHITECTURE.md`, section "Commerce module". Choices made while building it:
+- **Refactors:** the Tiptap validator moved to `app/core/richtext.py` and the slug helpers to `app/core/slugs.py` (content
+  imports them; its tests moved to `tests/test_richtext.py` / `tests/test_slugs.py`, only imports changed). The "ready, public
+  image" check moved to `core/files.check_public_image_files`, used by content and commerce.
+- **Upload cap:** a separate admin endpoint (`/commerce/admin/files` + `/confirm`) instead of a flag on `/files`, so the member
+  flow is untouched. `core/files.create_upload/confirm_upload` got optional `max_bytes` and `enforce_user_limits`.
+- **File protection:** `RESTRICT` foreign key plus a guard registry in the core files service -> 409 when deleting a file or a
+  user (also `/users/me`) that owns an in-use product file. Files are released (row and object) when the variant, its file or a
+  draft product is deleted and no other variant uses them. Product images are not protected (a deleted image just disappears).
+- A variant's file must be private, ready and owned by an admin/superuser (stops attaching a member's private file).
+- Product `type` cannot change after creation. Options are locked while variants exist; a product without options has one
+  variant. Product images stay in a JSONB id list (no join table).
+- Published products re-check the publishing rules on every variant/price change (422, rolled back).
+- Amounts are capped at 99,999,999 minor units (Stripe's limit). `remaining` of a slot equals `capacity` until task 027.
+- Migration `ebb479ab376c` (revises `bddc69df7d01`) creates the six tables; autogenerate needed no manual fix. Apply it to
+  **Neon before merging** (`docs/DATABASE.md` section 4).

@@ -1,6 +1,6 @@
 import pytest
 
-from app.modules.content.slugs import (
+from app.core.slugs import (
     MAX_SLUG_LENGTH,
     base_slug,
     random_slug,
