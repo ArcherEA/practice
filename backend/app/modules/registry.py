@@ -1,6 +1,7 @@
 """Explicit registry of available modules (no auto-discovery)."""
 
 from app.modules import Module
+from app.modules.commerce.routes import router as commerce_router
 from app.modules.community.public_routes import router as community_public_router
 from app.modules.community.routes import router as community_router
 from app.modules.content.public_routes import router as content_public_router
@@ -14,6 +15,7 @@ MODULES: dict[str, Module] = {
         Module(
             name="content", router=content_router, public_router=content_public_router
         ),
+        Module(name="commerce", router=commerce_router),
         Module(
             name="community",
             router=community_router,
