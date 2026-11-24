@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
-from app.modules.content.body import JsonDict, empty_body
+from app.core.richtext import JsonDict, empty_body
 from app.modules.content.models import ContentStatus
 
 # --- categories and tags ---

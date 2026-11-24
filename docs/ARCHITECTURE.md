@@ -50,6 +50,14 @@ sets CORS for `FRONTEND_HOST`.
 
 Only JPEG, PNG, WebP and GIF are served inline; every other type gets `Content-Disposition: attachment` in the signed GET.
 Only those image types may be `public` (served from `S3_PUBLIC_BASE_URL` when set) or used as an avatar.
+**Caching (task 021):** objects never change (unique keys), so every signed GET carries a signed query parameter
+`response-cache-control` (no request header, so bucket CORS and `presign_upload` are untouched): `private, max-age=<DOWNLOAD_URL_EXPIRE_SECONDS>, immutable`
+for private files and downloads, `public, ...` for public images. `GET /files/{id}/content` answers `Cache-Control: public, max-age=N`:
+N = lifetime minus a margin (a quarter, 1 s to 10 min; default 3600 -> 3000 s) when it redirects to a signed URL, so a cached
+redirect never points at an expired URL; 86400 when `S3_PUBLIC_BASE_URL` is set (unsigned, permanent URL). 404/503 send `max-age=0`.
+Stale window: after a public image is deleted or made private, browsers that already hold the redirect keep showing it for up to N
+(about 50 min, worst case about 2x the lifetime with the image copy itself; a day with `S3_PUBLIC_BASE_URL`, which is public anyway).
+URLs inside API responses (`avatar_url`, file lists) are freshly signed per request, so only the stable `/content` URL is reused.
 Limits and R2 free-tier guidance: `docs/deploy-vercel.md`. Usage report: `GET /api/v1/files/usage` (admin or superuser).
 
 **Cleanup command** (no scheduler): pending uploads older than 24 hours (object and row) are removed with
@@ -96,7 +104,7 @@ Database operations (migrations, Neon, backups, recovery): see `docs/DATABASE.md
 
 ## Content module (task 009)
 Enable with `MODULES=items,content`. Code: `app/modules/content/` (`models.py` tables, `schemas.py` API models,
-`body.py` + `slugs.py` pure functions, `service.py`, `routes.py`). Routes live under `/api/v1/content`.
+`service.py`, `routes.py`; the pure helpers `richtext.py` (body allow-list) and `slugs.py` live in `app/core/`, so other modules reuse them). Routes live under `/api/v1/content`.
 
 **Data model** (tables always exist; one migration):
 `post` (title, unique `slug`, excerpt, `body` JSONB, `cover_file_id` -> file SET NULL, `category_id` -> category SET NULL,
@@ -105,7 +113,7 @@ Enable with `MODULES=items,content`. Code: `app/modules/content/` (`models.py` t
 `tag` (name, unique slug), `post_tag` (post_id, tag_id, both ON DELETE CASCADE). Publishing sets `published_at` on the
 first publish only; unpublishing returns to draft and keeps the date. Deleting posts/pages never deletes image files.
 
-**Body format:** Tiptap/ProseMirror JSON (`{"type":"doc","content":[...]}`), never HTML (D15). `body.sanitize_body` runs
+**Body format:** (`app/core/richtext.py`) Tiptap/ProseMirror JSON (`{"type":"doc","content":[...]}`), never HTML (D15). `richtext.sanitize_body` runs
 on every save and rejects anything not on the allow-list: nodes `paragraph`, `heading` (level 1-3), `bulletList`,
 `orderedList`, `listItem`, `blockquote`, `codeBlock`, `horizontalRule`, `hardBreak`, `image`, `text`; marks `bold`, `italic`,
 `strike`, `code`, `link`. Unknown node/mark types, unknown fields or attributes, misplaced children, nesting deeper than 24
@@ -122,7 +130,7 @@ signed URL for public, ready, inline-image files and returns 404 otherwise, so t
 **Permissions:** reading published content is public. Everything under `/content/manage` needs `require_role(UserRole.editor)`:
 editor, admin and superuser pass; moderator and member get 403. Drafts are only returned by `/manage` routes.
 
-**Slugs:** `slugs.py` lowercases to ASCII (accents folded), turns other characters into single hyphens, trims, max 80
+**Slugs:** `app/core/slugs.py` lowercases to ASCII (accents folded), turns other characters into single hyphens, trims, max 80
 characters; nothing left (e.g. a Chinese title) -> 8 random hex characters; clashes get `-2`, `-3`... per table. A slug
 sent by the client goes through the same function. Renaming a title does not change the slug.
 
@@ -283,6 +291,73 @@ the once-per-30-days rule, enforced by the API) and Bio when `community` is enab
 `seo.py`), mounted only when `community` is enabled. Title "Name (@username)", description = bio (or "Name on <site>"),
 canonical + Open Graph via the content `PageMeta`/`render_html`. Unknown or inactive users get the plain SPA index (no
 profile data leaks; the SPA shows its own not-found page). Profiles are **not** in `sitemap.xml` (privacy).
+
+## Commerce module (task 024)
+Enable with `MODULES=items,commerce` (no dependency on other modules). Product decisions: D20 (what we sell, currencies,
+bookings), D21 (Stripe, task 027). Code: `app/modules/commerce/` (`models.py`, `schemas.py`, `money.py`, `service.py`,
+`routes.py` public, `admin_routes.py`); routes under `/api/v1/commerce` (public) and `/api/v1/commerce/admin` (admin).
+Checkout, orders and emails come in tasks 027/028; this task is the catalog only.
+
+**Data model** (tables always exist; one migration; plain VARCHAR enums; money as **integer minor units**):
+| Table | Columns / notes |
+|---|---|
+| `product_category` | `name`, unique `slug`, `position` |
+| `product` | `type` digital, physical or service (fixed after creation), unique `slug`, `title`, `description` JSONB (Tiptap, D15), `status` draft, published or archived, `category_id` -> SET NULL, `image_file_ids` JSONB (ordered ids of public images, max 10), `seo_title/description`, `created_at`, `updated_at`, `published_at` (first publish only) |
+| `product_option` | `product_id` CASCADE, `name`, `position`, `values` JSONB; unique (`product_id`, `name`); at most 3 per product |
+| `product_variant` | `product_id` CASCADE, unique `sku` (stored upper-case, `A-Z0-9._-`), `option_values` JSONB (`{"Size": "M"}`), `options_key` (canonical form; unique per product), `stock` (null = unlimited; check >= 0), `file_id` -> `file` **RESTRICT**, `is_active`, `position` |
+| `variant_price` | (`variant_id` CASCADE, `currency`) primary key, `amount` BIGINT > 0. A variant is sold in a currency only if it has a row |
+| `service_slot` | `product_id` CASCADE, `starts_at`/`ends_at` (timestamptz, UTC), `capacity` >= 1, `is_active`; unique (`product_id`, `starts_at`, `ends_at`); check end > start |
+
+**Money** (`money.py`): amounts are integers in the currency's minor unit (cents; whole yen). Stripe's zero-decimal list
+(`jpy`, `krw`, ...) and three-decimal list (`kwd`, ...) are hard-coded; `format_amount` gives `19.99 USD` / `1,500 JPY` for
+emails. Max amount per price is 99,999,999 (Stripe's limit). No conversion between currencies: the admin sets a price per
+currency. Settings (all validated at startup, `.env.example`, `compose.yml`): `STORE_CURRENCIES` (comma-separated lower-case
+3-letter codes, default `usd`), `STORE_DEFAULT_CURRENCY` (must be in the list; empty = first), `STORE_TIMEZONE` (IANA name,
+default `UTC`; slots are stored in UTC and the API returns `store_timezone` so the UI can show them), `PRODUCT_FILE_MAX_BYTES`
+(default 100 MiB).
+
+**Variants and options:** a product with no options has exactly one variant (`option_values` = `{}`); otherwise every
+variant has exactly one allowed value per option and each combination exists once. While variants exist, options cannot be
+added, renamed or deleted and values still in use cannot be removed (422); values can always be added.
+
+**Publishing rules** (`POST .../publish`, 422 with all reasons): at least one active variant; every active variant has a price;
+digital variants have a file; physical variants have a stock number (0 is allowed = sold out). On a *published* product the
+same rules are re-checked after every variant/price change and a change that would break them is refused and rolled back
+("unpublish first"). Only draft/archived products can be deleted (409 otherwise). Services need no slot to be published; with
+no upcoming slot they show as unavailable.
+
+**Admin API** (`require_role(admin)`; superuser passes, editor/moderator/member 403, anonymous 401):
+categories CRUD; `GET/POST /products`, `GET/PATCH/DELETE /products/{id}`, `POST /products/{id}/publish|unpublish|archive`;
+`POST /products/{id}/options`, `PATCH/DELETE /options/{id}`; `POST /products/{id}/variants` (optional inline `prices`),
+`PATCH/DELETE /variants/{id}`, `PUT/DELETE /variants/{id}/prices/{currency}`; `GET/POST /products/{id}/slots`,
+`PATCH/DELETE /slots/{id}`; `POST /files` and `POST /files/{id}/confirm`. Product list filters: `status`, `type`,
+`category_id`, `q` (title contains), paging `skip`/`limit` -> `{data, count}`. Validation errors are **422** with a clear
+message (unknown currency, option values that do not match, digital variant without file on publish, physical without stock,
+slot end <= start, naive or duplicate slot); **409** for a taken slug/SKU or an existing option combination; slugs follow the
+content rules (`app/core/slugs.py`, `-2`, `-3` on clashes).
+
+**Public API** (no auth, published products only; drafts and archived are 404): `GET /commerce/config` (currencies with
+exponent, default currency, timezone), `GET /commerce/categories` (only those with published products), `GET /commerce/products`
+(`category` slug, `type`, `currency`, `skip`/`limit`; each item has `from_price` = cheapest sellable variant in that currency
+and `available`), `GET /commerce/products/{slug}?currency=eur` (description with image `src`, options, active variants with
+`price` in the requested currency, `available` = priced **and** in stock, `in_stock`, `stock` for physical products only,
+upcoming active slots with `capacity` and `remaining`). `?currency=` defaults to the store default and must be in
+`STORE_CURRENCIES` (422 otherwise). A variant without a price in that currency is returned with `price: null,
+available: false`. `remaining` equals `capacity` until checkout exists (sold + held seats are subtracted in task 027;
+`service.remaining_capacity`). Product images are the stable `/api/v1/files/{id}/content` URLs; an image file that was
+deleted simply disappears from the product. The private download file is never part of any public response.
+
+**Digital product files:** admins upload with the presigned flow of task 006 through `POST /commerce/admin/files`
+(same request body, max `PRODUCT_FILE_MAX_BYTES`, always private, not counted against the per-user quota or daily upload
+limit; the global `STORAGE_TOTAL_LIMIT_BYTES` still applies) and `POST /commerce/admin/files/{id}/confirm` (re-checks the real
+size against the product cap). The member flow (`/files`) is unchanged and keeps `UPLOAD_MAX_BYTES`. A variant may only
+reference a ready, private file owned by an admin/superuser (never a member's private file). Product files are never served by
+`/files/{id}/content`; buyers will get signed, short-lived URLs from the order (task 028).
+**File protection:** `variant.file_id` is a foreign key with `ON DELETE RESTRICT`, and the core files service has a small
+guard registry (`file_service.register_file_guard`, filled by the commerce service; the core never imports modules).
+`DELETE /files/{id}`, `DELETE /users/{id}` and `DELETE /users/me` answer **409** while a file is in use, so the admin who
+uploaded a product file cannot be deleted (or delete themself) until the variant is changed or removed. Replacing the file of
+a variant, deleting a variant or deleting a draft product deletes the old file (row and object) when no other variant uses it.
 
 ## Deployment
 | | Own server | Vercel |

@@ -128,15 +128,28 @@ def get_public_content(
     """
     Stable, non-expiring URL for public images (no auth): 302 to the public URL or a
     fresh signed URL. 404 unless the file is ready, public and a JPEG/PNG/WebP/GIF.
+    The redirect is cacheable (`public, max-age`): a day for the unsigned public URL,
+    a bit less than the signed URL's lifetime otherwise. Errors are not cached.
     """
+    no_cache = {"Cache-Control": f"max-age={file_service.ERROR_MAX_AGE}"}
     file = session.get(File, file_id)
     if file is None:
-        raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=404, detail="File not found", headers=no_cache)
     try:
-        url = file_service.public_image_url(storage=storage, file=file)
+        url, max_age = file_service.public_image_redirect(storage=storage, file=file)
     except StorageNotConfiguredError:
-        raise HTTPException(status_code=503, detail="File storage is not configured")
-    return RedirectResponse(url, status_code=302)
+        raise HTTPException(
+            status_code=503,
+            detail="File storage is not configured",
+            headers=no_cache,
+        )
+    except HTTPException as exc:
+        raise HTTPException(
+            status_code=exc.status_code, detail=exc.detail, headers=no_cache
+        )
+    return RedirectResponse(
+        url, status_code=302, headers={"Cache-Control": f"public, max-age={max_age}"}
+    )
 
 
 @router.delete("/{file_id}", response_model=Message)
@@ -148,5 +161,6 @@ def delete_file(
 ) -> Any:
     """Delete a file (row and object). Owner or admin."""
     file = _get_own_file(session, current_user, file_id, admin_ok=True)
+    file_service.ensure_file_deletable(session, file.id)
     file_service.delete_file(session=session, storage=storage, file=file)
     return Message(message="File deleted successfully")

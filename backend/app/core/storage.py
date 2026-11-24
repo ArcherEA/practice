@@ -46,6 +46,17 @@ def is_inline_content_type(content_type: str) -> bool:
     return content_type.strip().lower() in INLINE_CONTENT_TYPES
 
 
+def download_cache_control(*, expires_in: int, public: bool) -> str:
+    """Cache-Control the bucket should send with a signed GET.
+
+    Object keys are unique and objects never change, so a copy is valid for as long as
+    the signed URL is: `immutable` also stops reload-time revalidation. `public` is only
+    for files meant for everyone (public images); everything else stays `private`.
+    """
+    scope = "public" if public else "private"
+    return f"{scope}, max-age={max(expires_in, 0)}, immutable"
+
+
 def content_disposition(filename: str, *, inline: bool) -> str:
     if inline:
         return "inline"
@@ -58,7 +69,13 @@ class Storage(Protocol):
     ) -> PresignedUpload: ...
 
     def presign_download(
-        self, key: str, *, filename: str, content_type: str, expires_in: int
+        self,
+        key: str,
+        *,
+        filename: str,
+        content_type: str,
+        expires_in: int,
+        public: bool = False,
     ) -> str: ...
 
     def public_url(self, key: str) -> str | None: ...
@@ -139,8 +156,16 @@ class S3Storage:
         return PresignedUpload(url=url, headers={"Content-Type": content_type})
 
     def presign_download(
-        self, key: str, *, filename: str, content_type: str, expires_in: int
+        self,
+        key: str,
+        *,
+        filename: str,
+        content_type: str,
+        expires_in: int,
+        public: bool = False,
     ) -> str:
+        # ResponseCacheControl is a signed *query* parameter (response-cache-control):
+        # no request header, so bucket CORS (and the upload flow) are unaffected.
         return self._signer.generate_presigned_url(
             "get_object",
             Params={
@@ -148,6 +173,9 @@ class S3Storage:
                 "Key": key,
                 "ResponseContentDisposition": content_disposition(
                     filename, inline=is_inline_content_type(content_type)
+                ),
+                "ResponseCacheControl": download_cache_control(
+                    expires_in=expires_in, public=public
                 ),
             },
             ExpiresIn=expires_in,

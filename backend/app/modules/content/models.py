@@ -51,7 +51,7 @@ class Post(SQLModel, table=True):
     title: str = Field(max_length=255)
     slug: str = Field(unique=True, index=True, max_length=80)
     excerpt: str | None = Field(default=None, max_length=500)
-    # Tiptap/ProseMirror JSON, validated by `body.sanitize_body` before it is stored.
+    # Tiptap/ProseMirror JSON, validated by `richtext.sanitize_body` before it is stored.
     body: dict[str, object] = Field(sa_type=JSONB, nullable=False)
     cover_file_id: uuid.UUID | None = Field(
         default=None, foreign_key="file.id", ondelete="SET NULL"

@@ -13,11 +13,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, func, select
 from sqlmodel.sql.expression import SelectOfScalar
 
+from app.core import richtext as body_rules
 from app.core.config import settings
-from app.core.storage import is_inline_content_type
-from app.models import File, FileStatus, User, get_datetime_utc
-from app.modules.content import body as body_rules
-from app.modules.content.body import JsonDict
+from app.core.files import check_public_image_files
+from app.core.richtext import JsonDict
+from app.core.slugs import unique_slug
+from app.models import User, get_datetime_utc
 from app.modules.content.models import (
     Category,
     ContentStatus,
@@ -42,7 +43,6 @@ from app.modules.content.schemas import (
     TagPublic,
     TagUpdate,
 )
-from app.modules.content.slugs import unique_slug
 
 Sluggable = Post | Page | Category | Tag
 
@@ -89,27 +89,7 @@ def image_url(file_id: uuid.UUID | str) -> str:
 
 def _check_image_files(session: Session, file_ids: set[uuid.UUID]) -> None:
     """Every id must be a ready, public image file (any owner)."""
-    if not file_ids:
-        return
-    found = {
-        f.id: f
-        for f in session.exec(select(File).where(col(File.id).in_(file_ids))).all()
-    }
-    for file_id in sorted(file_ids, key=str):
-        file = found.get(file_id)
-        if file is None:
-            raise HTTPException(
-                status_code=422, detail=f"Image file {file_id} not found"
-            )
-        if (
-            file.status != FileStatus.ready
-            or not file.public
-            or not is_inline_content_type(file.content_type)
-        ):
-            raise HTTPException(
-                status_code=422,
-                detail=f"File {file_id} must be a ready, public JPEG, PNG, WebP or GIF image",
-            )
+    check_public_image_files(session, file_ids)
 
 
 def clean_body(session: Session, raw: JsonDict) -> JsonDict:

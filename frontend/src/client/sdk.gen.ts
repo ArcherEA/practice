@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { communityCreatePageCommentData, communityCreatePageCommentErrors, communityCreatePageCommentResponses, communityCreatePostCommentData, communityCreatePostCommentErrors, communityCreatePostCommentResponses, communityCreateSuspensionData, communityCreateSuspensionErrors, communityCreateSuspensionResponses, communityDeleteCommentData, communityDeleteCommentErrors, communityDeleteCommentResponses, communityEndSuspensionData, communityEndSuspensionErrors, communityEndSuspensionResponses, communityFollowUserData, communityFollowUserErrors, communityFollowUserResponses, communityHideCommentData, communityHideCommentErrors, communityHideCommentResponses, communityLikeCommentData, communityLikeCommentErrors, communityLikeCommentResponses, communityLikePostData, communityLikePostErrors, communityLikePostResponses, communityModeratorDeleteCommentData, communityModeratorDeleteCommentErrors, communityModeratorDeleteCommentResponses, communityReadAllNotificationsData, communityReadAllNotificationsResponses, communityReadFollowersData, communityReadFollowersErrors, communityReadFollowersResponses, communityReadFollowingActivityData, communityReadFollowingActivityErrors, communityReadFollowingActivityResponses, communityReadFollowingData, communityReadFollowingErrors, communityReadFollowingResponses, communityReadModerationQueueData, communityReadModerationQueueErrors, communityReadModerationQueueResponses, communityReadMySuspensionData, communityReadMySuspensionResponses, communityReadNotificationData, communityReadNotificationErrors, communityReadNotificationResponses, communityReadNotificationsData, communityReadNotificationsErrors, communityReadNotificationsResponses, communityReadPageCommentsData, communityReadPageCommentsErrors, communityReadPageCommentsResponses, communityReadPostCommentsData, communityReadPostCommentsErrors, communityReadPostCommentsResponses, communityReadPostLikesData, communityReadPostLikesErrors, communityReadPostLikesResponses, communityReadProfileData, communityReadProfileErrors, communityReadProfileResponses, communityReadSuspensionsData, communityReadSuspensionsErrors, communityReadSuspensionsResponses, communityReadUnreadCountData, communityReadUnreadCountResponses, communityReadUserCommentsData, communityReadUserCommentsErrors, communityReadUserCommentsResponses, communityReportCommentData, communityReportCommentErrors, communityReportCommentResponses, communityResolveCommentReportsData, communityResolveCommentReportsErrors, communityResolveCommentReportsResponses, communityRestoreCommentData, communityRestoreCommentErrors, communityRestoreCommentResponses, communityUnfollowUserData, communityUnfollowUserErrors, communityUnfollowUserResponses, communityUnlikeCommentData, communityUnlikeCommentErrors, communityUnlikeCommentResponses, communityUnlikePostData, communityUnlikePostErrors, communityUnlikePostResponses, communityUpdateCommentData, communityUpdateCommentErrors, communityUpdateCommentResponses, contentCreateManageCategoryData, contentCreateManageCategoryErrors, contentCreateManageCategoryResponses, contentCreateManagePageData, contentCreateManagePageErrors, contentCreateManagePageResponses, contentCreateManagePostData, contentCreateManagePostErrors, contentCreateManagePostResponses, contentCreateManageTagData, contentCreateManageTagErrors, contentCreateManageTagResponses, contentDeleteManageCategoryData, contentDeleteManageCategoryErrors, contentDeleteManageCategoryResponses, contentDeleteManagePageData, contentDeleteManagePageErrors, contentDeleteManagePageResponses, contentDeleteManagePostData, contentDeleteManagePostErrors, contentDeleteManagePostResponses, contentDeleteManageTagData, contentDeleteManageTagErrors, contentDeleteManageTagResponses, contentPublishManagePageData, contentPublishManagePageErrors, contentPublishManagePageResponses, contentPublishManagePostData, contentPublishManagePostErrors, contentPublishManagePostResponses, contentReadCategoriesData, contentReadCategoriesResponses, contentReadManagePageData, contentReadManagePageErrors, contentReadManagePageResponses, contentReadManagePagesData, contentReadManagePagesErrors, contentReadManagePagesResponses, contentReadManagePostData, contentReadManagePostErrors, contentReadManagePostResponses, contentReadManagePostsData, contentReadManagePostsErrors, contentReadManagePostsResponses, contentReadPublishedPageData, contentReadPublishedPageErrors, contentReadPublishedPageResponses, contentReadPublishedPostData, contentReadPublishedPostErrors, contentReadPublishedPostResponses, contentReadPublishedPostsData, contentReadPublishedPostsErrors, contentReadPublishedPostsResponses, contentReadTagsData, contentReadTagsResponses, contentUnpublishManagePageData, contentUnpublishManagePageErrors, contentUnpublishManagePageResponses, contentUnpublishManagePostData, contentUnpublishManagePostErrors, contentUnpublishManagePostResponses, contentUpdateManageCategoryData, contentUpdateManageCategoryErrors, contentUpdateManageCategoryResponses, contentUpdateManagePageData, contentUpdateManagePageErrors, contentUpdateManagePageResponses, contentUpdateManagePostData, contentUpdateManagePostErrors, contentUpdateManagePostResponses, contentUpdateManageTagData, contentUpdateManageTagErrors, contentUpdateManageTagResponses, filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesGetPublicContentData, filesGetPublicContentErrors, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { commerceAdminArchiveProductData, commerceAdminArchiveProductErrors, commerceAdminArchiveProductResponses, commerceAdminConfirmProductFileUploadData, commerceAdminConfirmProductFileUploadErrors, commerceAdminConfirmProductFileUploadResponses, commerceAdminCreateCategoryData, commerceAdminCreateCategoryErrors, commerceAdminCreateCategoryResponses, commerceAdminCreateOptionData, commerceAdminCreateOptionErrors, commerceAdminCreateOptionResponses, commerceAdminCreateProductData, commerceAdminCreateProductErrors, commerceAdminCreateProductFileUploadData, commerceAdminCreateProductFileUploadErrors, commerceAdminCreateProductFileUploadResponses, commerceAdminCreateProductResponses, commerceAdminCreateSlotData, commerceAdminCreateSlotErrors, commerceAdminCreateSlotResponses, commerceAdminCreateVariantData, commerceAdminCreateVariantErrors, commerceAdminCreateVariantResponses, commerceAdminDeleteCategoryData, commerceAdminDeleteCategoryErrors, commerceAdminDeleteCategoryResponses, commerceAdminDeleteOptionData, commerceAdminDeleteOptionErrors, commerceAdminDeleteOptionResponses, commerceAdminDeletePriceData, commerceAdminDeletePriceErrors, commerceAdminDeletePriceResponses, commerceAdminDeleteProductData, commerceAdminDeleteProductErrors, commerceAdminDeleteProductResponses, commerceAdminDeleteSlotData, commerceAdminDeleteSlotErrors, commerceAdminDeleteSlotResponses, commerceAdminDeleteVariantData, commerceAdminDeleteVariantErrors, commerceAdminDeleteVariantResponses, commerceAdminPublishProductData, commerceAdminPublishProductErrors, commerceAdminPublishProductResponses, commerceAdminReadCategoriesData, commerceAdminReadCategoriesResponses, commerceAdminReadProductData, commerceAdminReadProductErrors, commerceAdminReadProductResponses, commerceAdminReadProductsData, commerceAdminReadProductsErrors, commerceAdminReadProductsResponses, commerceAdminReadSlotsData, commerceAdminReadSlotsErrors, commerceAdminReadSlotsResponses, commerceAdminSetPriceData, commerceAdminSetPriceErrors, commerceAdminSetPriceResponses, commerceAdminUnpublishProductData, commerceAdminUnpublishProductErrors, commerceAdminUnpublishProductResponses, commerceAdminUpdateCategoryData, commerceAdminUpdateCategoryErrors, commerceAdminUpdateCategoryResponses, commerceAdminUpdateOptionData, commerceAdminUpdateOptionErrors, commerceAdminUpdateOptionResponses, commerceAdminUpdateProductData, commerceAdminUpdateProductErrors, commerceAdminUpdateProductResponses, commerceAdminUpdateSlotData, commerceAdminUpdateSlotErrors, commerceAdminUpdateSlotResponses, commerceAdminUpdateVariantData, commerceAdminUpdateVariantErrors, commerceAdminUpdateVariantResponses, commerceReadCategoriesData, commerceReadCategoriesResponses, commerceReadPublishedProductData, commerceReadPublishedProductErrors, commerceReadPublishedProductResponses, commerceReadPublishedProductsData, commerceReadPublishedProductsErrors, commerceReadPublishedProductsResponses, commerceReadStoreConfigData, commerceReadStoreConfigResponses, communityCreatePageCommentData, communityCreatePageCommentErrors, communityCreatePageCommentResponses, communityCreatePostCommentData, communityCreatePostCommentErrors, communityCreatePostCommentResponses, communityCreateSuspensionData, communityCreateSuspensionErrors, communityCreateSuspensionResponses, communityDeleteCommentData, communityDeleteCommentErrors, communityDeleteCommentResponses, communityEndSuspensionData, communityEndSuspensionErrors, communityEndSuspensionResponses, communityFollowUserData, communityFollowUserErrors, communityFollowUserResponses, communityHideCommentData, communityHideCommentErrors, communityHideCommentResponses, communityLikeCommentData, communityLikeCommentErrors, communityLikeCommentResponses, communityLikePostData, communityLikePostErrors, communityLikePostResponses, communityModeratorDeleteCommentData, communityModeratorDeleteCommentErrors, communityModeratorDeleteCommentResponses, communityReadAllNotificationsData, communityReadAllNotificationsResponses, communityReadFollowersData, communityReadFollowersErrors, communityReadFollowersResponses, communityReadFollowingActivityData, communityReadFollowingActivityErrors, communityReadFollowingActivityResponses, communityReadFollowingData, communityReadFollowingErrors, communityReadFollowingResponses, communityReadModerationQueueData, communityReadModerationQueueErrors, communityReadModerationQueueResponses, communityReadMySuspensionData, communityReadMySuspensionResponses, communityReadNotificationData, communityReadNotificationErrors, communityReadNotificationResponses, communityReadNotificationsData, communityReadNotificationsErrors, communityReadNotificationsResponses, communityReadPageCommentsData, communityReadPageCommentsErrors, communityReadPageCommentsResponses, communityReadPostCommentsData, communityReadPostCommentsErrors, communityReadPostCommentsResponses, communityReadPostLikesData, communityReadPostLikesErrors, communityReadPostLikesResponses, communityReadProfileData, communityReadProfileErrors, communityReadProfileResponses, communityReadSuspensionsData, communityReadSuspensionsErrors, communityReadSuspensionsResponses, communityReadUnreadCountData, communityReadUnreadCountResponses, communityReadUserCommentsData, communityReadUserCommentsErrors, communityReadUserCommentsResponses, communityReportCommentData, communityReportCommentErrors, communityReportCommentResponses, communityResolveCommentReportsData, communityResolveCommentReportsErrors, communityResolveCommentReportsResponses, communityRestoreCommentData, communityRestoreCommentErrors, communityRestoreCommentResponses, communityUnfollowUserData, communityUnfollowUserErrors, communityUnfollowUserResponses, communityUnlikeCommentData, communityUnlikeCommentErrors, communityUnlikeCommentResponses, communityUnlikePostData, communityUnlikePostErrors, communityUnlikePostResponses, communityUpdateCommentData, communityUpdateCommentErrors, communityUpdateCommentResponses, contentCreateManageCategoryData, contentCreateManageCategoryErrors, contentCreateManageCategoryResponses, contentCreateManagePageData, contentCreateManagePageErrors, contentCreateManagePageResponses, contentCreateManagePostData, contentCreateManagePostErrors, contentCreateManagePostResponses, contentCreateManageTagData, contentCreateManageTagErrors, contentCreateManageTagResponses, contentDeleteManageCategoryData, contentDeleteManageCategoryErrors, contentDeleteManageCategoryResponses, contentDeleteManagePageData, contentDeleteManagePageErrors, contentDeleteManagePageResponses, contentDeleteManagePostData, contentDeleteManagePostErrors, contentDeleteManagePostResponses, contentDeleteManageTagData, contentDeleteManageTagErrors, contentDeleteManageTagResponses, contentPublishManagePageData, contentPublishManagePageErrors, contentPublishManagePageResponses, contentPublishManagePostData, contentPublishManagePostErrors, contentPublishManagePostResponses, contentReadCategoriesData, contentReadCategoriesResponses, contentReadManagePageData, contentReadManagePageErrors, contentReadManagePageResponses, contentReadManagePagesData, contentReadManagePagesErrors, contentReadManagePagesResponses, contentReadManagePostData, contentReadManagePostErrors, contentReadManagePostResponses, contentReadManagePostsData, contentReadManagePostsErrors, contentReadManagePostsResponses, contentReadPublishedPageData, contentReadPublishedPageErrors, contentReadPublishedPageResponses, contentReadPublishedPostData, contentReadPublishedPostErrors, contentReadPublishedPostResponses, contentReadPublishedPostsData, contentReadPublishedPostsErrors, contentReadPublishedPostsResponses, contentReadTagsData, contentReadTagsResponses, contentUnpublishManagePageData, contentUnpublishManagePageErrors, contentUnpublishManagePageResponses, contentUnpublishManagePostData, contentUnpublishManagePostErrors, contentUnpublishManagePostResponses, contentUpdateManageCategoryData, contentUpdateManageCategoryErrors, contentUpdateManageCategoryResponses, contentUpdateManagePageData, contentUpdateManagePageErrors, contentUpdateManagePageResponses, contentUpdateManagePostData, contentUpdateManagePostErrors, contentUpdateManagePostResponses, contentUpdateManageTagData, contentUpdateManageTagErrors, contentUpdateManageTagResponses, filesConfirmUploadData, filesConfirmUploadErrors, filesConfirmUploadResponses, filesCreateUploadData, filesCreateUploadErrors, filesCreateUploadResponses, filesDeleteFileData, filesDeleteFileErrors, filesDeleteFileResponses, filesGetDownloadUrlData, filesGetDownloadUrlErrors, filesGetDownloadUrlResponses, filesGetPublicContentData, filesGetPublicContentErrors, filesReadFilesData, filesReadFilesErrors, filesReadFilesResponses, filesReadUsageData, filesReadUsageResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteAvatarMeData, usersDeleteAvatarMeResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersSetAvatarMeData, usersSetAvatarMeErrors, usersSetAvatarMeResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsGetPublicConfigData, utilsGetPublicConfigResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -374,6 +374,8 @@ export class FilesService {
      *
      * Stable, non-expiring URL for public images (no auth): 302 to the public URL or a
      * fresh signed URL. 404 unless the file is ready, public and a JPEG/PNG/WebP/GIF.
+     * The redirect is cacheable (`public, max-age`): a day for the unsigned public URL,
+     * a bit less than the signed URL's lifetime otherwise. Errors are not cached.
      */
     public static getPublicContent<ThrowOnError extends boolean = true>(options: Options<filesGetPublicContentData, ThrowOnError>) {
         return (options.client ?? client).get<unknown, filesGetPublicContentErrors, ThrowOnError>({ url: '/api/v1/files/{file_id}/content', ...options });
@@ -1306,6 +1308,437 @@ export class CommunityService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/community/moderation/suspensions/{suspension_id}',
+            ...options
+        });
+    }
+}
+
+export class CommerceService {
+    /**
+     * Admin Create Product File Upload
+     *
+     * Reserve a **private** product file and get a presigned PUT URL (same flow as
+     * `POST /files/`, but up to `PRODUCT_FILE_MAX_BYTES` and not counted against the
+     * per-user quota). Upload the bytes, then call `POST /commerce/admin/files/{id}/confirm`.
+     */
+    public static adminCreateProductFileUpload<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateProductFileUploadData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateProductFileUploadResponses, commerceAdminCreateProductFileUploadErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/files',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Confirm Product File Upload
+     *
+     * Verify the uploaded object against `PRODUCT_FILE_MAX_BYTES` and mark it ready.
+     */
+    public static adminConfirmProductFileUpload<ThrowOnError extends boolean = true>(options: Options<commerceAdminConfirmProductFileUploadData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminConfirmProductFileUploadResponses, commerceAdminConfirmProductFileUploadErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/files/{file_id}/confirm',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Read Categories
+     */
+    public static adminReadCategories<ThrowOnError extends boolean = true>(options?: Options<commerceAdminReadCategoriesData, ThrowOnError>) {
+        return (options?.client ?? client).get<commerceAdminReadCategoriesResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/categories',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Create Category
+     */
+    public static adminCreateCategory<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateCategoryData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateCategoryResponses, commerceAdminCreateCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/categories',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Category
+     *
+     * Delete a category; its products stay, without a category.
+     */
+    public static adminDeleteCategory<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeleteCategoryData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeleteCategoryResponses, commerceAdminDeleteCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/categories/{category_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Update Category
+     */
+    public static adminUpdateCategory<ThrowOnError extends boolean = true>(options: Options<commerceAdminUpdateCategoryData, ThrowOnError>) {
+        return (options.client ?? client).patch<commerceAdminUpdateCategoryResponses, commerceAdminUpdateCategoryErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/categories/{category_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Read Products
+     *
+     * All products including drafts and archived ones, newest first.
+     */
+    public static adminReadProducts<ThrowOnError extends boolean = true>(options?: Options<commerceAdminReadProductsData, ThrowOnError>) {
+        return (options?.client ?? client).get<commerceAdminReadProductsResponses, commerceAdminReadProductsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Create Product
+     */
+    public static adminCreateProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateProductData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateProductResponses, commerceAdminCreateProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Product
+     *
+     * Delete a draft or archived product with its variants, prices and slots.
+     */
+    public static adminDeleteProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeleteProductData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeleteProductResponses, commerceAdminDeleteProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Read Product
+     */
+    public static adminReadProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminReadProductData, ThrowOnError>) {
+        return (options.client ?? client).get<commerceAdminReadProductResponses, commerceAdminReadProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Update Product
+     */
+    public static adminUpdateProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminUpdateProductData, ThrowOnError>) {
+        return (options.client ?? client).patch<commerceAdminUpdateProductResponses, commerceAdminUpdateProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Publish Product
+     *
+     * 422 unless there is an active variant and every active variant has a price,
+     * a file (digital) or a stock quantity (physical).
+     */
+    public static adminPublishProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminPublishProductData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminPublishProductResponses, commerceAdminPublishProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/publish',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Unpublish Product
+     */
+    public static adminUnpublishProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminUnpublishProductData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminUnpublishProductResponses, commerceAdminUnpublishProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/unpublish',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Archive Product
+     */
+    public static adminArchiveProduct<ThrowOnError extends boolean = true>(options: Options<commerceAdminArchiveProductData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminArchiveProductResponses, commerceAdminArchiveProductErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/archive',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Create Option
+     */
+    public static adminCreateOption<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateOptionData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateOptionResponses, commerceAdminCreateOptionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/options',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Option
+     */
+    public static adminDeleteOption<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeleteOptionData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeleteOptionResponses, commerceAdminDeleteOptionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/options/{option_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Update Option
+     */
+    public static adminUpdateOption<ThrowOnError extends boolean = true>(options: Options<commerceAdminUpdateOptionData, ThrowOnError>) {
+        return (options.client ?? client).patch<commerceAdminUpdateOptionResponses, commerceAdminUpdateOptionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/options/{option_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Create Variant
+     */
+    public static adminCreateVariant<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateVariantData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateVariantResponses, commerceAdminCreateVariantErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/variants',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Variant
+     */
+    public static adminDeleteVariant<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeleteVariantData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeleteVariantResponses, commerceAdminDeleteVariantErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/variants/{variant_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Update Variant
+     */
+    public static adminUpdateVariant<ThrowOnError extends boolean = true>(options: Options<commerceAdminUpdateVariantData, ThrowOnError>) {
+        return (options.client ?? client).patch<commerceAdminUpdateVariantResponses, commerceAdminUpdateVariantErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/variants/{variant_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Price
+     */
+    public static adminDeletePrice<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeletePriceData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeletePriceResponses, commerceAdminDeletePriceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/variants/{variant_id}/prices/{currency}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Set Price
+     *
+     * Create or replace the price in one currency (422 for a currency not in `STORE_CURRENCIES`).
+     */
+    public static adminSetPrice<ThrowOnError extends boolean = true>(options: Options<commerceAdminSetPriceData, ThrowOnError>) {
+        return (options.client ?? client).put<commerceAdminSetPriceResponses, commerceAdminSetPriceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/variants/{variant_id}/prices/{currency}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Read Slots
+     */
+    public static adminReadSlots<ThrowOnError extends boolean = true>(options: Options<commerceAdminReadSlotsData, ThrowOnError>) {
+        return (options.client ?? client).get<commerceAdminReadSlotsResponses, commerceAdminReadSlotsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/slots',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Create Slot
+     */
+    public static adminCreateSlot<ThrowOnError extends boolean = true>(options: Options<commerceAdminCreateSlotData, ThrowOnError>) {
+        return (options.client ?? client).post<commerceAdminCreateSlotResponses, commerceAdminCreateSlotErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/products/{product_id}/slots',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Admin Delete Slot
+     */
+    public static adminDeleteSlot<ThrowOnError extends boolean = true>(options: Options<commerceAdminDeleteSlotData, ThrowOnError>) {
+        return (options.client ?? client).delete<commerceAdminDeleteSlotResponses, commerceAdminDeleteSlotErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/slots/{slot_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Admin Update Slot
+     */
+    public static adminUpdateSlot<ThrowOnError extends boolean = true>(options: Options<commerceAdminUpdateSlotData, ThrowOnError>) {
+        return (options.client ?? client).patch<commerceAdminUpdateSlotResponses, commerceAdminUpdateSlotErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/commerce/admin/slots/{slot_id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Read Store Config
+     *
+     * Currencies (with minor-unit exponent), default currency and timezone of the store.
+     */
+    public static readStoreConfig<ThrowOnError extends boolean = true>(options?: Options<commerceReadStoreConfigData, ThrowOnError>) {
+        return (options?.client ?? client).get<commerceReadStoreConfigResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/commerce/config',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Categories
+     *
+     * Categories that have at least one published product.
+     */
+    public static readCategories<ThrowOnError extends boolean = true>(options?: Options<commerceReadCategoriesData, ThrowOnError>) {
+        return (options?.client ?? client).get<commerceReadCategoriesResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/commerce/categories',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Published Products
+     *
+     * Published products, newest first, with the lowest price in `currency`.
+     */
+    public static readPublishedProducts<ThrowOnError extends boolean = true>(options?: Options<commerceReadPublishedProductsData, ThrowOnError>) {
+        return (options?.client ?? client).get<commerceReadPublishedProductsResponses, commerceReadPublishedProductsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/commerce/products',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Published Product
+     *
+     * A published product with its active variants, prices in `currency`, availability and slots.
+     */
+    public static readPublishedProduct<ThrowOnError extends boolean = true>(options: Options<commerceReadPublishedProductData, ThrowOnError>) {
+        return (options.client ?? client).get<commerceReadPublishedProductResponses, commerceReadPublishedProductErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/commerce/products/{slug}',
             ...options
         });
     }

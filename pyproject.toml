@@ -38,3 +38,5 @@ alls = "alls"
 [tool.typos.default.extend-words]
 # SQLAlchemy relationship loading strategy (lazy="selectin")
 selectin = "selectin"
+# ISO 4217 code of the Jordanian dinar (commerce three-decimal currencies)
+jod = "jod"

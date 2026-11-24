@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from app.modules.content.body import (
+from app.core.richtext import (
     MAX_BODY_BYTES,
     MAX_DEPTH,
     BodyValidationError,
