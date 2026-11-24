@@ -11,6 +11,7 @@ import ReactDOM from "react-dom/client"
 import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
+import { safeRedirect } from "./features/auth/redirect"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
@@ -38,7 +39,15 @@ const isAuthError = (error: Error) =>
 const handleApiError = (error: Error) => {
   if (isAuthError(error)) {
     localStorage.removeItem("access_token")
-    window.location.href = "/login"
+    // Return to the page the session ended on after logging in again.
+    const here = safeRedirect(
+      window.location.pathname + window.location.search + window.location.hash,
+    )
+    const onAuthPage = window.location.pathname === "/login"
+    window.location.href =
+      here && here !== "/" && !onAuthPage
+        ? `/login?redirect=${encodeURIComponent(here)}`
+        : "/login"
   }
 }
 

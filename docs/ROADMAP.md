@@ -23,11 +23,15 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 012 README + quick start verified with a fresh clone
   - [x] 013 Required CI checks (`alls-green-*`) + pull-request workflow (`docs/BRANCH-PROTECTION.md`)
   - [x] 018 Published content is easy to find: View on site / Copy link, View blog link, published pages in the public menu  — implemented 2026-11-23
-- [ ] **Phase 3 — Community** (approved 2026-11-23; task files drafted 2026-11-23; build in this order)
+  - [x] 020 Fix content editor toolbar flake on CI  — done 2026-11-23
+  - [ ] 021 File caching
+  - [x] 022 UI follow-ups: scroll to linked comment, moderation paging, return to page after login  — done 2026-11-23
+  - [ ] 023 Dependency updates  — in progress
+- [x] **Phase 3 — Community** (complete 2026-11-23)
   - [x] 014 Comments on posts/pages (1 level of replies), likes, reports, moderation queue + suspensions (backend)  — implemented 2026-11-23
   - [x] 015 Usernames, public profiles, follows, in-app notifications (backend)  — implemented 2026-11-23
-  - [x] 016 Comments, likes, reporting and moderation UI
-  - [ ] 017 Profiles (/u/<username>), follows and notifications bell UI
+  - [x] 016 Comments, likes, reporting and moderation UI  — implemented 2026-11-23
+  - [x] 017 Profiles (/u/<username>), follows and notifications bell UI  — implemented 2026-11-23
   - Later: forum/discussions, social feed, email notifications, blocking/muting
 - [ ] **Phase 4 — Commerce** (Stripe Checkout)
 - [ ] **Phase 5 — SaaS:** teams + billing (Stripe Billing)

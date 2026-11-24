@@ -72,7 +72,7 @@ export function CommentItem({
       <article
         id={`comment-${comment.id}`}
         data-testid="comment"
-        className="flex gap-3"
+        className="flex scroll-mt-24 gap-3 rounded-md transition-colors data-[highlight=true]:bg-primary/10 data-[highlight=true]:ring-2 data-[highlight=true]:ring-primary/40"
       >
         <Avatar className="size-8">
           {author?.avatar_url && (

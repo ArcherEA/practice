@@ -289,6 +289,49 @@ test.describe("Reports and moderation", () => {
     await expect(again).toHaveCount(0)
   })
 
+  test("Moderation lists load more than one page", async ({ page }) => {
+    test.setTimeout(90_000) // creates 22 reported comments through the API
+    const { post, id } = await newPost()
+    const author = await createUserApi()
+    // Two reporters: one member may send 20 reports a day.
+    const reporters = [await createUserApi(), await createUserApi()]
+    const moderator = await createUserApi("moderator")
+    const total = 22
+    await Promise.all(
+      Array.from({ length: total }, async (_, n) => {
+        const comment = await author.comment(post.id, `bulk ${n} ${id}`)
+        await reporters[n < 20 ? 0 : 1].report(comment.id, "spam")
+      }),
+    )
+
+    await logInUser(page, moderator.email, moderator.password)
+    await page.goto("/moderation")
+    const items = page.getByTestId("queue-item")
+    await expect(items).toHaveCount(20)
+
+    const loadMore = page.getByRole("button", {
+      name: "Load more comments",
+      exact: true,
+    })
+    const mine = items.filter({ hasText: id })
+    // Keep loading until all of this test's comments are there (other tests'
+    // leftovers may share the queue).
+    await expect
+      .poll(
+        async () => {
+          if ((await mine.count()) >= total) return true
+          if (await loadMore.isEnabled({ timeout: 100 }).catch(() => false)) {
+            await loadMore.click()
+          }
+          return false
+        },
+        { timeout: 30_000 },
+      )
+      .toBe(true)
+    await expect(mine).toHaveCount(total)
+    expect(await items.count()).toBeGreaterThan(20)
+  })
+
   test("A moderator suspends a member, who sees a notice instead of the form", async ({
     page,
   }) => {
