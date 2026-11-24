@@ -36,16 +36,26 @@ const isAuthError = (error: Error) =>
   [401, 403].includes(error.response?.status ?? 0) &&
   !isCommunityRule(error)
 
+const LOGGED_OUT_PAGES = new Set([
+  "/login",
+  "/signup",
+  "/recover-password",
+  "/reset-password",
+])
+
 const handleApiError = (error: Error) => {
   if (isAuthError(error)) {
     localStorage.removeItem("access_token")
+    // Already on a logged-out page (login, sign-up, password recovery): clearing the
+    // token is enough. Navigating here would reload /login without its `redirect`
+    // and can race a navigation that is already under way.
+    if (LOGGED_OUT_PAGES.has(window.location.pathname)) return
     // Return to the page the session ended on after logging in again.
     const here = safeRedirect(
       window.location.pathname + window.location.search + window.location.hash,
     )
-    const onAuthPage = window.location.pathname === "/login"
     window.location.href =
-      here && here !== "/" && !onAuthPage
+      here && here !== "/"
         ? `/login?redirect=${encodeURIComponent(here)}`
         : "/login"
   }
