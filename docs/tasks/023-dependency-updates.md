@@ -1,6 +1,6 @@
 # 023 — Dependency updates (Dependabot PR #3 npm group + PR #1 Playwright image)
 
-**Status:** in progress · **Who:** frontend-engineer · **Branch:** `chore/023-dependency-updates` · **Size:** small
+**Status:** done 2026-11-23 · **Who:** frontend-engineer · **Branch:** `chore/023-dependency-updates` · **Size:** small
 
 ## Why
 Dependabot opened ArcherEA/practice#3 (npm group, 19 updates) and #1 (`frontend/Dockerfile.playwright` image
