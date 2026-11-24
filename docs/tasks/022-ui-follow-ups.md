@@ -1,6 +1,6 @@
 # 022 — UI follow-ups: comment links, moderation paging, return after login
 
-**Status:** in progress · **Agent:** frontend-engineer · **Branch:** `feat/022-ui-follow-ups` · **Size:** small ·
+**Status:** done 2026-11-23 · **Agent:** frontend-engineer · **Branch:** `feat/022-ui-follow-ups` · **Size:** small ·
 **Needs:** 016 and 017 merged
 
 ## Goal

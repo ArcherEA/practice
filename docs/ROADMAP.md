@@ -25,7 +25,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
   - [x] 018 Published content is easy to find: View on site / Copy link, View blog link, published pages in the public menu  — implemented 2026-11-23
   - [x] 020 Fix content editor toolbar flake on CI  — done 2026-11-23
   - [ ] 021 File caching
-  - [ ] 022 UI follow-ups: scroll to linked comment, moderation paging, return to page after login  — in progress
+  - [x] 022 UI follow-ups: scroll to linked comment, moderation paging, return to page after login  — done 2026-11-23
   - [ ] 023 Dependency updates  — in progress
 - [x] **Phase 3 — Community** (complete 2026-11-23)
   - [x] 014 Comments on posts/pages (1 level of replies), likes, reports, moderation queue + suspensions (backend)  — implemented 2026-11-23
