@@ -283,8 +283,8 @@ def file_url(storage: Storage, file: File) -> str | None:
 # Browser cache lifetime of the stable-URL redirect when `S3_PUBLIC_BASE_URL` is set
 # (the target is a permanent unsigned URL).
 STABLE_REDIRECT_MAX_AGE = 24 * 3600
-# Cache lifetime for errors (404/503): long enough to absorb a burst, short enough that
-# a file that becomes public or a fixed config shows up almost at once.
+# Cache lifetime for errors (404/503): none, so a file that becomes public or a fixed
+# storage config shows up at once.
 ERROR_MAX_AGE = 0
 
 

@@ -1,6 +1,6 @@
 # 021 — File download caching
 
-**Status:** in progress · **Who:** backend engineer · **Branch:** `feat/021-file-caching` · **Size:** small
+**Status:** done 2026-11-23 · **Who:** backend engineer · **Branch:** `feat/021-file-caching` · **Size:** small
 
 ## Goal
 The browser should not download the same file again on every visit. Files never change (unique keys), so signed
