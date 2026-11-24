@@ -30,6 +30,9 @@ repos:
         language: system
         types: [text]
         files: ^frontend/
+        # The lint script checks all of frontend/ from inside that folder; repo-root file
+        # names appended by prek would not resolve there (fs/cantRead on changed files).
+        pass_filenames: false
 
       - id: local-ruff-check
         name: ruff check
