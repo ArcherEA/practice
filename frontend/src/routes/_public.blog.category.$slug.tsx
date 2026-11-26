@@ -8,8 +8,10 @@ import {
 } from "@/features/content/public/api"
 import { PostList } from "@/features/content/public/components/PostList"
 import { parsePage } from "@/features/content/public/search"
+import { requireModule } from "@/features/modules/api"
 
 export const Route = createFileRoute("/_public/blog/category/$slug")({
+  beforeLoad: ({ context }) => requireModule(context.queryClient, "content"),
   validateSearch: parsePage,
   loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
   loader: async ({ context, params, deps }) => {

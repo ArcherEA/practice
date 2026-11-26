@@ -7,8 +7,10 @@ import {
   toHead,
 } from "@/features/content/public/api"
 import { PageView } from "@/features/content/public/components/PostView"
+import { requireModule } from "@/features/modules/api"
 
 export const Route = createFileRoute("/_public/p/$slug")({
+  beforeLoad: ({ context }) => requireModule(context.queryClient, "content"),
   loader: ({ context, params }) =>
     orNotFound(() =>
       context.queryClient.ensureQueryData(publishedPageOptions(params.slug)),
