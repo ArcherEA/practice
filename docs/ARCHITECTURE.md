@@ -150,9 +150,11 @@ and Twitter card tags; every value goes through `html.escape`. Unknown or draft 
 `Cache-Control: public, max-age=60, s-maxage=60` (404: `no-cache`).
 - The template is `backend/app/frontend/index.html` (path in `app.state.frontend_dir`). If it is missing (local dev
   without a build) a minimal HTML page with the tags and a link to `FRONTEND_HOST` is returned and a warning is logged.
-- `GET /sitemap.xml` (content module only): `/blog`, published posts and pages, categories/tags that have published
-  posts; absolute URLs from `SITE_URL`, `lastmod` = last update date. `GET /robots.txt` is a core route, always on
-  (disallows `/content/`, `/admin`, `/settings`, `/api/`); the `Sitemap:` line is present only when `content` is enabled.
+- `GET /sitemap.xml` is a core route (`app/api/public.py`) built from every enabled module's `Module.sitemap_entries(session)`
+  (content: `/blog`, published posts and pages, categories/tags that have published posts; commerce: `/shop` and published
+  products); it is 404 when no enabled module provides entries. Absolute URLs from `SITE_URL`, `lastmod` = last update date.
+  `GET /robots.txt` is a core route, always on (disallows `/content/`, `/admin`, `/settings`, `/api/`); the `Sitemap:` line is
+  present when at least one enabled module adds sitemap entries.
 - Modules declare such routes with `Module.public_router`; `create_app` includes them **before** `application.frontend(...)`
   so they win over the SPA mount. They use `include_in_schema=False`, so the generated client is unaffected.
 - `SITE_URL` (public base URL, no trailing slash) is the one setting; see `docs/deploy-vercel.md` for how Vercel serves this.
@@ -358,6 +360,20 @@ guard registry (`file_service.register_file_guard`, filled by the commerce servi
 `DELETE /files/{id}`, `DELETE /users/{id}` and `DELETE /users/me` answer **409** while a file is in use, so the admin who
 uploaded a product file cannot be deleted (or delete themself) until the variant is changed or removed. Replacing the file of
 a variant, deleting a variant or deleting a draft product deletes the old file (row and object) when no other variant uses it.
+
+**Storefront (task 026):** public pages `/shop`, `/shop/category/<slug>`, `/shop/<slug>` and `/shop/cart` live in the `_public`
+layout next to the blog (`src/routes/_public.shop.*.tsx`, code in `src/features/commerce/storefront/`). `_public` is shown when
+`content` **or** `commerce` is on; each page checks its own module. The header gets the Shop link, the currency switcher (two or
+more currencies) and the cart link only when `commerce` is on. SEO: the commerce `public_router` (`public_routes.py`, `seo.py`)
+injects meta tags for `/shop`, `/shop/category/<slug>` and `/shop/<slug>` (title/description from the SEO fields, else the
+plain text of the description; first image as `og:image`; `og:type=product`); unknown or unpublished slugs get 404 + noindex.
+*Currency:* the choice is stored in `localStorage` (`shop.currency`); without one the browser languages are mapped to a region
+currency and used if the store sells in it, else the store default. Prices always come from the API in that currency.
+*Cart:* `localStorage` key `shop.cart` holds lines `{slug, variantId, slotId, quantity, price, currency}` (the last two are the
+price the visitor saw, to flag changes). Names, prices and availability are never stored: the cart page fetches each product
+again by slug (one request per product, `staleTime: 0`) and flags unavailable lines, too-high quantities and changed prices.
+All storage access is wrapped in try/catch (blocked storage keeps the cart in memory for the page view). Checkout is disabled
+until tasks 027/028.
 
 ## Deployment
 | | Own server | Vercel |

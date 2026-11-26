@@ -31,6 +31,9 @@ import { Route as LayoutStoreCategoriesRouteImport } from './routes/_layout/stor
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 import { Route as PublicPSlugRouteImport } from './routes/_public.p.$slug'
+import { Route as PublicShopIndexRouteImport } from './routes/_public.shop.index'
+import { Route as PublicShopSlugRouteImport } from './routes/_public.shop.$slug'
+import { Route as PublicShopCartRouteImport } from './routes/_public.shop.cart'
 import { Route as PublicUUsernameRouteImport } from './routes/_public.u.$username'
 import { Route as LayoutContentPagesIndexRouteImport } from './routes/_layout/content.pages.index'
 import { Route as LayoutContentPagesIdRouteImport } from './routes/_layout/content.pages.$id'
@@ -40,6 +43,7 @@ import { Route as LayoutStoreProductsIndexRouteImport } from './routes/_layout/s
 import { Route as LayoutStoreProductsIdRouteImport } from './routes/_layout/store.products.$id'
 import { Route as PublicBlogCategorySlugRouteImport } from './routes/_public.blog.category.$slug'
 import { Route as PublicBlogTagSlugRouteImport } from './routes/_public.blog.tag.$slug'
+import { Route as PublicShopCategorySlugRouteImport } from './routes/_public.shop.category.$slug'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -149,6 +153,21 @@ const PublicPSlugRoute = PublicPSlugRouteImport.update({
   path: '/p/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicShopIndexRoute = PublicShopIndexRouteImport.update({
+  id: '/shop/',
+  path: '/shop/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicShopSlugRoute = PublicShopSlugRouteImport.update({
+  id: '/shop/$slug',
+  path: '/shop/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicShopCartRoute = PublicShopCartRouteImport.update({
+  id: '/shop/cart',
+  path: '/shop/cart',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicUUsernameRoute = PublicUUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -195,6 +214,11 @@ const PublicBlogTagSlugRoute = PublicBlogTagSlugRouteImport.update({
   path: '/blog/tag/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicShopCategorySlugRoute = PublicShopCategorySlugRouteImport.update({
+  id: '/shop/category/$slug',
+  path: '/shop/category/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -214,15 +238,19 @@ export interface FileRoutesByFullPath {
   '/store/categories': typeof LayoutStoreCategoriesRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
+  '/shop/$slug': typeof PublicShopSlugRoute
+  '/shop/cart': typeof PublicShopCartRoute
   '/u/$username': typeof PublicUUsernameRoute
   '/content/': typeof LayoutContentIndexRoute
   '/store/': typeof LayoutStoreIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
+  '/shop/': typeof PublicShopIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/content/posts/$id': typeof LayoutContentPostsIdRoute
   '/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/shop/category/$slug': typeof PublicShopCategorySlugRoute
   '/content/pages/': typeof LayoutContentPagesIndexRoute
   '/content/posts/': typeof LayoutContentPostsIndexRoute
   '/store/products/': typeof LayoutStoreProductsIndexRoute
@@ -243,15 +271,19 @@ export interface FileRoutesByTo {
   '/store/categories': typeof LayoutStoreCategoriesRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
   '/p/$slug': typeof PublicPSlugRoute
+  '/shop/$slug': typeof PublicShopSlugRoute
+  '/shop/cart': typeof PublicShopCartRoute
   '/u/$username': typeof PublicUUsernameRoute
   '/content': typeof LayoutContentIndexRoute
   '/store': typeof LayoutStoreIndexRoute
   '/blog': typeof PublicBlogIndexRoute
+  '/shop': typeof PublicShopIndexRoute
   '/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/content/posts/$id': typeof LayoutContentPostsIdRoute
   '/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/shop/category/$slug': typeof PublicShopCategorySlugRoute
   '/content/pages': typeof LayoutContentPagesIndexRoute
   '/content/posts': typeof LayoutContentPostsIndexRoute
   '/store/products': typeof LayoutStoreProductsIndexRoute
@@ -277,15 +309,19 @@ export interface FileRoutesById {
   '/_layout/store/categories': typeof LayoutStoreCategoriesRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
   '/_public/p/$slug': typeof PublicPSlugRoute
+  '/_public/shop/$slug': typeof PublicShopSlugRoute
+  '/_public/shop/cart': typeof PublicShopCartRoute
   '/_public/u/$username': typeof PublicUUsernameRoute
   '/_layout/content/': typeof LayoutContentIndexRoute
   '/_layout/store/': typeof LayoutStoreIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
+  '/_public/shop/': typeof PublicShopIndexRoute
   '/_layout/content/pages/$id': typeof LayoutContentPagesIdRoute
   '/_layout/content/posts/$id': typeof LayoutContentPostsIdRoute
   '/_layout/store/products/$id': typeof LayoutStoreProductsIdRoute
   '/_public/blog/category/$slug': typeof PublicBlogCategorySlugRoute
   '/_public/blog/tag/$slug': typeof PublicBlogTagSlugRoute
+  '/_public/shop/category/$slug': typeof PublicShopCategorySlugRoute
   '/_layout/content/pages/': typeof LayoutContentPagesIndexRoute
   '/_layout/content/posts/': typeof LayoutContentPostsIndexRoute
   '/_layout/store/products/': typeof LayoutStoreProductsIndexRoute
@@ -310,15 +346,19 @@ export interface FileRouteTypes {
     | '/store/categories'
     | '/blog/$slug'
     | '/p/$slug'
+    | '/shop/$slug'
+    | '/shop/cart'
     | '/u/$username'
     | '/content/'
     | '/store/'
     | '/blog/'
+    | '/shop/'
     | '/content/pages/$id'
     | '/content/posts/$id'
     | '/store/products/$id'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
+    | '/shop/category/$slug'
     | '/content/pages/'
     | '/content/posts/'
     | '/store/products/'
@@ -339,15 +379,19 @@ export interface FileRouteTypes {
     | '/store/categories'
     | '/blog/$slug'
     | '/p/$slug'
+    | '/shop/$slug'
+    | '/shop/cart'
     | '/u/$username'
     | '/content'
     | '/store'
     | '/blog'
+    | '/shop'
     | '/content/pages/$id'
     | '/content/posts/$id'
     | '/store/products/$id'
     | '/blog/category/$slug'
     | '/blog/tag/$slug'
+    | '/shop/category/$slug'
     | '/content/pages'
     | '/content/posts'
     | '/store/products'
@@ -372,15 +416,19 @@ export interface FileRouteTypes {
     | '/_layout/store/categories'
     | '/_public/blog/$slug'
     | '/_public/p/$slug'
+    | '/_public/shop/$slug'
+    | '/_public/shop/cart'
     | '/_public/u/$username'
     | '/_layout/content/'
     | '/_layout/store/'
     | '/_public/blog/'
+    | '/_public/shop/'
     | '/_layout/content/pages/$id'
     | '/_layout/content/posts/$id'
     | '/_layout/store/products/$id'
     | '/_public/blog/category/$slug'
     | '/_public/blog/tag/$slug'
+    | '/_public/shop/category/$slug'
     | '/_layout/content/pages/'
     | '/_layout/content/posts/'
     | '/_layout/store/products/'
@@ -551,6 +599,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicPSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/shop/': {
+      id: '/_public/shop/'
+      path: '/shop'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof PublicShopIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/shop/$slug': {
+      id: '/_public/shop/$slug'
+      path: '/shop/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof PublicShopSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/shop/cart': {
+      id: '/_public/shop/cart'
+      path: '/shop/cart'
+      fullPath: '/shop/cart'
+      preLoaderRoute: typeof PublicShopCartRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/u/$username': {
       id: '/_public/u/$username'
       path: '/u/$username'
@@ -612,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/tag/$slug'
       fullPath: '/blog/tag/$slug'
       preLoaderRoute: typeof PublicBlogTagSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/shop/category/$slug': {
+      id: '/_public/shop/category/$slug'
+      path: '/shop/category/$slug'
+      fullPath: '/shop/category/$slug'
+      preLoaderRoute: typeof PublicShopCategorySlugRouteImport
       parentRoute: typeof PublicRoute
     }
   }
@@ -687,19 +763,27 @@ const LayoutRouteWithChildren =
 interface PublicRouteChildren {
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
   PublicPSlugRoute: typeof PublicPSlugRoute
+  PublicShopSlugRoute: typeof PublicShopSlugRoute
+  PublicShopCartRoute: typeof PublicShopCartRoute
   PublicUUsernameRoute: typeof PublicUUsernameRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+  PublicShopIndexRoute: typeof PublicShopIndexRoute
   PublicBlogCategorySlugRoute: typeof PublicBlogCategorySlugRoute
   PublicBlogTagSlugRoute: typeof PublicBlogTagSlugRoute
+  PublicShopCategorySlugRoute: typeof PublicShopCategorySlugRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicBlogSlugRoute: PublicBlogSlugRoute,
   PublicPSlugRoute: PublicPSlugRoute,
+  PublicShopSlugRoute: PublicShopSlugRoute,
+  PublicShopCartRoute: PublicShopCartRoute,
   PublicUUsernameRoute: PublicUUsernameRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
+  PublicShopIndexRoute: PublicShopIndexRoute,
   PublicBlogCategorySlugRoute: PublicBlogCategorySlugRoute,
   PublicBlogTagSlugRoute: PublicBlogTagSlugRoute,
+  PublicShopCategorySlugRoute: PublicShopCategorySlugRoute,
 }
 
 const PublicRouteWithChildren =

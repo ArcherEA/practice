@@ -1,4 +1,4 @@
-"""Public routes outside ``/api``: SPA pages with real meta tags, and ``sitemap.xml``.
+"""Public routes outside ``/api``: SPA pages with real meta tags.
 
 Included by ``create_app`` before the SPA mount so they take precedence over it. They
 are hidden from the OpenAPI schema (the generated client only covers ``/api``).
@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse
 
 from app.api.deps import SessionDep
 from app.core.config import Settings
@@ -85,12 +85,3 @@ def public_page(
     slug: str, session: SessionDep, settings: SettingsDep, frontend_dir: FrontendDirDep
 ) -> HTMLResponse:
     return _respond(seo.page_meta(session, slug), settings, frontend_dir)
-
-
-@router.get("/sitemap.xml")
-def sitemap(session: SessionDep, settings: SettingsDep) -> Response:
-    return Response(
-        seo.build_sitemap(session, settings.SITE_URL),
-        media_type="application/xml",
-        headers={"Cache-Control": CACHE_OK},
-    )

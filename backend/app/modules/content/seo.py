@@ -1,4 +1,4 @@
-"""SEO helpers of the content module: meta tags for the SPA shell, sitemap and robots.txt.
+"""SEO helpers of the content module: meta tags for the SPA shell, sitemap entries.
 
 The SPA stays a single-page app. For public content URLs the backend returns the built
 ``index.html`` with the real ``<title>``, description, canonical URL and Open Graph /
@@ -9,7 +9,6 @@ routes in ``public_routes.py``.
 import logging
 import re
 import uuid
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime
 from html import escape
@@ -18,6 +17,7 @@ from urllib.parse import quote
 
 from sqlmodel import Session, col, func, select
 
+from app.modules import SitemapEntry
 from app.modules.content import service
 from app.modules.content.models import (
     Category,
@@ -29,8 +29,6 @@ from app.modules.content.models import (
 )
 
 logger = logging.getLogger(__name__)
-
-SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 # Tags we write ourselves; any copy already present in index.html is removed first.
 _REPLACED_META = "description|robots|og:[a-z_:]+|twitter:[a-z_:]+|article:[a-z_:]+"
@@ -220,9 +218,9 @@ def _date(value: datetime | None) -> str | None:
     return value.date().isoformat() if value else None
 
 
-def build_sitemap(session: Session, site_url: str) -> bytes:
+def sitemap_entries(session: Session) -> list[SitemapEntry]:
     """``sitemap.xml`` with published posts and pages, and categories/tags that have posts."""
-    entries: list[tuple[str, str | None]] = []
+    entries: list[SitemapEntry] = []
 
     posts = session.exec(
         select(Post.slug, Post.updated_at).where(Post.status == ContentStatus.published)
@@ -255,12 +253,4 @@ def build_sitemap(session: Session, site_url: str) -> bytes:
     ).all()
     entries += [(f"/blog/tag/{quote(s, safe='')}", _date(u)) for s, u in sorted(tags)]
 
-    urlset = ET.Element("urlset", xmlns=SITEMAP_NS)
-    for path, lastmod in entries:
-        url = ET.SubElement(urlset, "url")
-        ET.SubElement(url, "loc").text = absolute_url(site_url, path)
-        if lastmod:
-            ET.SubElement(url, "lastmod").text = lastmod
-    # typeshed types this call as Any when xml_declaration is given.
-    xml: bytes = ET.tostring(urlset, encoding="utf-8", xml_declaration=True)
-    return xml
+    return entries
