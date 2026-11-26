@@ -36,7 +36,7 @@ Each phase is split into task files in `docs/tasks/`. One task = one branch = on
 - [ ] **Phase 4 — Commerce** (planned and approved 2026-11-23; D20/D21; build in this order)
   - [x] 024 Catalog backend: products (digital / physical / service), variants, prices per currency, stock, booking slots  — implemented 2026-11-23
   - [x] 025 Store admin screens
-  - [ ] 026 Storefront, currency switcher and cart (+ product SEO and sitemap)
+  - [x] 026 Storefront, currency switcher and cart (+ product SEO and sitemap)  — implemented 2026-11-26
   - [ ] 027 Stripe Checkout, webhooks and orders (backend) — needs a Stripe account (test mode)
   - [ ] 028 Checkout UI, orders, downloads, bookings, admin fulfilment and order emails
   - Later: tax (Stripe Tax), coupons, refunds from our admin, reviews, product search, weekly-availability bookings
