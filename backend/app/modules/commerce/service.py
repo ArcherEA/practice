@@ -224,6 +224,11 @@ def _image_urls(product: Product, live: set[str]) -> list[str]:
     return [image_url(i) for i in product.image_file_ids if i in live]
 
 
+def public_image_urls(session: Session, product: Product) -> list[str]:
+    """Image URLs of one product, in order, skipping files that no longer exist."""
+    return _image_urls(product, _live_image_ids(session, [product]))
+
+
 # --- categories ---
 
 

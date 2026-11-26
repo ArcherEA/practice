@@ -8,9 +8,11 @@ module names, so it must not import settings, models or routes. The router regis
 lives in ``app.modules.registry``.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from fastapi import APIRouter
+from sqlmodel import Session
 
 # Every module that exists in the codebase. Keep in sync with registry.MODULES
 # (a test enforces it).
@@ -25,9 +27,16 @@ NO_MODULES = "none"
 DEFAULT_MODULES: tuple[str, ...] = ("items",)
 
 
+# One ``sitemap.xml`` entry: site-relative path and an ISO ``lastmod`` date (or None).
+SitemapEntry = tuple[str, str | None]
+
+
 @dataclass(frozen=True)
 class Module:
     name: str
     router: APIRouter
     # Optional routes outside ``/api`` (SEO pages, sitemap). Mounted before the SPA.
     public_router: APIRouter | None = None
+    # URLs this module adds to ``sitemap.xml`` (served by ``app.api.public`` when any
+    # enabled module provides some).
+    sitemap_entries: Callable[[Session], list[SitemapEntry]] | None = None
