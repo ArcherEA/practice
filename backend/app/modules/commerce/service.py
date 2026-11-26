@@ -165,6 +165,10 @@ def get_own_pending_product_file(
 
 # --- slugs ---
 
+# Product slugs that would collide with the storefront's static pages
+# (`/shop/cart`, `/shop/category/<slug>`); treated as taken, so they get a suffix.
+RESERVED_PRODUCT_SLUGS = frozenset({"cart", "category"})
+
 
 def _slug_for(
     session: Session,
@@ -173,6 +177,8 @@ def _slug_for(
     exclude_id: uuid.UUID | None = None,
 ) -> str:
     def taken(candidate: str) -> bool:
+        if model is Product and candidate in RESERVED_PRODUCT_SLUGS:
+            return True
         statement = select(model.id).where(model.slug == candidate)
         if exclude_id is not None:
             statement = statement.where(model.id != exclude_id)

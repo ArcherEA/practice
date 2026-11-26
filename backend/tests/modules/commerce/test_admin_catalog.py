@@ -123,6 +123,31 @@ def test_create_product_defaults_and_slug(
     assert custom["slug"] == "my-custom-slug"
 
 
+def test_product_slugs_avoid_storefront_pages(
+    commerce_client: TestClient, admin: Headers
+) -> None:
+    # /shop/cart and /shop/category/<slug> are storefront pages, not products.
+    for reserved in ("cart", "Category"):
+        product = make_product(commerce_client, admin, slug=reserved)
+        assert product["slug"] != reserved.lower()
+        assert product["slug"].startswith(f"{reserved.lower()}-")
+        renamed = ok(
+            commerce_client.patch(
+                f"{ADMIN}/products/{product['id']}",
+                headers=admin,
+                json={"slug": "cart"},
+            )
+        )
+        assert renamed["slug"] != "cart"
+    # Categories don't share the product URL space, so they may use the word.
+    category = ok(
+        commerce_client.post(
+            f"{ADMIN}/categories", headers=admin, json={"name": unique("cart")}
+        )
+    )
+    assert category["slug"].startswith("cart-")
+
+
 def test_update_product_fields(
     commerce_client: TestClient, admin: Headers, storage: FakeStorage
 ) -> None:
